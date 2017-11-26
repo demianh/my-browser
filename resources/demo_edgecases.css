@@ -1,0 +1,135 @@
+/* Basic selectors */
+*,
+div > p,
+div + p,
+p ~ ul,
+[target],
+[target=_blank],
+[title~=flower],
+[lang|=en],
+a[href^="https"],
+a[href$=".pdf"],
+a[href*="w3schools"],
+a:active,
+p::after,
+p::before,
+input:checked,
+input:disabled,
+p:empty,
+input:enabled,
+p:first-child,
+p::first-letter,
+p::first-line,
+p:first-of-type,
+input:focus,
+a:hover,
+input:in-range,
+input:invalid,
+p:lang(it),
+p:last-child,
+p:last-of-type,
+a:link,
+:not(p),
+p:nth-child(2),
+p:nth-last-child(2),
+p:nth-last-of-type(2),
+p:nth-of-type(2),
+p:only-of-type,
+p:only-child,
+input:optional,
+input:out-of-range,
+input:read-only,
+input:read-write,
+input:required,
+:root,
+::selection,
+#news:target,
+input:valid,
+a:visited {
+    color: red;
+}
+
+/* combinations */
+
+:matches(article, aside, nav, section) h1 {
+    font-size: 1.5em;
+    -webkit-margin-before: 0.83em;
+    -webkit-margin-after: 0.83em;
+}
+
+:matches(article, aside, nav, section) :matches(article, aside, nav, section) h1 {
+    font-size: 1.17em;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+}
+
+input:matches([type="button"], [type="checkbox"], [type="file"], [type="hidden"], [type="image"], [type="radio"], [type="reset"], [type="search"], [type="submit"]):focus,
+input[type="file"]:focus::-webkit-file-upload-button {
+    outline-offset: 0;
+}
+
+a:any-link {
+    color: -webkit-link;
+    text-decoration: underline;
+    cursor: auto;
+}
+
+a:any-link:active {
+    color: -webkit-activelink;
+}
+
+q::before {
+    content: open-quote;
+}
+
+q::after {
+    content: close-quote;
+}
+
+div#id.class1.class2.class1 {
+    color: red;
+}
+
+li:first-of-type + li {
+    color: red;
+}
+
+.article #comments ul > li > a.button {
+  /* Crazy town */
+}
+
+input:focus:hover {
+    color: red;
+}
+
+:lang(en) > a#flag {
+    color: red;
+}
+
+input[type=”checkbox”]:checked {
+    color: red;
+}
+
+.post img:nth-of-type(n+2):nth-last-of-type(n+2),
+ul li:nth-last-child(odd),
+ul li:nth-of-type(-n+4),
+ul li:nth-child(3n+4) {
+    color: red;
+}
+
+input:not([type="submit"]),
+.post p:not(.date) {
+    color: red;
+}
+
+div.post > p:first-child::first-line {
+    color: red;
+}
+
+.url {
+    background: url(english.gif);
+    background: url("english.gif");
+    background: url('english.gif');
+    background: url('english.gif') transparent;
+    background: url('english.gif') #ff0000;
+}

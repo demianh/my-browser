@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Sid Browser</title>
+
+</head>
+<body>
+	<canvas id="canvas" width="400" height="250" style="border: 1px solid black"></canvas>
+	<script type="application/javascript">
+		var exports = {};
+	</script>
+	<script type="application/javascript" src="js/HtmlParser.js"></script>
+	<script type="application/javascript" src="js/renderer.js"></script>
+	<script type="application/javascript">
+		var url = 'resources/demo.html';
+		var url = 'resources/demo_20min.html';
+		fetch(url).then(function(response) {
+			response.text().then(function (body) {
+				var parser = new exports.HtmlParser();
+				var nodes = parser.parse(body);
+				console.log(nodes);
+			})
+		})
+	</script>
+</body>
+</html>
