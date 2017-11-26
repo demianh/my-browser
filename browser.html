@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Sid Browser</title>
+	<title>My Browser</title>
 
 </head>
 <body>
@@ -14,7 +14,6 @@
 	<script type="application/javascript" src="js/renderer.js"></script>
 	<script type="application/javascript">
 		var url = 'resources/demo.html';
-		var url = 'resources/demo_20min.html';
 		fetch(url).then(function(response) {
 			response.text().then(function (body) {
 				var parser = new exports.HtmlParser();

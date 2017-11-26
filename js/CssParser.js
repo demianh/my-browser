@@ -67,11 +67,14 @@ var CssParser = /** @class */ (function () {
         return node;
     };
     CssParser.prototype.parse_RULE = function () {
-        var rule = [];
+        var rule = {
+            specificity: [0, 0, 0, 0],
+            selectors: []
+        };
         this.skipWhitespaces();
         // Text
         while (!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
-            rule.push(this.parse_SELECTOR());
+            rule.selectors.push(this.parse_SELECTOR());
             this.skipWhitespaces();
         }
         if (this.nextChar() === ',') {
@@ -83,6 +86,7 @@ var CssParser = /** @class */ (function () {
     CssParser.prototype.parse_SELECTOR = function () {
         var selector = {
             type: 'element',
+            combinator: 'root',
             selector: '',
             arguments: []
         };

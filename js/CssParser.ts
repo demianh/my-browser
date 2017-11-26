@@ -9,7 +9,7 @@ export interface INode {
 
 export interface IStyleNode extends INode {
     type: 'style'
-    rules: ISelector[][];
+    rules: IRule[];
     declarations: IStyleDeclaration[];
 }
 
@@ -23,8 +23,23 @@ export interface IStyleDeclaration {
     value: string;
 }
 
+export interface IRule {
+    specificity: [number,number,number,number];
+    selectors: ISelector[];
+}
+
+/**
+ * Combinators:
+ * root: first rule
+ * descendant: space
+ * same element: no space
+ * child: >
+ * adjacent sibling: + (immediate sibling after)
+ * general sibling: ~ (any sibling element after)
+ */
 export interface ISelector {
     type: 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class',
+    combinator: 'root'|'descendant'|'same'|'child'|'adjacent'|'sibling';
     selector: string;
     arguments: ISelector[];
 }
@@ -92,14 +107,17 @@ export class CssParser {
         return node;
     }
 
-    public parse_RULE(): ISelector[] {
-        let rule: ISelector[] = [];
+    public parse_RULE(): IRule {
+        let rule: IRule = {
+            specificity: [0,0,0,0],
+            selectors: []
+        };
 
         this.skipWhitespaces();
 
         // Text
         while(!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
-            rule.push(this.parse_SELECTOR());
+            rule.selectors.push(this.parse_SELECTOR());
             this.skipWhitespaces();
         }
         if (this.nextChar() === ',') {
@@ -112,6 +130,7 @@ export class CssParser {
     public parse_SELECTOR(): ISelector {
         let selector: ISelector = {
             type: 'element',
+            combinator: 'root',
             selector: '',
             arguments: []
         };
