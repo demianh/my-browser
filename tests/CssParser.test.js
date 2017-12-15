@@ -8,25 +8,25 @@ test('Simple Rules', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 {}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[]}]');
 
 	nodes = parser.parse('h1{   }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[]}]');
 
 	nodes = parser.parse('h1, h2 {}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]},{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h2","arguments":[]}]}],"declarations":[]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]},{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h2","arguments":[]}]}],"declarations":[]}]');
 
 	nodes = parser.parse('h1 div {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,2],"selectors":[
 			{"type":"element","combinator":"root","selector":"h1","arguments":[]},
 			{"type":"element","combinator":"descendant","selector":"div","arguments":[]}
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('h1 div, h2 a custom-element {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,2],"selectors":
 		[{"type":"element","combinator":"root","selector":"h1","arguments":[]},
 		{"type":"element","combinator":"descendant","selector":"div","arguments":[]}
-		]},{"specificity":[0,0,0,0],"selectors":
+		]},{"specificity":[0,0,0,3],"selectors":
 		[{"type":"element","combinator":"root","selector":"h2","arguments":[]},
 		{"type":"element","combinator":"descendant","selector":"a","arguments":[]},
 		{"type":"element","combinator":"descendant","selector":"custom-element","arguments":[]}
@@ -39,30 +39,30 @@ test('Class Rules', async t => {
 	var nodes;
 
 	nodes = parser.parse('.simple {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,0],"selectors":[
 			{"type":"class","combinator":"root","selector":"simple","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('.simple .another-one{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,2,0],"selectors":[
 			{"type":"class","combinator":"root","selector":"simple","arguments":[]},
 			{"type":"class","combinator":"descendant","selector":"another-one","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('.simple.another-one{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,2,0],"selectors":[
 			{"type":"class","combinator":"root","selector":"simple","arguments":[]},
 			{"type":"class","combinator":"same","selector":"another-one","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('h1.simple{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,1],"selectors":[
 			{"type":"element","combinator":"root","selector":"h1","arguments":[]},
 			{"type":"class","combinator":"same","selector":"simple","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('h1.simple .bla.blub.bla.foo{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,5,1],"selectors":[
 			{"type":"element","combinator":"root","selector":"h1","arguments":[]},
 			{"type":"class","combinator":"same","selector":"simple","arguments":[]},
 			{"type":"class","combinator":"descendant","selector":"bla","arguments":[]},
@@ -72,7 +72,7 @@ test('Class Rules', async t => {
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('div#id.class1.class2.class1{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,1,3,1],"selectors":[
 			{"type":"element","combinator":"root","selector":"div","arguments":[]},
 			{"type":"id","combinator":"same","selector":"id","arguments":[]},
 			{"type":"class","combinator":"same","selector":"class1","arguments":[]},
@@ -87,24 +87,24 @@ test('ID Rules', async t => {
 	var nodes;
 
 	nodes = parser.parse('#simple {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,1,0,0],"selectors":[
 			{"type":"id","combinator":"root","selector":"simple","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('#simple #another-one{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,2,0,0],"selectors":[
 			{"type":"id","combinator":"root","selector":"simple","arguments":[]},
 			{"type":"id","combinator":"descendant","selector":"another-one","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('h1#simple   {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,1,0,1],"selectors":[
 			{"type":"element","combinator":"root","selector":"h1","arguments":[]},
 			{"type":"id","combinator":"same","selector":"simple","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('h1#simple #bla  #blub #bla.foo{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,4,1,1],"selectors":[
 			{"type":"element","combinator":"root","selector":"h1","arguments":[]},
 			{"type":"id","combinator":"same","selector":"simple","arguments":[]},
 			{"type":"id","combinator":"descendant","selector":"bla","arguments":[]},
@@ -120,23 +120,23 @@ test('Pseudo Rules', async t => {
 	var nodes;
 
 	nodes = parser.parse('::any-pseudo {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[
 			{"type":"pseudo-element","combinator":"root","selector":"any-pseudo","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('input::-webkit-inner-spin-button{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,2],"selectors":[
 			{"type":"element","combinator":"root","selector":"input","arguments":[]},
 			{"type":"pseudo-element","combinator":"same","selector":"-webkit-inner-spin-button","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse(':hover   {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,0],"selectors":[
 			{"type":"pseudo-class","combinator":"root","selector":"hover","arguments":[]}
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('a:hover   {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,1],"selectors":[
 			{"type":"element","combinator":"root","selector":"a","arguments":[]},
 			{"type":"pseudo-class","combinator":"same","selector":"hover","arguments":[]},
 		]}],"declarations":[]}]));
@@ -148,38 +148,38 @@ test('Combinators', async t => {
 	var nodes;
 
 	nodes = parser.parse('a > b {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,2],"selectors":[
 			{"type":"element","combinator":"root","selector":"a","arguments":[]},
 			{"type":"element","combinator":"child","selector":"b","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('a>b{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,2],"selectors":[
 			{"type":"element","combinator":"root","selector":"a","arguments":[]},
 			{"type":"element","combinator":"child","selector":"b","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('h1 > .yeah{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,1],"selectors":[
 			{"type":"element","combinator":"root","selector":"h1","arguments":[]},
 			{"type":"class","combinator":"child","selector":"yeah","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('h1 + div#yeah{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,1,0,2],"selectors":[
 			{"type":"element","combinator":"root","selector":"h1","arguments":[]},
 			{"type":"element","combinator":"adjacent","selector":"div","arguments":[]},
 			{"type":"id","combinator":"same","selector":"yeah","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('my-element~.your-class{}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,1],"selectors":[
 			{"type":"element","combinator":"root","selector":"my-element","arguments":[]},
 			{"type":"class","combinator":"sibling","selector":"your-class","arguments":[]},
 		]}],"declarations":[]}]));
 
 	nodes = parser.parse('li:first-of-type + li {}');
-	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,2],"selectors":[
 			{"type":"element","combinator":"root","selector":"li","arguments":[]},
 			{"type":"pseudo-class","combinator":"same","selector":"first-of-type","arguments":[]},
 			{"type":"element","combinator":"adjacent","selector":"li","arguments":[]},
@@ -220,21 +220,21 @@ test('Simple Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 { color: red; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
 
 	nodes = parser.parse('h1 { color : red; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
 
 	nodes = parser.parse('h1 {color:red;}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
 
 	nodes = parser.parse('h1 {color:red}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
 
 	nodes = parser.parse(`col {
 			display: table-column;
 		}`);
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"col","arguments":[]}]}],"declarations":[{"name":"display","value":"table-column"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"col","arguments":[]}]}],"declarations":[{"name":"display","value":"table-column"}]}]');
 
 });
 
@@ -243,11 +243,11 @@ test('Multiple Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 { color: red; font-family:helvetica,arial,sans-serif; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"},{"name":"font-family","value":"helvetica,arial,sans-serif"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"},{"name":"font-family","value":"helvetica,arial,sans-serif"}]}]');
 
 	// duplicate rules, use latest only
 	nodes = parser.parse('h1 { color: red; color: blue; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,0],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"blue"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"blue"}]}]');
 
 });
 

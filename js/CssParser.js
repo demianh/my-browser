@@ -76,7 +76,23 @@ var CssParser = /** @class */ (function () {
         // Text
         while (!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
             var isFirst = (rule.selectors.length == 0);
-            rule.selectors.push(this.parse_SELECTOR(isFirst, hasWhitespace));
+            var newSelector = this.parse_SELECTOR(isFirst, hasWhitespace);
+            rule.selectors.push(newSelector);
+            // increase specificity
+            switch (newSelector.type) {
+                case 'id':
+                    rule.specificity[1]++;
+                    break;
+                case 'class':
+                case 'attribute':
+                case 'pseudo-class':
+                    rule.specificity[2]++;
+                    break;
+                case 'element':
+                case 'pseudo-element':
+                    rule.specificity[3]++;
+                    break;
+            }
             if (this.nextIsWhitespace()) {
                 hasWhitespace = true;
                 this.skipWhitespaces();
