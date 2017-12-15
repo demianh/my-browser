@@ -36,6 +36,9 @@ export interface IRule {
  * child: >
  * adjacent sibling: + (immediate sibling after)
  * general sibling: ~ (any sibling element after)
+ *
+ * : pseudo-class
+ * :: pseudo-element
  */
 export interface ISelector {
     type: 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class',
@@ -114,11 +117,18 @@ export class CssParser {
         };
 
         this.skipWhitespaces();
+        let hasWhitespace = false;
 
         // Text
         while(!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
-            rule.selectors.push(this.parse_SELECTOR());
-            this.skipWhitespaces();
+            let isFirst = (rule.selectors.length == 0);
+            rule.selectors.push(this.parse_SELECTOR(isFirst, hasWhitespace));
+            if (this.nextIsWhitespace()) {
+                hasWhitespace = true;
+                this.skipWhitespaces();
+            } else {
+                hasWhitespace = false;
+            }
         }
         if (this.nextChar() === ',') {
             // skip ,
@@ -127,18 +137,68 @@ export class CssParser {
         return rule;
     }
 
-    public parse_SELECTOR(): ISelector {
+    public parse_SELECTOR(isFirst: boolean, hasWhitespaceBefore: boolean): ISelector {
         let selector: ISelector = {
             type: 'element',
-            combinator: 'root',
+            combinator: isFirst ? 'root' : (hasWhitespaceBefore ? 'descendant' : 'same'),
             selector: '',
             arguments: []
         };
 
         this.skipWhitespaces();
 
+        if (!this.eof()) {
+            switch (this.nextChar()) {
+                case '>': {
+                    selector.combinator = 'child';
+                    this.pos++;
+                    this.skipWhitespaces();
+                    break;
+                }
+                case '+': {
+                    selector.combinator = 'adjacent';
+                    this.pos++;
+                    this.skipWhitespaces();
+                    break;
+                }
+                case '~': {
+                    selector.combinator = 'sibling';
+                    this.pos++;
+                    this.skipWhitespaces();
+                    break;
+                }
+            }
+        }
+
+        if (!this.eof()) {
+            switch (this.nextChar()) {
+                case '.': {
+                    // parse class
+                    selector.type = 'class';
+                    this.pos++;
+                    break;
+                }
+                case '#': {
+                    // parse id
+                    selector.type = 'id';
+                    this.pos++;
+                    break;
+                }
+                case ':': {
+                    // parse pseudo
+                    selector.type = 'pseudo-class';
+                    this.pos++;
+                    if (this.nextChar() == ':') {
+                        selector.type = 'pseudo-element';
+                        this.pos++;
+                    }
+                    break;
+                }
+            }
+        }
+
         // Text
-        while(!this.eof() && !this.nextChar().match(/[,{ ]/i)) {
+        while(!this.eof() && this.nextChar().match(/[a-z0-9_\-]/i)) {
             selector.selector += this.nextChar();
             this.pos++;
         }

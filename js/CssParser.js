@@ -72,10 +72,18 @@ var CssParser = /** @class */ (function () {
             selectors: []
         };
         this.skipWhitespaces();
+        var hasWhitespace = false;
         // Text
         while (!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
-            rule.selectors.push(this.parse_SELECTOR());
-            this.skipWhitespaces();
+            var isFirst = (rule.selectors.length == 0);
+            rule.selectors.push(this.parse_SELECTOR(isFirst, hasWhitespace));
+            if (this.nextIsWhitespace()) {
+                hasWhitespace = true;
+                this.skipWhitespaces();
+            }
+            else {
+                hasWhitespace = false;
+            }
         }
         if (this.nextChar() === ',') {
             // skip ,
@@ -83,16 +91,64 @@ var CssParser = /** @class */ (function () {
         }
         return rule;
     };
-    CssParser.prototype.parse_SELECTOR = function () {
+    CssParser.prototype.parse_SELECTOR = function (isFirst, hasWhitespaceBefore) {
         var selector = {
             type: 'element',
-            combinator: 'root',
+            combinator: isFirst ? 'root' : (hasWhitespaceBefore ? 'descendant' : 'same'),
             selector: '',
             arguments: []
         };
         this.skipWhitespaces();
+        if (!this.eof()) {
+            switch (this.nextChar()) {
+                case '>': {
+                    selector.combinator = 'child';
+                    this.pos++;
+                    this.skipWhitespaces();
+                    break;
+                }
+                case '+': {
+                    selector.combinator = 'adjacent';
+                    this.pos++;
+                    this.skipWhitespaces();
+                    break;
+                }
+                case '~': {
+                    selector.combinator = 'sibling';
+                    this.pos++;
+                    this.skipWhitespaces();
+                    break;
+                }
+            }
+        }
+        if (!this.eof()) {
+            switch (this.nextChar()) {
+                case '.': {
+                    // parse class
+                    selector.type = 'class';
+                    this.pos++;
+                    break;
+                }
+                case '#': {
+                    // parse id
+                    selector.type = 'id';
+                    this.pos++;
+                    break;
+                }
+                case ':': {
+                    // parse pseudo
+                    selector.type = 'pseudo-class';
+                    this.pos++;
+                    if (this.nextChar() == ':') {
+                        selector.type = 'pseudo-element';
+                        this.pos++;
+                    }
+                    break;
+                }
+            }
+        }
         // Text
-        while (!this.eof() && !this.nextChar().match(/[,{ ]/i)) {
+        while (!this.eof() && this.nextChar().match(/[a-z0-9_\-]/i)) {
             selector.selector += this.nextChar();
             this.pos++;
         }
