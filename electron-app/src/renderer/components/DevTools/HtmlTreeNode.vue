@@ -17,6 +17,11 @@
     <span v-if="node.type == 'comment'" class="html-tree-node__comment">
       &lt;!--{{node.content}}--&gt;
     </span>
+    <span v-if="node.type == 'doctype'" class="html-tree-node__doctype">
+      &lt;!DOCTYPE<!--
+      --><span v-for="(value, key) in node.params" class="html-tree-node__param"> {{value}}</span><!--
+      -->&gt;
+    </span>
     <div v-if="open && node.children && node.children.length" class="html-tree-node__children">
       <div v-for="child in node.children">
         <html-tree-node :node="child" :depth="depth + 1"></html-tree-node>
@@ -56,6 +61,11 @@
 
   .html-tree-node__children {
     padding-left: 20px;
+  }
+
+  .html-tree-node__doctype {
+    color: #555;
+    font-weight: bold;
   }
 
   .html-tree-node__text {
