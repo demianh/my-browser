@@ -1,22 +1,20 @@
-"use strict";
 /**
  * Grammar of CSS 2.1: https://www.w3.org/TR/CSS2/grammar.html
  * CSS3 Tokenization: https://www.w3.org/TR/css-syntax-3/#tokenization
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-var CssParser = /** @class */ (function () {
-    function CssParser() {
+export class CssParser {
+    constructor() {
         this.text = '';
         this.pos = 0;
     }
-    CssParser.prototype.parse = function (text) {
+    parse(text) {
         this.text = text;
         this.pos = 0;
-        var nodes = this.parse_STYLES();
+        let nodes = this.parse_STYLES();
         return nodes;
-    };
-    CssParser.prototype.parse_STYLES = function () {
-        var nodes = [];
+    }
+    parse_STYLES() {
+        let nodes = [];
         this.skipWhitespaces();
         while (!this.eof()) {
             if (this.nextStringEquals('@')) {
@@ -27,56 +25,52 @@ var CssParser = /** @class */ (function () {
                 nodes.push(this.parse_COMMENT_NODE());
             }
             else {
-                var style = this.parse_STYLE_NODE();
+                let style = this.parse_STYLE_NODE();
                 nodes.push(style);
             }
             this.skipWhitespaces();
         }
         return nodes;
-    };
-    CssParser.prototype.parse_STYLE_NODE = function () {
-        var node = {
+    }
+    parse_STYLE_NODE() {
+        let node = {
             type: 'style',
             rules: [],
             declarations: [],
         };
         while (!this.eof() && this.nextChar() !== '{') {
             this.skipWhitespaces();
-            var rule = this.parse_RULE();
+            let rule = this.parse_RULE();
             node.rules.push(rule);
             this.skipWhitespaces();
         }
         // skip {
         this.pos++;
         this.skipWhitespaces();
-        var _loop_1 = function () {
-            var newDeclaration = this_1.parse_DECLARATION();
+        while (!this.eof() && this.nextChar() !== '}') {
+            let newDeclaration = this.parse_DECLARATION();
             // de-duplicate declarations
-            node.declarations = node.declarations.filter(function (decl) {
+            node.declarations = node.declarations.filter((decl) => {
                 return decl.name !== newDeclaration.name;
             });
             node.declarations.push(newDeclaration);
-            this_1.skipWhitespaces();
-        };
-        var this_1 = this;
-        while (!this.eof() && this.nextChar() !== '}') {
-            _loop_1();
+            this.skipWhitespaces();
         }
         // skip }
         this.pos++;
         return node;
-    };
-    CssParser.prototype.parse_RULE = function () {
-        var rule = {
+    }
+    parse_RULE() {
+        let rule = {
             specificity: [0, 0, 0, 0],
             selectors: []
         };
         this.skipWhitespaces();
-        var hasWhitespace = false;
+        let hasWhitespace = false;
         // Text
         while (!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
-            var isFirst = (rule.selectors.length == 0);
-            var newSelector = this.parse_SELECTOR(isFirst, hasWhitespace);
+            let isFirst = (rule.selectors.length == 0);
+            let newSelector = this.parse_SELECTOR(isFirst, hasWhitespace);
             rule.selectors.push(newSelector);
             // increase specificity
             switch (newSelector.type) {
@@ -106,9 +100,9 @@ var CssParser = /** @class */ (function () {
             this.pos++;
         }
         return rule;
-    };
-    CssParser.prototype.parse_SELECTOR = function (isFirst, hasWhitespaceBefore) {
-        var selector = {
+    }
+    parse_SELECTOR(isFirst, hasWhitespaceBefore) {
+        let selector = {
             type: 'element',
             combinator: isFirst ? 'root' : (hasWhitespaceBefore ? 'descendant' : 'same'),
             selector: '',
@@ -169,9 +163,9 @@ var CssParser = /** @class */ (function () {
             this.pos++;
         }
         return selector;
-    };
-    CssParser.prototype.parse_DECLARATION = function () {
-        var declaration = {
+    }
+    parse_DECLARATION() {
+        let declaration = {
             name: '',
             value: ''
         };
@@ -185,26 +179,26 @@ var CssParser = /** @class */ (function () {
             }
         }
         return declaration;
-    };
-    CssParser.prototype.parse_DECLARATION_NAME = function () {
-        var name = '';
+    }
+    parse_DECLARATION_NAME() {
+        let name = '';
         this.skipWhitespaces();
         while (!this.eof() && this.nextChar().match(/[^}:]/i)) {
             name += this.nextChar();
             this.pos++;
         }
         return name.toLowerCase().trim();
-    };
-    CssParser.prototype.parse_DECLARATION_VALUE = function () {
-        var value = '';
+    }
+    parse_DECLARATION_VALUE() {
+        let value = '';
         while (!this.eof() && this.nextChar().match(/[^};]/i)) {
             value += this.nextChar();
             this.pos++;
         }
         return value.trim();
-    };
-    CssParser.prototype.parse_COMMENT_NODE = function () {
-        var node = {
+    }
+    parse_COMMENT_NODE() {
+        let node = {
             type: 'comment',
             content: ''
         };
@@ -218,34 +212,32 @@ var CssParser = /** @class */ (function () {
         // skip */
         this.pos += 2;
         return node;
-    };
-    CssParser.prototype.skipWhitespaces = function () {
+    }
+    skipWhitespaces() {
         while (!this.eof() && this.nextIsWhitespace()) {
             this.pos++;
         }
-    };
-    CssParser.prototype.isAlphaNumeric = function (string) {
+    }
+    isAlphaNumeric(string) {
         return string.match(/[0-9a-zA-Z-]/i);
-    };
-    CssParser.prototype.isWhitespace = function (string) {
+    }
+    isWhitespace(string) {
         return !/\S/.test(string);
-    };
-    CssParser.prototype.nextIsWhitespace = function () {
+    }
+    nextIsWhitespace() {
         return this.isWhitespace(this.nextChar());
-    };
-    CssParser.prototype.nextChar = function () {
+    }
+    nextChar() {
         return this.text.charAt(this.pos);
-    };
-    CssParser.prototype.nextNChar = function (offset) {
+    }
+    nextNChar(offset) {
         return this.text.charAt(this.pos + (offset - 1));
-    };
-    CssParser.prototype.nextStringEquals = function (needle) {
+    }
+    nextStringEquals(needle) {
         var found = this.text.substr(this.pos, needle.length);
         return found === needle;
-    };
-    CssParser.prototype.eof = function () {
+    }
+    eof() {
         return this.pos > this.text.length;
-    };
-    return CssParser;
-}());
-exports.CssParser = CssParser;
+    }
+}

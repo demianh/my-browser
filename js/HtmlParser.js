@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Parsing Rules: https://html.spec.whatwg.org/#parsing
  * About Error handling: https://www.w3.org/TR/html5/syntax.html#the-after-head-insertion-mode
@@ -9,9 +8,8 @@
  * - End Tags in Scripts
  * - encoded characters: &quot;
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-var HtmlParser = /** @class */ (function () {
-    function HtmlParser() {
+export class HtmlParser {
+    constructor() {
         // command?
         this.VOID_ELEMENTS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
         this.RAWTEXT_ELEMENTS = ['script', 'style'];
@@ -19,14 +17,14 @@ var HtmlParser = /** @class */ (function () {
         this.text = '';
         this.pos = 0;
     }
-    HtmlParser.prototype.parse = function (text) {
+    parse(text) {
         this.text = text;
         this.pos = 0;
-        var nodes = this.parse_NODES();
+        let nodes = this.parse_NODES();
         return nodes;
-    };
-    HtmlParser.prototype.parse_NODES = function () {
-        var nodes = [];
+    }
+    parse_NODES() {
+        let nodes = [];
         while (!this.eof()) {
             //console.log('parse Nodes: ', this.nextChars(16), this.pos);
             if (this.nextStringEquals('</')) {
@@ -43,16 +41,16 @@ var HtmlParser = /** @class */ (function () {
             }
             else {
                 // don't add whitespace-only textnodes
-                var textnode = this.parse_TEXT_NODE();
+                let textnode = this.parse_TEXT_NODE();
                 if (/\S/.test(textnode.content)) {
                     nodes.push(textnode);
                 }
             }
         }
         return nodes;
-    };
-    HtmlParser.prototype.parse_TEXT_NODE = function () {
-        var node = {
+    }
+    parse_TEXT_NODE() {
+        let node = {
             type: 'text',
             content: ''
         };
@@ -65,9 +63,9 @@ var HtmlParser = /** @class */ (function () {
             this.pos++;
         }
         return node;
-    };
-    HtmlParser.prototype.parse_RAW_TEXT_NODE = function (closing_tag) {
-        var node = {
+    }
+    parse_RAW_TEXT_NODE(closing_tag) {
+        let node = {
             type: 'text',
             content: ''
         };
@@ -77,9 +75,9 @@ var HtmlParser = /** @class */ (function () {
             this.pos++;
         }
         return node;
-    };
-    HtmlParser.prototype.parse_COMMENT_NODE = function () {
-        var node = {
+    }
+    parse_COMMENT_NODE() {
+        let node = {
             type: 'comment',
             content: ''
         };
@@ -94,9 +92,9 @@ var HtmlParser = /** @class */ (function () {
         this.pos += 3;
         this.skipWhitespaces();
         return node;
-    };
-    HtmlParser.prototype.parse_DOCTYPE_NODE = function () {
-        var node = {
+    }
+    parse_DOCTYPE_NODE() {
+        let node = {
             type: 'doctype',
             params: []
         };
@@ -113,9 +111,9 @@ var HtmlParser = /** @class */ (function () {
         // skip >
         this.pos++;
         return node;
-    };
-    HtmlParser.prototype.parse_ELEMENT_NODE = function () {
-        var node = {
+    }
+    parse_ELEMENT_NODE() {
+        let node = {
             tag: '',
             type: 'element',
             attributes: {},
@@ -132,7 +130,7 @@ var HtmlParser = /** @class */ (function () {
                 this.pos++;
                 break;
             }
-            var att = this.parse_ATTRIBUTE();
+            let att = this.parse_ATTRIBUTE();
             // don't override
             if (!(att[0] in node.attributes)) {
                 node.attributes[att[0]] = att[1];
@@ -162,36 +160,36 @@ var HtmlParser = /** @class */ (function () {
             this.pos++;
         }
         return node;
-    };
-    HtmlParser.prototype.parse_TAGNAME = function () {
-        var tag = '';
+    }
+    parse_TAGNAME() {
+        let tag = '';
         while (!this.eof() && this.isAlphaNumeric(this.nextChar())) {
             tag += this.nextChar();
             this.pos++;
         }
         return tag.toLowerCase();
-    };
-    HtmlParser.prototype.parse_ATTRIBUTE = function () {
-        var name = this.parse_ATTRIBUTENAME();
-        var value = null;
+    }
+    parse_ATTRIBUTE() {
+        let name = this.parse_ATTRIBUTENAME();
+        let value = null;
         this.skipWhitespaces();
         if (this.nextChar() === '=') {
             this.parse_EQUAL();
             value = this.parse_ATTRIBUTEVALUE();
         }
         return [name, value];
-    };
-    HtmlParser.prototype.parse_ATTRIBUTENAME = function () {
-        var name = '';
+    }
+    parse_ATTRIBUTENAME() {
+        let name = '';
         this.skipWhitespaces();
         while (!this.eof() && this.nextChar().match(/[^\t\n\f \/>"'=]/i)) {
             name += this.nextChar();
             this.pos++;
         }
         return name.toLowerCase();
-    };
-    HtmlParser.prototype.parse_ATTRIBUTEVALUE = function () {
-        var value = '';
+    }
+    parse_ATTRIBUTEVALUE() {
+        let value = '';
         this.skipWhitespaces();
         if (this.nextChar() == '"') {
             this.pos++;
@@ -218,47 +216,43 @@ var HtmlParser = /** @class */ (function () {
             }
         }
         return value;
-    };
-    HtmlParser.prototype.parse_EQUAL = function () {
+    }
+    parse_EQUAL() {
         this.skipWhitespaces();
         while (!this.eof() && this.nextChar() !== '=') {
             this.pos++;
         }
         this.pos++;
-    };
-    HtmlParser.prototype.skipWhitespaces = function () {
+    }
+    skipWhitespaces() {
         while (!this.eof() && this.nextIsWhitespace()) {
             this.pos++;
         }
-    };
-    HtmlParser.prototype.isAlphaNumeric = function (string) {
+    }
+    isAlphaNumeric(string) {
         return string.match(/[0-9a-zA-Z-]/i);
-    };
-    HtmlParser.prototype.isWhitespace = function (string) {
+    }
+    isWhitespace(string) {
         return !/\S/.test(string);
-    };
-    HtmlParser.prototype.nextIsWhitespace = function () {
+    }
+    nextIsWhitespace() {
         return this.isWhitespace(this.nextChar());
-    };
-    HtmlParser.prototype.nextChar = function () {
+    }
+    nextChar() {
         //console.log(this.text.charAt(this.pos));
         return this.text.charAt(this.pos);
-    };
-    HtmlParser.prototype.nextNChar = function (offset, length) {
-        if (length === void 0) { length = 1; }
+    }
+    nextNChar(offset, length = 1) {
         return this.text.charAt(this.pos + (offset - 1));
-    };
-    HtmlParser.prototype.nextChars = function (length) {
-        if (length === void 0) { length = 1; }
+    }
+    nextChars(length = 1) {
         return this.text.substr(this.pos, length);
-    };
-    HtmlParser.prototype.nextStringEquals = function (needle) {
+    }
+    nextStringEquals(needle) {
         var found = this.text.substr(this.pos, needle.length).toLowerCase();
         return found === needle;
-    };
-    HtmlParser.prototype.eof = function () {
+    }
+    eof() {
         return this.pos > this.text.length;
-    };
-    return HtmlParser;
-}());
-exports.HtmlParser = HtmlParser;
+    }
+}

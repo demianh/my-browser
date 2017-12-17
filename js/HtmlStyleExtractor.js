@@ -1,23 +1,20 @@
-"use strict";
 /**
  * Extract all <style> tags and <link> stylesheets
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-var HtmlStyleExtractor = /** @class */ (function () {
-    function HtmlStyleExtractor() {
+export class HtmlStyleExtractor {
+    constructor() {
         this.styles = [];
     }
-    HtmlStyleExtractor.prototype.extractStyles = function (nodes) {
+    extractStyles(nodes) {
         this.extractRecursive(nodes);
         return this.styles;
-    };
-    HtmlStyleExtractor.prototype.extractRecursive = function (nodes) {
-        var _this = this;
-        nodes.forEach(function (node) {
+    }
+    extractRecursive(nodes) {
+        nodes.forEach((node) => {
             if (node.type == 'element') {
                 if (node.tag == 'style') {
                     if (node.children && node.children.length > 0 && node.children[0].content) {
-                        _this.styles.push({
+                        this.styles.push({
                             type: 'inline',
                             css: node.children[0].content
                         });
@@ -26,7 +23,7 @@ var HtmlStyleExtractor = /** @class */ (function () {
                 if (node.tag == 'link') {
                     if (node.attributes.rel && node.attributes.rel == 'stylesheet') {
                         if (node.attributes.href) {
-                            _this.styles.push({
+                            this.styles.push({
                                 type: 'link',
                                 href: node.attributes.href
                             });
@@ -35,10 +32,8 @@ var HtmlStyleExtractor = /** @class */ (function () {
                 }
             }
             if (node.children && node.children.length > 0) {
-                _this.extractRecursive(node.children);
+                this.extractRecursive(node.children);
             }
         });
-    };
-    return HtmlStyleExtractor;
-}());
-exports.HtmlStyleExtractor = HtmlStyleExtractor;
+    }
+}

@@ -16,6 +16,8 @@
   import {HtmlParser} from '../../../../js/HtmlParser'
   import {HtmlStyleExtractor} from '../../../../js/HtmlStyleExtractor'
 
+  import {Engine} from '../backend/Engine'
+
   export default {
     name: 'nav-bar',
     data: function() {
@@ -26,19 +28,8 @@
     },
     methods: {
       openUrl() {
-          this.$store.dispatch('setUrl', this.url);
-          this.$store.dispatch('setHTML', null);
-          this.$store.dispatch('setCSS', null);
-          this.loadUrl(this.url).then((data) => {
-
-              let htmlParser = new HtmlParser();
-              let nodes = htmlParser.parse(data);
-              this.$store.dispatch('setHTML', nodes);
-
-              let extractor = new HtmlStyleExtractor();
-              let styles = extractor.extractStyles(nodes);
-              this.$store.dispatch('setCSS', styles);
-          });
+          let engine = new Engine();
+          engine.loadURL(this.url);
       }
     }
   }

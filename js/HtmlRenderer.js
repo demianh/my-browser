@@ -1,21 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var HtmlRenderer = /** @class */ (function () {
-    function HtmlRenderer() {
+export class HtmlRenderer {
+    constructor() {
         this.VOID_ELEMENTS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
     }
-    HtmlRenderer.prototype.render = function (nodes, depth) {
-        if (depth === void 0) { depth = 0; }
-        var html = '';
-        for (var k in nodes) {
-            var node = nodes[k];
+    render(nodes, depth = 0) {
+        let html = '';
+        for (let k in nodes) {
+            let node = nodes[k];
             switch (node.type) {
                 case 'element':
                     //html += ' '.repeat(depth * 2);
                     html += '<' + node.tag;
-                    for (var key in node.attributes) {
+                    for (let key in node.attributes) {
                         if (node.attributes.hasOwnProperty(key)) {
-                            var value = node.attributes[key];
+                            let value = node.attributes[key];
                             if (value === null) {
                                 html += ' ' + key;
                             }
@@ -47,8 +44,8 @@ var HtmlRenderer = /** @class */ (function () {
                     break;
                 case 'doctype':
                     html += '<!DOCTYPE';
-                    for (var k_1 in node.params) {
-                        var param = node.params[k_1];
+                    for (let k in node.params) {
+                        let param = node.params[k];
                         html += ' ' + param;
                     }
                     html += '>';
@@ -57,7 +54,5 @@ var HtmlRenderer = /** @class */ (function () {
             }
         }
         return html;
-    };
-    return HtmlRenderer;
-}());
-exports.HtmlRenderer = HtmlRenderer;
+    }
+}
