@@ -7,6 +7,9 @@ test('Simple Rules', async t => {
 	var parser = new CssParser();
 	var nodes;
 
+	nodes = parser.parse('');
+	t.is(JSON.stringify(nodes), '[]');
+
 	nodes = parser.parse('h1 {}');
 	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[]}]');
 
@@ -143,6 +146,23 @@ test('Pseudo Rules', async t => {
 
 });
 
+test('Attribute Selectors', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	nodes = parser.parse("[dir='ltr'] {}");
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,0],"selectors":[
+			{"type":"attribute","combinator":"root","selector":"dir='ltr'","arguments":[]},
+		]}],"declarations":[]}]));
+
+	// more things that should be supported
+	// [ dir = "test" ] {}
+	// [ dir = test ] {}
+	// [dir=test] {}
+	// [dir="tes'[t"] {}
+	// [dir='tes[t""'] {}
+});
+
 test('Combinators', async t => {
 	var parser = new CssParser();
 	var nodes;
@@ -259,3 +279,93 @@ test('Comments', async t => {
 	t.is(JSON.stringify(nodes), '[{"type":"comment","content":" this is a comment "}]');
 
 });
+
+test('At Rules', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	nodes = parser.parse('@page {}');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"page","selector":"","styles":[]}]');
+
+	nodes = parser.parse('@page :first { {}');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"page","selector":":first","styles":[]}]');
+
+	nodes = parser.parse('@media print {}');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"print","styles":[]}]');
+
+	nodes = parser.parse('@media only screen and (max-height: 650px) {}');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"only screen and (max-height: 650px)","styles":[]}]');
+
+	nodes = parser.parse('@import url("fineprint.css") print;');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
+
+	//nodes = parser.parse('@keyframes mymove {0% {transform: scale(0, 0)} 50% {transform: scale(5, 5)}');
+	nodes = parser.parse('@keyframes mymove {0% {transform: scale(0, 0)} 50% {transform: scale(5, 5)}');
+	t.is(JSON.stringify(nodes), JSON.stringify(
+		[
+			{
+				"type": "at",
+				"at": "keyframes",
+				"selector": "mymove",
+				"styles": [
+					{
+						"type": "style",
+						"rules": [
+							{
+								"specificity": [
+									0,
+									0,
+									0,
+									1
+								],
+								"selectors": [
+									{
+										"type": "element",
+										"combinator": "root",
+										"selector": "0%",
+										"arguments": []
+									}
+								]
+							}
+						],
+						"declarations": [
+							{
+								"name": "transform",
+								"value": "scale(0, 0)"
+							}
+						]
+					},
+					{
+						"type": "style",
+						"rules": [
+							{
+								"specificity": [
+									0,
+									0,
+									0,
+									1
+								],
+								"selectors": [
+									{
+										"type": "element",
+										"combinator": "root",
+										"selector": "50%",
+										"arguments": []
+									}
+								]
+							}
+						],
+						"declarations": [
+							{
+								"name": "transform",
+								"value": "scale(5, 5)"
+							}
+						]
+					}
+				]
+			}
+		]
+	));
+
+});
+

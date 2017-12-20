@@ -2,7 +2,6 @@
 // this is a console demo to test the parsers
 
 var HtmlParser = require('./js/HtmlParser.js');
-var CssParser = require('./js/CssParser.js');
 
 var HtmlStyleExtractor = require('./js/HtmlStyleExtractor');
 
@@ -29,19 +28,3 @@ fs.readFile( __dirname + '/resources/demo_styles.html', function (err, data) {
 
   console.log(styles);
 });
-
-/*
-// CSS Parser
-fs.readFile( __dirname + '/resources/demo.css', function (err, data) {
-  if (err) {
-    throw err;
-  }
-
-  var cssParser = new CssParser.CssParser();
-
-  var content = data.toString();
-  var nodes = cssParser.parse(content);
-
-  console.log(JSON.stringify(nodes, null, 2));
-});
-*/

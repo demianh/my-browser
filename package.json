@@ -1,7 +1,7 @@
 {
 	"scripts": {
 		"test": "ava tests",
-		"build": "BABEL_ENV=production babel --out-dir=dist index.js lib/*.js"
+		"build": "BABEL_ENV=production babel --out-dir=dist js/*.js"
 	},
 	"devDependencies": {
 		"ava": "^0.23.0",

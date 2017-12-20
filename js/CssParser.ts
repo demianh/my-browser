@@ -4,13 +4,20 @@
  */
 
 export interface INode {
-    type: 'style'|'media'|'comment'|'import';
+    type: 'style'|'at'|'comment'|'import';
 }
 
 export interface IStyleNode extends INode {
     type: 'style'
     rules: IRule[];
     declarations: IStyleDeclaration[];
+}
+
+export interface IAtNode extends INode {
+    type: 'at'
+    at: string;
+    selector: string;
+    styles: INode[];
 }
 
 export interface ICommentNode extends INode {
@@ -62,15 +69,18 @@ export class CssParser {
     public parse_STYLES(): INode[] {
         let nodes = [];
         this.skipWhitespaces();
-        while (!this.eof()) {
+        while (!this.eof() && this.nextChar() != '}') {
             if (this.nextStringEquals('@')) {
                 // parse media, import etc.
+                nodes.push(this.parse_AT_RULE());
             } else if (this.nextStringEquals('/*')) {
                 // parse comments
                 nodes.push(this.parse_COMMENT_NODE());
             } else {
                 let style = this.parse_STYLE_NODE();
-                nodes.push(style);
+                if (style !== null) {
+                    nodes.push(style);
+                }
             }
             this.skipWhitespaces();
         }
@@ -87,14 +97,16 @@ export class CssParser {
         while(!this.eof() && this.nextChar() !== '{') {
             this.skipWhitespaces();
             let rule = this.parse_RULE();
-            node.rules.push(rule);
+            if (rule !== null) {
+                node.rules.push(rule);
+            }
             this.skipWhitespaces();
         }
 
         // skip {
         this.pos++;
-        this.skipWhitespaces();
 
+        this.skipWhitespaces();
         while(!this.eof() && this.nextChar() !== '}') {
             let newDeclaration = this.parse_DECLARATION();
             // de-duplicate declarations
@@ -107,7 +119,12 @@ export class CssParser {
         // skip }
         this.pos++;
 
-        return node;
+        // dont return empty style nodes
+        if (node.rules.length == 0 && node.declarations.length == 0) {
+            return null;
+        } else {
+            return node;
+        }
     }
 
     public parse_RULE(): IRule {
@@ -151,7 +168,11 @@ export class CssParser {
             // skip ,
             this.pos++;
         }
-        return rule;
+        if (rule.selectors.length == 0) {
+            return null;
+        } else {
+            return rule;
+        }
     }
 
     public parse_SELECTOR(isFirst: boolean, hasWhitespaceBefore: boolean): ISelector {
@@ -201,6 +222,12 @@ export class CssParser {
                     this.pos++;
                     break;
                 }
+                case '[': {
+                    // parse id
+                    selector.type = 'attribute';
+                    this.pos++;
+                    break;
+                }
                 case ':': {
                     // parse pseudo
                     selector.type = 'pseudo-class';
@@ -214,11 +241,26 @@ export class CssParser {
             }
         }
 
-        // Text
-        while(!this.eof() && this.nextChar().match(/[a-z0-9_\-]/i)) {
-            selector.selector += this.nextChar();
+        if (selector.type == 'attribute') {
+            // Match rules enclosed in brackets: [att='var']
+            selector.selector = this.parse_ATTRIBUTE_SELECTOR();
+        } else {
+            // Match any Text
+            while(!this.eof() && this.nextChar().match(/[a-z0-9_\-%]/i)) {
+                selector.selector += this.nextChar();
+                this.pos++;
+            }
+        }
+        return selector;
+    }
+
+    public parse_ATTRIBUTE_SELECTOR(): string {
+        let selector = '';
+        while(!this.eof() && this.nextChar() != ']') {
+            selector += this.nextChar();
             this.pos++;
         }
+        this.pos++;
         return selector;
     }
 
@@ -277,6 +319,46 @@ export class CssParser {
         return node;
     }
 
+    public parse_AT_RULE(): IAtNode {
+        let node: IAtNode = {
+            type: 'at',
+            at: '',
+            selector: '',
+            styles: []
+        };
+
+        // skip @
+        this.pos++;
+
+        // Match @rule name
+        while(!this.eof() && this.nextChar().match(/[a-z0-9_\-]/i)) {
+            node.at += this.nextChar();
+            this.pos++;
+        }
+        this.skipWhitespaces();
+
+        // Match @rule selector
+        while(!this.eof() && this.nextChar() != ';' && this.nextChar() != '{') {
+            node.selector += this.nextChar();
+            this.pos++;
+        }
+
+        node.selector = node.selector.trim();
+
+        if (this.nextChar() == ';') {
+            this.pos++;
+        } else {
+            this.pos++;
+            this.skipWhitespaces();
+
+            if (this.nextChar() == '}') {
+                return node;
+            }
+            node.styles = this.parse_STYLES();
+        }
+        return node;
+    }
+
     public skipWhitespaces(): void {
         while (!this.eof() && this.nextIsWhitespace()) {
             this.pos++;
@@ -296,6 +378,8 @@ export class CssParser {
     }
 
     public nextChar(): string {
+        //console.log('TEXT ' + this.text);
+        //console.log('CHAR ' + this.pos + ': ' + this.text.substr(this.pos, 40));
         return this.text.charAt(this.pos);
     }
 

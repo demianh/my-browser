@@ -16,9 +16,10 @@ export class CssParser {
     parse_STYLES() {
         let nodes = [];
         this.skipWhitespaces();
-        while (!this.eof()) {
+        while (!this.eof() && this.nextChar() != '}') {
             if (this.nextStringEquals('@')) {
                 // parse media, import etc.
+                nodes.push(this.parse_AT_RULE());
             }
             else if (this.nextStringEquals('/*')) {
                 // parse comments
@@ -26,7 +27,9 @@ export class CssParser {
             }
             else {
                 let style = this.parse_STYLE_NODE();
-                nodes.push(style);
+                if (style !== null) {
+                    nodes.push(style);
+                }
             }
             this.skipWhitespaces();
         }
@@ -41,7 +44,9 @@ export class CssParser {
         while (!this.eof() && this.nextChar() !== '{') {
             this.skipWhitespaces();
             let rule = this.parse_RULE();
-            node.rules.push(rule);
+            if (rule !== null) {
+                node.rules.push(rule);
+            }
             this.skipWhitespaces();
         }
         // skip {
@@ -58,7 +63,13 @@ export class CssParser {
         }
         // skip }
         this.pos++;
-        return node;
+        // dont return empty style nodes
+        if (node.rules.length == 0 && node.declarations.length == 0) {
+            return null;
+        }
+        else {
+            return node;
+        }
     }
     parse_RULE() {
         let rule = {
@@ -99,7 +110,12 @@ export class CssParser {
             // skip ,
             this.pos++;
         }
-        return rule;
+        if (rule.selectors.length == 0) {
+            return null;
+        }
+        else {
+            return rule;
+        }
     }
     parse_SELECTOR(isFirst, hasWhitespaceBefore) {
         let selector = {
@@ -145,6 +161,12 @@ export class CssParser {
                     this.pos++;
                     break;
                 }
+                case '[': {
+                    // parse id
+                    selector.type = 'attribute';
+                    this.pos++;
+                    break;
+                }
                 case ':': {
                     // parse pseudo
                     selector.type = 'pseudo-class';
@@ -157,11 +179,26 @@ export class CssParser {
                 }
             }
         }
-        // Text
-        while (!this.eof() && this.nextChar().match(/[a-z0-9_\-]/i)) {
-            selector.selector += this.nextChar();
+        if (selector.type == 'attribute') {
+            // Match rules enclosed in brackets: [att='var']
+            selector.selector = this.parse_ATTRIBUTE_SELECTOR();
+        }
+        else {
+            // Match any Text
+            while (!this.eof() && this.nextChar().match(/[a-z0-9_\-%]/i)) {
+                selector.selector += this.nextChar();
+                this.pos++;
+            }
+        }
+        return selector;
+    }
+    parse_ATTRIBUTE_SELECTOR() {
+        let selector = '';
+        while (!this.eof() && this.nextChar() != ']') {
+            selector += this.nextChar();
             this.pos++;
         }
+        this.pos++;
         return selector;
     }
     parse_DECLARATION() {
@@ -213,6 +250,40 @@ export class CssParser {
         this.pos += 2;
         return node;
     }
+    parse_AT_RULE() {
+        let node = {
+            type: 'at',
+            at: '',
+            selector: '',
+            styles: []
+        };
+        // skip @
+        this.pos++;
+        // Match @rule name
+        while (!this.eof() && this.nextChar().match(/[a-z0-9_\-]/i)) {
+            node.at += this.nextChar();
+            this.pos++;
+        }
+        this.skipWhitespaces();
+        // Match @rule selector
+        while (!this.eof() && this.nextChar() != ';' && this.nextChar() != '{') {
+            node.selector += this.nextChar();
+            this.pos++;
+        }
+        node.selector = node.selector.trim();
+        if (this.nextChar() == ';') {
+            this.pos++;
+        }
+        else {
+            this.pos++;
+            this.skipWhitespaces();
+            if (this.nextChar() == '}') {
+                return node;
+            }
+            node.styles = this.parse_STYLES();
+        }
+        return node;
+    }
     skipWhitespaces() {
         while (!this.eof() && this.nextIsWhitespace()) {
             this.pos++;
@@ -228,6 +299,8 @@ export class CssParser {
         return this.isWhitespace(this.nextChar());
     }
     nextChar() {
+        //console.log('TEXT ' + this.text);
+        //console.log('CHAR ' + this.pos + ': ' + this.text.substr(this.pos, 40));
         return this.text.charAt(this.pos);
     }
     nextNChar(offset) {
