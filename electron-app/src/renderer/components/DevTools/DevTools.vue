@@ -14,7 +14,7 @@
       <a @click="tab = 'dom'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab == 'dom'}">DOM</a>
 
       <span class="dev-tools__menu_buttons">
-        <span @mousedown="isResizing = true"><i class="fas fa-arrows-alt-v"></i></span>
+        <a @mousedown="isResizing = true"><i class="fas fa-arrows-alt-v"></i></a>
         <a @click="$store.dispatch('closeDevtools')" class="dev-tools__close"><i class="fas fa-times"></i></a>
       </span>
     </div>

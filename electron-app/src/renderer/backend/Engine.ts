@@ -3,6 +3,7 @@ import store from '../store';
 import {Network} from "./Network";
 
 import {HtmlParser} from "../../../../js/HtmlParser";
+import {CssParser} from "../../../../js/CssParser";
 import {HtmlStyleExtractor} from "../../../../js/HtmlStyleExtractor";
 
 export class Engine {
@@ -21,7 +22,13 @@ export class Engine {
             store.dispatch('setHTML', nodes);
 
             let extractor = new HtmlStyleExtractor();
+            let cssParser = new CssParser();
             let styles = extractor.extractStyles(nodes);
+            styles.forEach((style, index) => {
+                if (style.type == 'inline') {
+                    styles[index].cssTree = cssParser.parse(style.css);
+                }
+            });
             store.dispatch('setCSS', styles);
         });
     }
