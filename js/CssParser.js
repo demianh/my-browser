@@ -82,7 +82,6 @@ export class CssParser {
         while (!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
             let isFirst = (rule.selectors.length == 0);
             let newSelector = this.parse_SELECTOR(isFirst, hasWhitespace);
-            rule.selectors.push(newSelector);
             // increase specificity
             switch (newSelector.type) {
                 case 'id':
@@ -105,6 +104,18 @@ export class CssParser {
             else {
                 hasWhitespace = false;
             }
+            if (this.nextChar() == '(') {
+                this.pos++;
+                newSelector.arguments = this.parse_PARENTHESIS_EXPR();
+                if (this.nextIsWhitespace()) {
+                    hasWhitespace = true;
+                    this.skipWhitespaces();
+                }
+                else {
+                    hasWhitespace = false;
+                }
+            }
+            rule.selectors.push(newSelector);
         }
         if (this.nextChar() === ',') {
             // skip ,
@@ -162,7 +173,7 @@ export class CssParser {
                     break;
                 }
                 case '[': {
-                    // parse id
+                    // parse attribute
                     selector.type = 'attribute';
                     this.pos++;
                     break;
@@ -225,6 +236,16 @@ export class CssParser {
             this.pos++;
         }
         return name.toLowerCase().trim();
+    }
+    parse_PARENTHESIS_EXPR() {
+        let expr = '';
+        this.skipWhitespaces();
+        while (!this.eof() && this.nextChar() != ')') {
+            expr += this.nextChar();
+            this.pos++;
+        }
+        this.pos++;
+        return expr.trim();
     }
     parse_DECLARATION_VALUE() {
         let value = '';

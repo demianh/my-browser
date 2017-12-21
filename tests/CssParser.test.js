@@ -175,10 +175,14 @@ test('Attribute Selectors', async t => {
 			{"type":"attribute","combinator":"root","selector":"dir=test","arguments":[]},
 		]}],"declarations":[]}]));
 
-	// nodes = parser.parse("._class[disabled]:not([disabled=false]){}");
-	// t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,0],"selectors":[
-	// 		{"type":"attribute","combinator":"root","selector":"dir='ltr'","arguments":[]},
-	// 	]}],"declarations":[]}]));
+	nodes = parser.parse("._class[disabled]:not([disabled=false]){}");
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[
+		{"specificity":[0,0,3,0],"selectors":[
+			{"type":"class","combinator":"root","selector":"_class","arguments":[]},
+			{"type":"attribute","combinator":"same","selector":"disabled","arguments":[]},
+			{"type":"pseudo-class","combinator":"same","selector":"not","arguments":"[disabled=false]"}
+		]}
+		],"declarations":[]}]));
 
 	// more things that should be supported
 	// [dir="tes'[t"] {}
@@ -189,10 +193,38 @@ test(':not() Selectors', async t => {
 	var parser = new CssParser();
 	var nodes;
 
-	// nodes = parser.parse(":not(h1) {}");
-	// t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,1,0],"selectors":[
-	// 		{"type":"attribute","combinator":"root","selector":"dir='ltr'","arguments":[]},
-	// 	]}],"declarations":[]}]));
+	nodes = parser.parse(":not(h1) {}");
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[
+		{"specificity":[0,0,1,0],"selectors":[
+			{"type":"pseudo-class","combinator":"root","selector":"not","arguments":"h1"}
+		]}],"declarations":[]}]));
+
+	nodes = parser.parse(":not (h1) {}");
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[
+		{"specificity":[0,0,1,0],"selectors":[
+			{"type":"pseudo-class","combinator":"root","selector":"not","arguments":"h1"}
+		]}],"declarations":[]}]));
+
+	nodes = parser.parse(":not (h1, h2, .class,#id) {}");
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[
+		{"specificity":[0,0,1,0],"selectors":[
+			{"type":"pseudo-class","combinator":"root","selector":"not","arguments":"h1, h2, .class,#id"}
+		]}],"declarations":[]}]));
+
+	nodes = parser.parse(":not(h1) :not(h2):not(h3) {}");
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[
+		{"specificity":[0,0,3,0],"selectors":[
+			{"type":"pseudo-class","combinator":"root","selector":"not","arguments":"h1"},
+			{"type":"pseudo-class","combinator":"descendant","selector":"not","arguments":"h2"},
+			{"type":"pseudo-class","combinator":"same","selector":"not","arguments":"h3"}
+		]}],"declarations":[]}]));
+
+	nodes = parser.parse("h1:not(.title) {}");
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[
+		{"specificity":[0,0,1,1],"selectors":[
+			{"type":"element","combinator":"root","selector":"h1","arguments":[]},
+			{"type":"pseudo-class","combinator":"same","selector":"not","arguments":".title"}
+		]}],"declarations":[]}]));
 });
 
 test('Combinators', async t => {

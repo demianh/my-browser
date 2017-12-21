@@ -48,10 +48,10 @@ export interface IRule {
  * :: pseudo-element
  */
 export interface ISelector {
-    type: 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class',
+    type: 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class'|'function',
     combinator: 'root'|'descendant'|'same'|'child'|'adjacent'|'sibling';
     selector: string;
-    arguments: ISelector[];
+    arguments: ISelector[]|string;
 }
 
 export class CssParser {
@@ -140,7 +140,6 @@ export class CssParser {
         while(!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
             let isFirst = (rule.selectors.length == 0);
             let newSelector = this.parse_SELECTOR(isFirst, hasWhitespace);
-            rule.selectors.push(newSelector);
 
             // increase specificity
             switch (newSelector.type) {
@@ -157,12 +156,27 @@ export class CssParser {
                     rule.specificity[3]++;
                     break;
             }
+
             if (this.nextIsWhitespace()) {
                 hasWhitespace = true;
                 this.skipWhitespaces();
             } else {
                 hasWhitespace = false;
             }
+
+            if (this.nextChar() == '(') {
+                this.pos++;
+                newSelector.arguments = this.parse_PARENTHESIS_EXPR();
+
+                if (this.nextIsWhitespace()) {
+                    hasWhitespace = true;
+                    this.skipWhitespaces();
+                } else {
+                    hasWhitespace = false;
+                }
+            }
+
+            rule.selectors.push(newSelector);
         }
         if (this.nextChar() === ',') {
             // skip ,
@@ -223,7 +237,7 @@ export class CssParser {
                     break;
                 }
                 case '[': {
-                    // parse id
+                    // parse attribute
                     selector.type = 'attribute';
                     this.pos++;
                     break;
@@ -289,6 +303,17 @@ export class CssParser {
             this.pos++;
         }
         return name.toLowerCase().trim();
+    }
+
+    public parse_PARENTHESIS_EXPR(): string {
+        let expr = '';
+        this.skipWhitespaces();
+        while(!this.eof() && this.nextChar() != ')') {
+            expr += this.nextChar();
+            this.pos++;
+        }
+        this.pos++;
+        return expr.trim();
     }
 
     public parse_DECLARATION_VALUE(): string {
