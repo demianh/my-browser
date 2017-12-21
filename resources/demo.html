@@ -5,6 +5,17 @@
 			h1 {
 				color: red;
 			}
+			#main.test p, a {
+				color: blue;
+			}
+			#main.test p + a.class:not(h2) > div ~ span {
+				color: blue;
+			}
+		</style>
+		<style type="text/css">
+			h2 {
+				color: yellow;
+			}
 		</style>
 		<link rel="stylesheet" href="demo.css"/>
 	</head>

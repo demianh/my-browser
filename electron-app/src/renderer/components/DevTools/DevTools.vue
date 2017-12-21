@@ -23,7 +23,7 @@
         <html-tree :nodes="document.html"></html-tree>
       </div>
       <div class="dev-tools__content" v-if="tab=='css'">
-        {{document.css}}
+        <css-tree :nodes="document.css"></css-tree>
       </div>
       <div class="dev-tools__content" v-if="tab=='render'">RenderTree</div>
     </div>
@@ -32,9 +32,13 @@
 
 <script>
     import HtmlTree from './HtmlTree.vue'
+    import CssTree from './CssTree.vue'
 
 export default {
-      components: {HtmlTree},
+      components: {
+          HtmlTree,
+          CssTree
+      },
       name: 'dev-tools',
       data: function () {
         return {
