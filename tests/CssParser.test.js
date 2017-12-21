@@ -304,21 +304,21 @@ test('Simple Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 { color: red; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
 
 	nodes = parser.parse('h1 { color : red; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
 
 	nodes = parser.parse('h1 {color:red;}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
 
 	nodes = parser.parse('h1 {color:red}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
 
 	nodes = parser.parse(`col {
 			display: table-column;
 		}`);
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"col","arguments":[]}]}],"declarations":[{"name":"display","value":"table-column"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"col","arguments":[]}]}],"declarations":[{"name":"display","value":[{"type":"keyword","value":"table-column"}]}]}]');
 
 });
 
@@ -327,11 +327,72 @@ test('Multiple Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 { color: red; font-family:helvetica,arial,sans-serif; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"red"},{"name":"font-family","value":"helvetica,arial,sans-serif"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]},{"name":"font-family","value":[{"type":"keyword","value":"helvetica,arial,sans-serif"}]}]}]');
 
 	// duplicate rules, use latest only
 	nodes = parser.parse('h1 { color: red; color: blue; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":"blue"}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"blue"}]}]}]');
+
+});
+
+test('Unit Declarations', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	// known units:
+	// em, ex, %, px, cm, mm, in, pt, pc, ch, rem, vh, vw, vmin, vmax, vm
+
+	nodes = parser.parse('h1 { padding: 10px; }');
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[
+			{"type":"element","combinator":"root","selector":"h1","arguments":[]}
+		]}],"declarations":[
+			{"name":"padding","value":[{"type":"unit","value":10,"unit":"px"}]}
+		]}]));
+
+	nodes = parser.parse('h1 { height: 50%; }');
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[
+			{"type":"element","combinator":"root","selector":"h1","arguments":[]}
+		]}],"declarations":[
+			{"name":"height","value":[{"type":"unit","value":50,"unit":"%"}]}
+		]}]));
+
+	nodes = parser.parse('h1 { height: -1.23px; }');
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[
+			{"type":"element","combinator":"root","selector":"h1","arguments":[]}
+		]}],"declarations":[
+			{"name":"height","value":[{"type":"unit","value":-1.23,"unit":"px"}]}
+		]}]));
+
+	nodes = parser.parse('h1 { height:.2; }');
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[
+			{"type":"element","combinator":"root","selector":"h1","arguments":[]}
+		]}],"declarations":[
+			{"name":"height","value":[{"type":"unit","value":0.2,"unit":""}]}
+		]}]));
+
+	nodes = parser.parse('h1 { height: 0; }');
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[
+			{"type":"element","combinator":"root","selector":"h1","arguments":[]}
+		]}],"declarations":[
+			{"name":"height","value":[{"type":"unit","value":0,"unit":""}]}
+		]}]));
+
+	// background-image: -webkit-linear-gradient(top, #fff, #f8f8f8);
+});
+
+test('Functions in Declarations', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	nodes = parser.parse('h1 {background: url("bla") white}');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"background","value":[{"type":"keyword","value":"url(\\"bla\\")"},{"type":"keyword","value":"white"}]}]}]');
+
+	//nodes = parser.parse('h1 {transform: scale(0, 0)}');
+	//t.is(JSON.stringify(nodes), '[{"type":"comment","content":" this is a comment "}]');
+
+	// box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16),0 0 0 1px rgba(0,0,0,0.08);
+	// transition: box-shadow 200ms cubic-bezier(0.4, 0 , 0.2 , 1 );
+	// background-image: linear-gradient(top,#4d90fe,#4787ed);
 
 });
 
@@ -363,8 +424,7 @@ test('At Rules', async t => {
 	nodes = parser.parse('@import url("fineprint.css") print;');
 	t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
 
-	//nodes = parser.parse('@keyframes mymove {0% {transform: scale(0, 0)} 50% {transform: scale(5, 5)}');
-	nodes = parser.parse('@keyframes mymove {0% {transform: scale(0, 0)} 50% {transform: scale(5, 5)}');
+	nodes = parser.parse('@keyframes mymove {0% {width: 0} 50% {width: 50px}');
 	t.is(JSON.stringify(nodes), JSON.stringify(
 		[
 			{
@@ -394,8 +454,8 @@ test('At Rules', async t => {
 						],
 						"declarations": [
 							{
-								"name": "transform",
-								"value": "scale(0, 0)"
+								"name": "width",
+								"value": [{"type":"unit","value":0,"unit":""}]
 							}
 						]
 					},
@@ -421,8 +481,8 @@ test('At Rules', async t => {
 						],
 						"declarations": [
 							{
-								"name": "transform",
-								"value": "scale(5, 5)"
+								"name": "width",
+								"value": [{"type":"unit","value":50,"unit":"px"}]
 							}
 						]
 					}

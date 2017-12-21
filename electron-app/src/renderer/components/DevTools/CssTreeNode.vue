@@ -37,7 +37,11 @@
       <div v-if="open" class="css-tree-node__declarations">
         <div v-for="decl in node.declarations">
           <span class="css-tree-node__declarations-key">{{decl.name}}</span>:
-          <span class="css-tree-node__declarations-value">{{decl.value}}</span>;
+          <span class="css-tree-node__declarations-value" v-for="(keyword, index) in decl.value"><!--
+            --><span v-if="index > 0">&nbsp;</span><!--
+            --><span v-if="keyword.type == 'unit'" class="css-tree-node__unit">{{keyword.value}}<i>{{keyword.unit}}</i></span><!--
+            --><span v-if="keyword.type == 'keyword'">{{keyword.value}}</span><!--
+          --></span>;
         </div>
       </div>
       <div v-if="open" class="css-tree-node__end">}</div>
@@ -122,6 +126,10 @@
   }
   .css-tree-node__declarations-value {
 
+  }
+
+  .css-tree-node__unit {
+    color: #00d6b2;
   }
 
   .css-tree-node__at {

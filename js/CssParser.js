@@ -215,7 +215,7 @@ export class CssParser {
     parse_DECLARATION() {
         let declaration = {
             name: '',
-            value: ''
+            value: []
         };
         declaration.name = this.parse_DECLARATION_NAME();
         this.skipWhitespaces();
@@ -248,12 +248,46 @@ export class CssParser {
         return expr.trim();
     }
     parse_DECLARATION_VALUE() {
-        let value = '';
+        let values = [];
+        this.skipWhitespaces();
         while (!this.eof() && this.nextChar().match(/[^};]/i)) {
-            value += this.nextChar();
+            let value = '';
+            if (this.nextChar().match(/[0-9.+\-]/i)) {
+                values.push(this.parse_UNIT());
+            }
+            else {
+                // Match any Text
+                while (!this.eof() && this.nextChar().match(/[^};\s]/i)) {
+                    value += this.nextChar();
+                    this.pos++;
+                }
+                values.push({
+                    type: 'keyword',
+                    value: value
+                });
+            }
+            this.skipWhitespaces();
+        }
+        return values;
+    }
+    parse_UNIT() {
+        let unit = {
+            type: 'unit',
+            value: 0,
+            unit: ''
+        };
+        let number = '';
+        while (!this.eof() && this.nextChar().match(/[0-9\-+.]/i)) {
+            number += this.nextChar();
             this.pos++;
         }
-        return value.trim();
+        unit.value = parseFloat(number);
+        // Match any Text
+        while (!this.eof() && this.nextChar().match(/[a-zA-Z%]/i)) {
+            unit.unit += this.nextChar();
+            this.pos++;
+        }
+        return unit;
     }
     parse_COMMENT_NODE() {
         let node = {

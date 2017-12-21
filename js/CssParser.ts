@@ -27,7 +27,18 @@ export interface ICommentNode extends INode {
 
 export interface IStyleDeclaration {
     name: string;
+    value: (IKeyword|IUnit)[];
+}
+
+export interface IKeyword {
+    type: 'keyword'
     value: string;
+}
+
+export interface IUnit {
+    type: string;
+    value: number;
+    unit: string;
 }
 
 export interface IRule {
@@ -281,7 +292,7 @@ export class CssParser {
     public parse_DECLARATION(): IStyleDeclaration {
         let declaration: IStyleDeclaration = {
             name: '',
-            value: ''
+            value: []
         };
         declaration.name = this.parse_DECLARATION_NAME();
         this.skipWhitespaces();
@@ -316,13 +327,48 @@ export class CssParser {
         return expr.trim();
     }
 
-    public parse_DECLARATION_VALUE(): string {
-        let value = '';
+    public parse_DECLARATION_VALUE(): (IKeyword|IUnit)[] {
+        let values = [];
+        this.skipWhitespaces();
         while(!this.eof() && this.nextChar().match(/[^};]/i)) {
-            value += this.nextChar();
+            let value = '';
+            if (this.nextChar().match(/[0-9.+\-]/i)) {
+                values.push(this.parse_UNIT());
+            } else {
+                // Match any Text
+                while(!this.eof() && this.nextChar().match(/[^};\s]/i)) {
+                    value += this.nextChar();
+                    this.pos++;
+                }
+                values.push({
+                    type: 'keyword',
+                    value: value
+                });
+            }
+            this.skipWhitespaces();
+        }
+        return values;
+    }
+
+    public parse_UNIT(): IUnit {
+        let unit = {
+            type: 'unit',
+            value: 0,
+            unit: ''
+        };
+        let number = '';
+        while(!this.eof() && this.nextChar().match(/[0-9\-+.]/i)) {
+            number += this.nextChar();
             this.pos++;
         }
-        return value.trim();
+        unit.value = parseFloat(number);
+
+        // Match any Text
+        while(!this.eof() && this.nextChar().match(/[a-zA-Z%]/i)) {
+            unit.unit += this.nextChar();
+            this.pos++;
+        }
+        return unit;
     }
 
     public parse_COMMENT_NODE(): ICommentNode {
