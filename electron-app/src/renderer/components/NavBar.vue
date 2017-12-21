@@ -12,7 +12,6 @@
 </template>
 
 <script>
-
   import {HtmlParser} from '../../../../js/HtmlParser'
   import {HtmlStyleExtractor} from '../../../../js/HtmlStyleExtractor'
 
@@ -20,16 +19,16 @@
 
   export default {
     name: 'nav-bar',
-    data: function() {
+    data: function () {
       return {
-          url: 'http://localhost/projects/my-browser/resources/demo.html',
-          appState: this.$store.state.App
+        url: 'http://localhost/projects/my-browser/resources/demo.html',
+        appState: this.$store.state.App
       }
     },
     methods: {
-      openUrl() {
-          let engine = new Engine();
-          engine.loadURL(this.url);
+      openUrl () {
+        let engine = new Engine()
+        engine.loadURL(this.url)
       }
     }
   }

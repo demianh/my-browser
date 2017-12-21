@@ -25,7 +25,7 @@
       NavBar,
       BrowserContent
     },
-    data: function() {
+    data: function () {
       return {
         appState: this.$store.state.App
       }

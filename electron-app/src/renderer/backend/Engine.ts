@@ -25,7 +25,7 @@ export class Engine {
             let cssParser = new CssParser();
             let styles = extractor.extractStyles(nodes);
             styles.forEach((style, index) => {
-                if (style.type == 'inline') {
+                if (style.type === 'inline') {
                     styles[index].cssTree = cssParser.parse(style.css);
                 }
             });

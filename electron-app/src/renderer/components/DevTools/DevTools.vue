@@ -11,7 +11,7 @@
       &nbsp;&nbsp;|&nbsp;
       <a @click="tab = 'html'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab == 'html'}">HTML</a>
       <a @click="tab = 'css'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab == 'css'}">CSS</a>
-      <a @click="tab = 'dom'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab == 'dom'}">DOM</a>
+      <a @click="tab = 'render'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab == 'render'}">RenderTree</a>
 
       <span class="dev-tools__menu_buttons">
         <a @mousedown="isResizing = true"><i class="fas fa-arrows-alt-v"></i></a>
@@ -23,49 +23,49 @@
         <html-tree :nodes="document.html"></html-tree>
       </div>
       <div class="dev-tools__content" v-if="tab=='css'">
-        <tree-view :data="document.css" :options="{maxDepth: 3, rootObjectKey: 'Styles'}"></tree-view>
+        {{document.css}}
       </div>
-      <div class="dev-tools__content" v-if="tab=='dom'">DOM</div>
+      <div class="dev-tools__content" v-if="tab=='render'">RenderTree</div>
     </div>
   </div>
 </template>
 
 <script>
-    import HtmlTree from "./HtmlTree.vue";
+    import HtmlTree from './HtmlTree.vue'
 
-    export default {
-        components: {HtmlTree},
-        name: 'dev-tools',
-        data: function () {
-            return {
-                tab: 'html',
-                height: 300,
-                isResizing: false,
-                document: this.$store.state.Document
-            }
-        },
-        methods: {
-            onMouseMove(event) {
-                if (this.isResizing) {
-                    // pause event to prevent text selection while dragging
-                    this.pauseEvent(event);
-                    // set new height
-                    this.height = this.height - event.movementY;
-                }
-            },
-            pauseEvent(e) {
-                // stop event propagation
-                if (e.stopPropagation) {
-                    e.stopPropagation();
-                }
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-                e.cancelBubble = true;
-                e.returnValue = false;
-                return false;
-            }
+export default {
+      components: {HtmlTree},
+      name: 'dev-tools',
+      data: function () {
+        return {
+          tab: 'html',
+          height: 300,
+          isResizing: false,
+          document: this.$store.state.Document
         }
+      },
+      methods: {
+        onMouseMove (event) {
+          if (this.isResizing) {
+            // pause event to prevent text selection while dragging
+            this.pauseEvent(event)
+            // set new height
+            this.height = this.height - event.movementY
+          }
+        },
+        pauseEvent (e) {
+          // stop event propagation
+          if (e.stopPropagation) {
+            e.stopPropagation()
+          }
+          if (e.preventDefault) {
+            e.preventDefault()
+          }
+          e.cancelBubble = true
+          e.returnValue = false
+          return false
+        }
+      }
     }
 </script>
 
@@ -112,14 +112,5 @@
 
   .dev-tools__content {
     padding: 5px;
-  }
-</style>
-
-<style>
-  .tree-view-item-value-string {
-      color: green;
-  }
-  .tree-view-item {
-    font-size: 11px !important;
   }
 </style>

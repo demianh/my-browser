@@ -32,18 +32,18 @@
 
 <script>
     export default {
-        name: 'html-tree-node',
-        props: ['node', 'depth'],
-        created: function () {
-            if (this.depth <= 1) {
-                this.open = true;
-            }
-        },
-        data: function () {
-            return {
-                open: false
-            }
-        },
+      name: 'html-tree-node',
+      props: ['node', 'depth'],
+      created: function () {
+        if (this.depth <= 1) {
+          this.open = true
+        }
+      },
+      data: function () {
+        return {
+          open: false
+        }
+      }
     }
 </script>
 

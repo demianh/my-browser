@@ -7,18 +7,17 @@
 </template>
 
 <script>
-
     import HtmlTreeNode from './HtmlTreeNode.vue'
 
     export default {
-        name: 'html-tree',
-        components: {HtmlTreeNode},
-        props: ['nodes'],
-        data: function () {
-            return {
-                open: false
-            }
-        },
+      name: 'html-tree',
+      components: {HtmlTreeNode},
+      props: ['nodes'],
+      data: function () {
+        return {
+          open: false
+        }
+      }
     }
 </script>
 
