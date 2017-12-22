@@ -40,7 +40,8 @@
           <span class="css-tree-node__declarations-value" v-for="(keyword, index) in decl.value"><!--
             --><span v-if="index > 0">&nbsp;</span><!--
             --><span v-if="keyword.type == 'unit'" class="css-tree-node__unit">{{keyword.value}}<i>{{keyword.unit}}</i></span><!--
-            --><span v-if="keyword.type == 'keyword'">{{keyword.value}}</span><!--
+            --><span v-if="keyword.type == 'keyword'" class="css-tree-node__keyword">{{keyword.value}}</span><!--
+            --><span v-if="keyword.type == 'function'" class="css-tree-node__function">{{keyword.value}}({{keyword.arguments}})</span><!--
           --></span>;
         </div>
       </div>
@@ -130,6 +131,10 @@
 
   .css-tree-node__unit {
     color: #00d6b2;
+  }
+
+  .css-tree-node__function {
+    color: #63002d;
   }
 
   .css-tree-node__at {

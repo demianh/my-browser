@@ -377,7 +377,7 @@ test('Unit Declarations', async t => {
 			{"name":"height","value":[{"type":"unit","value":0,"unit":""}]}
 		]}]));
 
-	// background-image: -webkit-linear-gradient(top, #fff, #f8f8f8);
+	// transition: opacity 0.5s ease-out,left 0.5s ease-out;
 });
 
 test('Functions in Declarations', async t => {
@@ -385,14 +385,22 @@ test('Functions in Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 {background: url("bla") white}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"background","value":[{"type":"keyword","value":"url(\\"bla\\")"},{"type":"keyword","value":"white"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"background","value":[{"type":"function","value":"url","arguments":"\\"bla\\""},{"type":"keyword","value":"white"}]}]}]');
 
-	//nodes = parser.parse('h1 {transform: scale(0, 0)}');
-	//t.is(JSON.stringify(nodes), '[{"type":"comment","content":" this is a comment "}]');
+	nodes = parser.parse('h1 {transform: scale(0, 0)}');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"transform","value":[{"type":"function","value":"scale","arguments":"0, 0"}]}]}]');
 
-	// box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16),0 0 0 1px rgba(0,0,0,0.08);
-	// transition: box-shadow 200ms cubic-bezier(0.4, 0 , 0.2 , 1 );
-	// background-image: linear-gradient(top,#4d90fe,#4787ed);
+	nodes = parser.parse('h1 { background-image: -webkit-linear-gradient(top, #fff, #f8f8f8);}');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"background-image","value":[{"type":"function","value":"-webkit-linear-gradient","arguments":"top, #fff, #f8f8f8"}]}]}]');
+
+	nodes = parser.parse('h1 { transition: box-shadow 200ms cubic-bezier(0.4, 0 , 0.2 , 1 ) }');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"transition","value":[{"type":"keyword","value":"box-shadow"},{"type":"unit","value":200,"unit":"ms"},{"type":"function","value":"cubic-bezier","arguments":"0.4, 0 , 0.2 , 1"}]}]}]');
+
+	nodes = parser.parse('h1 { background-image: linear-gradient(top,#4d90fe,#4787ed); }');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"background-image","value":[{"type":"function","value":"linear-gradient","arguments":"top,#4d90fe,#4787ed"}]}]}]');
+
+	//nodes = parser.parse('h1 { box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16),0 0 0 1px rgba(0,0,0,0.08)}');
+	//t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"type":"element","combinator":"root","selector":"h1","arguments":[]}]}],"declarations":[{"name":"background-image","value":[{"type":"function","value":"-webkit-linear-gradient","arguments":"top, #fff, #f8f8f8"}]}]}]');
 
 });
 
@@ -436,12 +444,7 @@ test('At Rules', async t => {
 						"type": "style",
 						"rules": [
 							{
-								"specificity": [
-									0,
-									0,
-									0,
-									1
-								],
+								"specificity": [0, 0, 0, 1],
 								"selectors": [
 									{
 										"type": "element",
@@ -463,12 +466,7 @@ test('At Rules', async t => {
 						"type": "style",
 						"rules": [
 							{
-								"specificity": [
-									0,
-									0,
-									0,
-									1
-								],
+								"specificity": [0, 0, 0, 1],
 								"selectors": [
 									{
 										"type": "element",

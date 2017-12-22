@@ -252,19 +252,31 @@ export class CssParser {
         this.skipWhitespaces();
         while (!this.eof() && this.nextChar().match(/[^};]/i)) {
             let value = '';
-            if (this.nextChar().match(/[0-9.+\-]/i)) {
+            if (this.nextIsNumeric()) {
                 values.push(this.parse_UNIT());
             }
             else {
                 // Match any Text
-                while (!this.eof() && this.nextChar().match(/[^};\s]/i)) {
+                while (!this.eof() && this.nextChar().match(/[^};(\s]/i)) {
                     value += this.nextChar();
                     this.pos++;
                 }
-                values.push({
-                    type: 'keyword',
-                    value: value
-                });
+                if (this.nextChar() == '(') {
+                    // skip (
+                    this.pos++;
+                    // function
+                    values.push({
+                        type: 'function',
+                        value: value,
+                        arguments: this.parse_PARENTHESIS_EXPR()
+                    });
+                }
+                else {
+                    values.push({
+                        type: 'keyword',
+                        value: value
+                    });
+                }
             }
             this.skipWhitespaces();
         }
@@ -352,6 +364,9 @@ export class CssParser {
     }
     nextIsWhitespace() {
         return this.isWhitespace(this.nextChar());
+    }
+    nextIsNumeric() {
+        return this.text.substr(this.pos, 100).match(/^([+-]?[0-9]*[.]?[0-9]+)/i) !== null;
     }
     nextChar() {
         //console.log('TEXT ' + this.text);

@@ -27,7 +27,7 @@ export interface ICommentNode extends INode {
 
 export interface IStyleDeclaration {
     name: string;
-    value: (IKeyword|IUnit)[];
+    value: (IKeyword|IUnit|IFunction)[];
 }
 
 export interface IKeyword {
@@ -39,6 +39,12 @@ export interface IUnit {
     type: string;
     value: number;
     unit: string;
+}
+
+export interface IFunction {
+    type: string;
+    value: number;
+    arguments: string;
 }
 
 export interface IRule {
@@ -327,23 +333,35 @@ export class CssParser {
         return expr.trim();
     }
 
-    public parse_DECLARATION_VALUE(): (IKeyword|IUnit)[] {
+    public parse_DECLARATION_VALUE(): (IKeyword|IUnit|IFunction)[] {
         let values = [];
         this.skipWhitespaces();
         while(!this.eof() && this.nextChar().match(/[^};]/i)) {
             let value = '';
-            if (this.nextChar().match(/[0-9.+\-]/i)) {
+            if (this.nextIsNumeric()) {
                 values.push(this.parse_UNIT());
             } else {
                 // Match any Text
-                while(!this.eof() && this.nextChar().match(/[^};\s]/i)) {
+                while(!this.eof() && this.nextChar().match(/[^};(\s]/i)) {
                     value += this.nextChar();
                     this.pos++;
                 }
-                values.push({
-                    type: 'keyword',
-                    value: value
-                });
+                if (this.nextChar() == '(') {
+                    // skip (
+                    this.pos++;
+
+                    // function
+                    values.push({
+                        type: 'function',
+                        value: value,
+                        arguments: this.parse_PARENTHESIS_EXPR()
+                    });
+                } else {
+                    values.push({
+                        type: 'keyword',
+                        value: value
+                    });
+                }
             }
             this.skipWhitespaces();
         }
@@ -446,6 +464,10 @@ export class CssParser {
 
     public nextIsWhitespace(): boolean {
         return this.isWhitespace(this.nextChar());
+    }
+
+    public nextIsNumeric(): boolean {
+        return this.text.substr(this.pos, 100).match(/^([+-]?[0-9]*[.]?[0-9]+)/i) !== null;
     }
 
     public nextChar(): string {
