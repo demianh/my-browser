@@ -134,6 +134,12 @@ export class HtmlParser {
             // don't override
             if (!(att[0] in node.attributes)) {
                 node.attributes[att[0]] = att[1];
+                if (att[0] == 'id') {
+                    node.id = att[1].trim();
+                }
+                if (att[0] == 'class') {
+                    node.classNames = att[1].trim().split(/\s+/);
+                }
             }
             this.skipWhitespaces();
         }

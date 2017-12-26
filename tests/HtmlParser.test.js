@@ -64,57 +64,84 @@ test('Attributes', async t => {
 	var parser = new HtmlParser();
 	var nodes;
 
-	nodes = parser.parse('<div class=" foo barç%&/()?=-12+bar">asdf</div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":" foo barç%&/()?=-12+bar"},"children":[{"type":"text","content":"asdf"}]}]');
+	nodes = parser.parse('<div title=" foo barç%&/()?=-12+bar">asdf</div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":" foo barç%&/()?=-12+bar"},"children":[{"type":"text","content":"asdf"}]}]');
 
-	nodes = parser.parse('<div class=>asdf</div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":""},"children":[{"type":"text","content":"asdf"}]}]');
+	nodes = parser.parse('<div title=>asdf</div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":""},"children":[{"type":"text","content":"asdf"}]}]');
 
 	// multiple attributes
-	nodes = parser.parse('<div  class="asd jwjw" id="123" foo="" ></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asd jwjw","id":"123","foo":""},"children":[]}]');
+	nodes = parser.parse('<div  title="asd jwjw" attribute="123" foo="" ></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asd jwjw","attribute":"123","foo":""},"children":[]}]');
 
 	// no whitespaces between
-	nodes = parser.parse('<div  class="asd jwjw"id="123"foo="" ></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asd jwjw","id":"123","foo":""},"children":[]}]');
+	nodes = parser.parse('<div  title="asd jwjw"attribute="123"foo="" ></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asd jwjw","attribute":"123","foo":""},"children":[]}]');
 
 	// multiple standalone attributes
 	nodes = parser.parse('<div foo="" bar=baz-baz standalone stand-alone-2 ></div>');
 	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"foo":"","bar":"baz-baz","standalone":null,"stand-alone-2":null},"children":[]}]');
 
 	// duplicate, use only first value
-	nodes = parser.parse('<div class="first" class="second"></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"first"},"children":[]}]');
+	nodes = parser.parse('<div title="first" title="second"></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"first"},"children":[]}]');
 
 	// treat / as whitespace if it is not at the end
-	//nodes = parser.parse('<div / id="foo"></div>');
-	//t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"id":"foo"},"children":[]}]');
+	//nodes = parser.parse('<div / attribute="foo"></div>');
+	//t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"attribute":"foo"},"children":[]}]');
+});
+
+test('ID & Class Attributes', async t => {
+	var parser = new HtmlParser();
+	var nodes;
+
+	nodes = parser.parse('<div id="asdf"></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"id":"asdf"},"children":[],"id":"asdf"}]');
+
+	nodes = parser.parse('<div id="   asdf "></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"id":"   asdf "},"children":[],"id":"asdf"}]');
+
+	nodes = parser.parse('<div class="asdf"></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asdf"},"children":[],"classNames":["asdf"]}]');
+
+	nodes = parser.parse('<div class="  asdf "></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"  asdf "},"children":[],"classNames":["asdf"]}]');
+
+	nodes = parser.parse('<div class="  asdf    xy-z "></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"  asdf    xy-z "},"children":[],"classNames":["asdf","xy-z"]}]');
+
+		nodes = parser.parse('<div class="foo foo foo foo"></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"foo foo foo foo"},"children":[],"classNames":["foo","foo","foo","foo"]}]');
+
+	nodes = parser.parse('<div class=" foo barç%&/()?=-12+bar">asdf</div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":" foo barç%&/()?=-12+bar"},"children":[{"type":"text","content":"asdf"}],"classNames":["foo","barç%&/()?=-12+bar"]}]');
+
 });
 
 test('Attributes Escaping', async t => {
 	var parser = new HtmlParser();
 	var nodes;
 
-	nodes = parser.parse('<div  class="asdf"></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asdf"},"children":[]}]');
+	nodes = parser.parse('<div  title="asdf"></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asdf"},"children":[]}]');
 
-	nodes = parser.parse('<div  class =   "asdf"></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asdf"},"children":[]}]');
+	nodes = parser.parse('<div  title =   "asdf"></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asdf"},"children":[]}]');
 
-	nodes = parser.parse("<div  class='asdf'></div>");
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asdf"},"children":[]}]');
+	nodes = parser.parse("<div  title='asdf'></div>");
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asdf"},"children":[]}]');
 
-	nodes = parser.parse('<div  class=asdf></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asdf"},"children":[]}]');
+	nodes = parser.parse('<div  title=asdf></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asdf"},"children":[]}]');
 
-	nodes = parser.parse('<div  class = asdf></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asdf"},"children":[]}]');
+	nodes = parser.parse('<div  title = asdf></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asdf"},"children":[]}]');
 
-	nodes = parser.parse('<div  class="asdf \'asdf\'asdf"></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asdf \'asdf\'asdf"},"children":[]}]');
+	nodes = parser.parse('<div  title="asdf \'asdf\'asdf"></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asdf \'asdf\'asdf"},"children":[]}]');
 
-	nodes = parser.parse('<div  class=\'asdf "asdf"asdf\'></div>');
-	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"class":"asdf \\"asdf\\"asdf"},"children":[]}]');
+	nodes = parser.parse('<div  title=\'asdf "asdf"asdf\'></div>');
+	t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"title":"asdf \\"asdf\\"asdf"},"children":[]}]');
 
 	//nodes = parser.parse('<div cl<\'"#ass="first"></div>');
 	//t.is(JSON.stringify(nodes), '[{"tag":"div","type":"element","attributes":{"cl<\'\\"#ass":"first"},"children":[]}]');
@@ -238,7 +265,7 @@ test('Raw Text Tags', async t => {
 	t.is(JSON.stringify(nodes), '[{"tag":"script","type":"element","attributes":{},"children":[{"type":"text","content":"<!-- comment should be text -->"}]}]');
 
 	nodes = parser.parse('<textarea id="123">this <b>should</b> be<br> text <only></only></textarea>');
-	t.is(JSON.stringify(nodes), '[{"tag":"textarea","type":"element","attributes":{"id":"123"},"children":[{"type":"text","content":"this <b>should</b> be<br> text <only></only>"}]}]');
+	t.is(JSON.stringify(nodes), '[{"tag":"textarea","type":"element","attributes":{"id":"123"},"children":[{"type":"text","content":"this <b>should</b> be<br> text <only></only>"}],"id":"123"}]');
 });
 
 
