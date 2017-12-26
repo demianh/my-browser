@@ -71,6 +71,19 @@ export interface ICSSSelector {
     arguments: ICSSSelector[]|string;
 }
 
+export interface ICSSSelector__NEW_STRUCT {
+    type: 'selector';
+    element?: string; // tag-name or *
+    ids?: string[];
+    classes?: string[];
+    attributes?: string[];
+    pseudoElements?: string[];
+    pseudoClasses?: string[];
+    functions?: string[];
+    combinator: 'root'|'descendant'|'child'|'adjacent'|'sibling';
+    arguments: ICSSSelector[]|string;
+}
+
 export class CssParser {
 
     private text = '';
