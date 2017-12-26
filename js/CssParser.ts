@@ -65,7 +65,7 @@ export interface ICSSRule {
  * :: pseudo-element
  */
 export interface ICSSSelector {
-    type: 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class'|'function',
+    type: 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class'|'function';
     combinator: 'root'|'descendant'|'same'|'child'|'adjacent'|'sibling';
     selector: string;
     arguments: ICSSSelector[]|string;
