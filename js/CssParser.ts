@@ -3,53 +3,53 @@
  * CSS3 Tokenization: https://www.w3.org/TR/css-syntax-3/#tokenization
  */
 
-export interface INode {
+export interface ICSSNode {
     type: 'style'|'at'|'comment'|'import';
 }
 
-export interface IStyleNode extends INode {
+export interface ICSSStyleNode extends ICSSNode {
     type: 'style'
-    rules: IRule[];
-    declarations: IStyleDeclaration[];
+    rules: ICSSRule[];
+    declarations: ICSSStyleDeclaration[];
 }
 
-export interface IAtNode extends INode {
+export interface ICSSAtNode extends ICSSNode {
     type: 'at'
     at: string;
     selector: string;
-    styles: INode[];
+    styles: ICSSNode[];
 }
 
-export interface ICommentNode extends INode {
+export interface ICSSCommentNode extends ICSSNode {
     type: 'comment';
     content: string;
 }
 
-export interface IStyleDeclaration {
+export interface ICSSStyleDeclaration {
     name: string;
-    value: (IKeyword|IUnit|IFunction)[];
+    value: (ICSSKeyword|ICSSUnit|ICSSFunction)[];
 }
 
-export interface IKeyword {
+export interface ICSSKeyword {
     type: 'keyword'
     value: string;
 }
 
-export interface IUnit {
+export interface ICSSUnit {
     type: string;
     value: number;
     unit: string;
 }
 
-export interface IFunction {
+export interface ICSSFunction {
     type: string;
     value: number;
     arguments: string;
 }
 
-export interface IRule {
+export interface ICSSRule {
     specificity: [number,number,number,number];
-    selectors: ISelector[];
+    selectors: ICSSSelector[];
 }
 
 /**
@@ -64,11 +64,11 @@ export interface IRule {
  * : pseudo-class
  * :: pseudo-element
  */
-export interface ISelector {
+export interface ICSSSelector {
     type: 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class'|'function',
     combinator: 'root'|'descendant'|'same'|'child'|'adjacent'|'sibling';
     selector: string;
-    arguments: ISelector[]|string;
+    arguments: ICSSSelector[]|string;
 }
 
 export class CssParser {
@@ -83,7 +83,7 @@ export class CssParser {
         return nodes;
     }
 
-    public parse_STYLES(): INode[] {
+    public parse_STYLES(): ICSSNode[] {
         let nodes = [];
         this.skipWhitespaces();
         while (!this.eof() && this.nextChar() != '}') {
@@ -104,8 +104,8 @@ export class CssParser {
         return nodes;
     }
 
-    public parse_STYLE_NODE(): IStyleNode {
-        let node: IStyleNode = {
+    public parse_STYLE_NODE(): ICSSStyleNode {
+        let node: ICSSStyleNode = {
             type: 'style',
             rules: [],
             declarations: [],
@@ -144,8 +144,8 @@ export class CssParser {
         }
     }
 
-    public parse_RULE(): IRule {
-        let rule: IRule = {
+    public parse_RULE(): ICSSRule {
+        let rule: ICSSRule = {
             specificity: [0,0,0,0],
             selectors: []
         };
@@ -206,8 +206,8 @@ export class CssParser {
         }
     }
 
-    public parse_SELECTOR(isFirst: boolean, hasWhitespaceBefore: boolean): ISelector {
-        let selector: ISelector = {
+    public parse_SELECTOR(isFirst: boolean, hasWhitespaceBefore: boolean): ICSSSelector {
+        let selector: ICSSSelector = {
             type: 'element',
             combinator: isFirst ? 'root' : (hasWhitespaceBefore ? 'descendant' : 'same'),
             selector: '',
@@ -295,8 +295,8 @@ export class CssParser {
         return selector;
     }
 
-    public parse_DECLARATION(): IStyleDeclaration {
-        let declaration: IStyleDeclaration = {
+    public parse_DECLARATION(): ICSSStyleDeclaration {
+        let declaration: ICSSStyleDeclaration = {
             name: '',
             value: []
         };
@@ -333,7 +333,7 @@ export class CssParser {
         return expr.trim();
     }
 
-    public parse_DECLARATION_VALUE(): (IKeyword|IUnit|IFunction)[] {
+    public parse_DECLARATION_VALUE(): (ICSSKeyword|ICSSUnit|ICSSFunction)[] {
         let values = [];
         this.skipWhitespaces();
         while(!this.eof() && this.nextChar().match(/[^};]/i)) {
@@ -368,7 +368,7 @@ export class CssParser {
         return values;
     }
 
-    public parse_UNIT(): IUnit {
+    public parse_UNIT(): ICSSUnit {
         let unit = {
             type: 'unit',
             value: 0,
@@ -389,8 +389,8 @@ export class CssParser {
         return unit;
     }
 
-    public parse_COMMENT_NODE(): ICommentNode {
-        let node: ICommentNode = {
+    public parse_COMMENT_NODE(): ICSSCommentNode {
+        let node: ICSSCommentNode = {
             type: 'comment',
             content: ''
         };
@@ -408,8 +408,8 @@ export class CssParser {
         return node;
     }
 
-    public parse_AT_RULE(): IAtNode {
-        let node: IAtNode = {
+    public parse_AT_RULE(): ICSSAtNode {
+        let node: ICSSAtNode = {
             type: 'at',
             at: '',
             selector: '',

@@ -9,30 +9,30 @@
  * - encoded characters: &quot;
  */
 
-export interface INode {
+export interface IHtmlNode {
     type: 'element'|'text'|'comment'|'doctype';
 }
 
-export interface IElementNode extends INode {
+export interface IHtmlElementNode extends IHtmlNode {
     type: 'element';
     tag: string;
     id?: string;
     classNames?: string[];
     attributes: {};
-    children: INode[];
+    children: IHtmlNode[];
 }
 
-export interface IDoctypeNode extends INode {
+export interface IHtmlDoctypeNode extends IHtmlNode {
     type: 'doctype';
     params: string[];
 }
 
-export interface ITextNode extends INode {
+export interface IHtmlTextNode extends IHtmlNode {
     type: 'text';
     content: string;
 }
 
-export interface ICommentNode extends INode {
+export interface IHtmlCommentNode extends IHtmlNode {
     type: 'comment';
     content: string;
 }
@@ -56,7 +56,7 @@ export class HtmlParser {
         return nodes;
     }
 
-    public parse_NODES(): INode[] {
+    public parse_NODES(): IHtmlNode[] {
         let nodes = [];
         while (!this.eof()) {
             //console.log('parse Nodes: ', this.nextChars(16), this.pos);
@@ -80,8 +80,8 @@ export class HtmlParser {
         return nodes;
     }
 
-    public parse_TEXT_NODE(): ITextNode {
-        let node: ITextNode = {
+    public parse_TEXT_NODE(): IHtmlTextNode {
+        let node: IHtmlTextNode = {
             type: 'text',
             content: ''
         };
@@ -98,8 +98,8 @@ export class HtmlParser {
         return node;
     }
 
-    public parse_RAW_TEXT_NODE(closing_tag: string): ITextNode {
-        let node: ITextNode = {
+    public parse_RAW_TEXT_NODE(closing_tag: string): IHtmlTextNode {
+        let node: IHtmlTextNode = {
             type: 'text',
             content: ''
         };
@@ -112,8 +112,8 @@ export class HtmlParser {
         return node;
     }
 
-    public parse_COMMENT_NODE(): ICommentNode {
-        let node: ICommentNode = {
+    public parse_COMMENT_NODE(): IHtmlCommentNode {
+        let node: IHtmlCommentNode = {
             type: 'comment',
             content: ''
         };
@@ -132,8 +132,8 @@ export class HtmlParser {
         return node;
     }
 
-    public parse_DOCTYPE_NODE(): IDoctypeNode {
-        let node: IDoctypeNode = {
+    public parse_DOCTYPE_NODE(): IHtmlDoctypeNode {
+        let node: IHtmlDoctypeNode = {
             type: 'doctype',
             params: []
         };
@@ -156,8 +156,8 @@ export class HtmlParser {
         return node;
     }
 
-    public parse_ELEMENT_NODE(): IElementNode {
-        let node: IElementNode = {
+    public parse_ELEMENT_NODE(): IHtmlElementNode {
+        let node: IHtmlElementNode = {
             tag: '',
             type: 'element',
             attributes: {},
