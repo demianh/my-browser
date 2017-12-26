@@ -56,7 +56,6 @@ export interface ICSSRule {
  * Combinators:
  * root: first rule
  * descendant: space
- * same element: no space
  * child: >
  * adjacent sibling: + (immediate sibling after)
  * general sibling: ~ (any sibling element after)
@@ -65,23 +64,19 @@ export interface ICSSRule {
  * :: pseudo-element
  */
 export interface ICSSSelector {
-    type: 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class'|'function';
-    combinator: 'root'|'descendant'|'same'|'child'|'adjacent'|'sibling';
-    selector: string;
-    arguments: ICSSSelector[]|string;
-}
-
-export interface ICSSSelector__NEW_STRUCT {
-    type: 'selector';
     element?: string; // tag-name or *
     ids?: string[];
     classes?: string[];
     attributes?: string[];
     pseudoElements?: string[];
     pseudoClasses?: string[];
-    functions?: string[];
+    functions?: ICSSSelectorFunction[];
     combinator: 'root'|'descendant'|'child'|'adjacent'|'sibling';
-    arguments: ICSSSelector[]|string;
+}
+
+export interface ICSSSelectorFunction {
+    name: string;
+    arguments?: ICSSSelector[]|string;
 }
 
 export class CssParser {
@@ -90,6 +85,7 @@ export class CssParser {
     private pos = 0;
 
     public parse(text: string) {
+        //console.log(text);
         this.text = text;
         this.pos = 0;
         let nodes = this.parse_STYLES();
@@ -164,49 +160,41 @@ export class CssParser {
         };
 
         this.skipWhitespaces();
-        let hasWhitespace = false;
 
         // Text
         while(!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
             let isFirst = (rule.selectors.length == 0);
-            let newSelector = this.parse_SELECTOR(isFirst, hasWhitespace);
+            let sel = this.parse_SELECTOR(isFirst);
 
             // increase specificity
-            switch (newSelector.type) {
-                case 'id':
-                    rule.specificity[1]++;
-                    break;
-                case 'class':
-                case 'attribute':
-                case 'pseudo-class':
-                    rule.specificity[2]++;
-                    break;
-                case 'element':
-                case 'pseudo-element':
-                    rule.specificity[3]++;
-                    break;
+
+            // 1 ID
+            if (sel.ids && sel.ids.length) {
+                rule.specificity[1] += sel.ids.length;
             }
 
-            if (this.nextIsWhitespace()) {
-                hasWhitespace = true;
-                this.skipWhitespaces();
-            } else {
-                hasWhitespace = false;
+            // 2 CLASSES
+            if (sel.classes && sel.classes.length) {
+                rule.specificity[2] += sel.classes.length;
+            }
+            if (sel.attributes && sel.attributes.length) {
+                rule.specificity[2] += sel.attributes.length;
+            }
+            if (sel.pseudoClasses && sel.pseudoClasses.length) {
+                rule.specificity[2] += sel.pseudoClasses.length;
             }
 
-            if (this.nextChar() == '(') {
-                this.pos++;
-                newSelector.arguments = this.parse_PARENTHESIS_EXPR();
-
-                if (this.nextIsWhitespace()) {
-                    hasWhitespace = true;
-                    this.skipWhitespaces();
-                } else {
-                    hasWhitespace = false;
-                }
+            // 3 ELEMENTS
+            if (sel.element) {
+                rule.specificity[3]++;
+            }
+            if (sel.pseudoElements && sel.pseudoElements.length) {
+                rule.specificity[3] += sel.pseudoElements.length;
             }
 
-            rule.selectors.push(newSelector);
+            rule.selectors.push(sel);
+
+            this.skipWhitespaces();
         }
         if (this.nextChar() === ',') {
             // skip ,
@@ -219,12 +207,9 @@ export class CssParser {
         }
     }
 
-    public parse_SELECTOR(isFirst: boolean, hasWhitespaceBefore: boolean): ICSSSelector {
+    public parse_SELECTOR(isFirst: boolean): ICSSSelector {
         let selector: ICSSSelector = {
-            type: 'element',
-            combinator: isFirst ? 'root' : (hasWhitespaceBefore ? 'descendant' : 'same'),
-            selector: '',
-            arguments: []
+            combinator: isFirst ? 'root' : 'descendant',
         };
 
         this.skipWhitespaces();
@@ -252,48 +237,100 @@ export class CssParser {
             }
         }
 
-        if (!this.eof()) {
+        while(!this.eof() && !this.nextIsWhitespace() && !this.nextChar().match(/[{+,>~]/i)) {
             switch (this.nextChar()) {
                 case '.': {
                     // parse class
-                    selector.type = 'class';
                     this.pos++;
+                    if (!selector.classes) {
+                        selector.classes = [];
+                    }
+                    selector.classes.push(this.parse_SELECTOR_TEXT());
                     break;
                 }
                 case '#': {
                     // parse id
-                    selector.type = 'id';
                     this.pos++;
+                    if (!selector.ids) {
+                        selector.ids = [];
+                    }
+                    selector.ids.push(this.parse_SELECTOR_TEXT());
                     break;
                 }
                 case '[': {
                     // parse attribute
-                    selector.type = 'attribute';
                     this.pos++;
+                    if (!selector.attributes) {
+                        selector.attributes = [];
+                    }
+                    // Match rules enclosed in brackets: [att='var']
+                    selector.attributes.push(this.parse_ATTRIBUTE_SELECTOR());
                     break;
                 }
+                /*case '(': {
+                    // parse functions
+                    this.pos++;
+                    if (!selector.functions) {
+                        selector.functions = [];
+                    }
+                    this.pos++;
+                    let args = this.parse_PARENTHESIS_EXPR();
+                    break;
+                }*/
                 case ':': {
                     // parse pseudo
-                    selector.type = 'pseudo-class';
-                    this.pos++;
-                    if (this.nextChar() == ':') {
-                        selector.type = 'pseudo-element';
+                    if (this.nextIsFunction()) {
+                        // functions like :not(...)
+                        let func: ICSSSelectorFunction = {
+                            name: '',
+                            arguments: ''
+                        };
+                        // skip :
                         this.pos++;
+                        func.name = this.parse_SELECTOR_TEXT();
+                        this.skipWhitespaces();
+                        // skip (
+                        this.pos++;
+                        func.arguments = this.parse_PARENTHESIS_EXPR();
+                        if (!selector.functions) {
+                            selector.functions = [];
+                        }
+                        selector.functions.push(func);
+                    } else {
+                        this.pos++;
+                        if (this.nextChar() == ':') {
+                            // pseudo-element
+                            this.pos++;
+                            if (!selector.pseudoElements) {
+                                selector.pseudoElements = [];
+                            }
+                            selector.pseudoElements.push(this.parse_SELECTOR_TEXT());
+                        } else {
+                            // pseudo-class
+                            if (!selector.pseudoClasses) {
+                                selector.pseudoClasses = [];
+                            }
+                            selector.pseudoClasses.push(this.parse_SELECTOR_TEXT());
+                        }
                     }
                     break;
                 }
+                default: {
+                    let element = this.parse_SELECTOR_TEXT();
+                    if (!selector.element) {
+                        selector.element = element;
+                    }
+                }
             }
         }
+        return selector;
+    }
 
-        if (selector.type == 'attribute') {
-            // Match rules enclosed in brackets: [att='var']
-            selector.selector = this.parse_ATTRIBUTE_SELECTOR();
-        } else {
-            // Match any Text
-            while(!this.eof() && this.nextChar().match(/[a-z0-9_\-%]/i)) {
-                selector.selector += this.nextChar();
-                this.pos++;
-            }
+    public parse_SELECTOR_TEXT(): string {
+        let selector = '';
+        while(!this.eof() && this.nextChar().match(/[a-z0-9_\-*%]/i)) {
+            selector += this.nextChar();
+            this.pos++;
         }
         return selector;
     }
@@ -481,6 +518,10 @@ export class CssParser {
 
     public nextIsNumeric(): boolean {
         return this.text.substr(this.pos, 100).match(/^([+-]?[0-9]*[.]?[0-9]+)/i) !== null;
+    }
+
+    public nextIsFunction(): boolean {
+        return this.text.substr(this.pos, 100).match(/^:([a-zA-Z]+\s*\()/i) !== null;
     }
 
     public nextChar(): string {

@@ -17,19 +17,19 @@
       <span v-for="(rule, index) in node.rules">
         <span v-if="index > 0">,</span>
         <span v-for="selector in rule.selectors"><!--
-          --><span v-if="selector.combinator !== 'same' && selector.combinator !== 'root'">&nbsp;</span><!--
+          --><span v-if="selector.combinator !== 'root'">&nbsp;</span><!--
           --><span v-if="selector.combinator == 'child'" class="css-tree-node__combinator">&gt;&nbsp;</span><!--
           --><span v-if="selector.combinator == 'adjacent'" class="css-tree-node__combinator">+&nbsp;</span><!--
           --><span v-if="selector.combinator == 'sibling'" class="css-tree-node__combinator">~&nbsp;</span><!--
-          --><span v-if="selector.type == 'element'" class="css-tree-node__element">{{selector.selector}}</span><!--
-          --><span v-if="selector.type == 'class'" class="css-tree-node__class">.{{selector.selector}}</span><!--
-          --><span v-if="selector.type == 'id'" class="css-tree-node__id">#{{selector.selector}}</span><!--
-          --><span v-if="selector.type == 'attribute'" class="css-tree-node__attribute">[{{selector.selector}}]</span><!--
-          --><span v-if="selector.type == 'pseudo-element'" class="css-tree-node__pseudo-element">::{{selector.selector}}</span><!--
-          --><span v-if="selector.type == 'pseudo-class'" class="css-tree-node__pseudo-class">:{{selector.selector}}</span><!--
-          --><span v-if="selector.arguments && selector.arguments.length" class="css-tree-node__parentheses">(<!--
-              --><span class="css-tree-node__arguments">{{selector.arguments}}</span><!--
-          -->)</span><!--
+          --><span v-if="selector.element" class="css-tree-node__element">{{selector.element}}</span><!--
+          --><span v-if="selector.ids"><span v-for="id in selector.ids" class="css-tree-node__id">#{{id}}</span></span><!--
+          --><span v-if="selector.classes"><span v-for="cls in selector.classes" class="css-tree-node__class">.{{cls}}</span></span><!--
+          --><span v-if="selector.attributes"><span v-for="att in selector.attributes" class="css-tree-node__attribute">[{{att}}]</span></span><!--
+          --><span v-if="selector.pseudoClasses"><span v-for="cls in selector.pseudoClasses" class="css-tree-node__pseudo-class">:{{cls}}</span></span><!--
+          --><span v-if="selector.pseudoElements"><span v-for="el in selector.pseudoElements" class="css-tree-node__pseudo-element">::{{el}}</span></span><!--
+          --><span v-if="selector.functions"><span v-for="func in selector.functions" class="css-tree-node__parentheses">:{{func.name}}(<!--
+              --><span class="css-tree-node__arguments">{{func.arguments}}</span><!--
+          -->)</span></span><!--
         --></span>
       </span>
       <span v-if="!open && node.declarations" class="css-tree-node__rulecount">{ {{node.declarations.length}} }</span>

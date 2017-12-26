@@ -7,11 +7,12 @@ import {RenderTree} from '../js/RenderTree'
 import {HtmlStyleExtractor} from '../js/HtmlStyleExtractor'
 
 
-test('Extract', async t => {
+test('Create Tree', async t => {
+/*
 	var htmlParser = new HtmlParser();
 	var cssParser = new CssParser();
 	var renderTree = new RenderTree();
-	/*
+
 	let html = `
 <!DOCTYPE html>
 <html>

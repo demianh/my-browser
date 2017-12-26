@@ -8,6 +8,7 @@ export class CssParser {
         this.pos = 0;
     }
     parse(text) {
+        //console.log(text);
         this.text = text;
         this.pos = 0;
         let nodes = this.parse_STYLES();
@@ -77,45 +78,34 @@ export class CssParser {
             selectors: []
         };
         this.skipWhitespaces();
-        let hasWhitespace = false;
         // Text
         while (!this.eof() && this.nextChar() !== ',' && this.nextChar() !== '{') {
             let isFirst = (rule.selectors.length == 0);
-            let newSelector = this.parse_SELECTOR(isFirst, hasWhitespace);
+            let sel = this.parse_SELECTOR(isFirst);
             // increase specificity
-            switch (newSelector.type) {
-                case 'id':
-                    rule.specificity[1]++;
-                    break;
-                case 'class':
-                case 'attribute':
-                case 'pseudo-class':
-                    rule.specificity[2]++;
-                    break;
-                case 'element':
-                case 'pseudo-element':
-                    rule.specificity[3]++;
-                    break;
+            // 1 ID
+            if (sel.ids && sel.ids.length) {
+                rule.specificity[1] += sel.ids.length;
             }
-            if (this.nextIsWhitespace()) {
-                hasWhitespace = true;
-                this.skipWhitespaces();
+            // 2 CLASSES
+            if (sel.classes && sel.classes.length) {
+                rule.specificity[2] += sel.classes.length;
             }
-            else {
-                hasWhitespace = false;
+            if (sel.attributes && sel.attributes.length) {
+                rule.specificity[2] += sel.attributes.length;
             }
-            if (this.nextChar() == '(') {
-                this.pos++;
-                newSelector.arguments = this.parse_PARENTHESIS_EXPR();
-                if (this.nextIsWhitespace()) {
-                    hasWhitespace = true;
-                    this.skipWhitespaces();
-                }
-                else {
-                    hasWhitespace = false;
-                }
+            if (sel.pseudoClasses && sel.pseudoClasses.length) {
+                rule.specificity[2] += sel.pseudoClasses.length;
             }
-            rule.selectors.push(newSelector);
+            // 3 ELEMENTS
+            if (sel.element) {
+                rule.specificity[3]++;
+            }
+            if (sel.pseudoElements && sel.pseudoElements.length) {
+                rule.specificity[3] += sel.pseudoElements.length;
+            }
+            rule.selectors.push(sel);
+            this.skipWhitespaces();
         }
         if (this.nextChar() === ',') {
             // skip ,
@@ -128,12 +118,9 @@ export class CssParser {
             return rule;
         }
     }
-    parse_SELECTOR(isFirst, hasWhitespaceBefore) {
+    parse_SELECTOR(isFirst) {
         let selector = {
-            type: 'element',
-            combinator: isFirst ? 'root' : (hasWhitespaceBefore ? 'descendant' : 'same'),
-            selector: '',
-            arguments: []
+            combinator: isFirst ? 'root' : 'descendant',
         };
         this.skipWhitespaces();
         if (!this.eof()) {
@@ -158,48 +145,101 @@ export class CssParser {
                 }
             }
         }
-        if (!this.eof()) {
+        while (!this.eof() && !this.nextIsWhitespace() && !this.nextChar().match(/[{+,>~]/i)) {
             switch (this.nextChar()) {
                 case '.': {
                     // parse class
-                    selector.type = 'class';
                     this.pos++;
+                    if (!selector.classes) {
+                        selector.classes = [];
+                    }
+                    selector.classes.push(this.parse_SELECTOR_TEXT());
                     break;
                 }
                 case '#': {
                     // parse id
-                    selector.type = 'id';
                     this.pos++;
+                    if (!selector.ids) {
+                        selector.ids = [];
+                    }
+                    selector.ids.push(this.parse_SELECTOR_TEXT());
                     break;
                 }
                 case '[': {
                     // parse attribute
-                    selector.type = 'attribute';
                     this.pos++;
+                    if (!selector.attributes) {
+                        selector.attributes = [];
+                    }
+                    // Match rules enclosed in brackets: [att='var']
+                    selector.attributes.push(this.parse_ATTRIBUTE_SELECTOR());
                     break;
                 }
+                /*case '(': {
+                    // parse functions
+                    this.pos++;
+                    if (!selector.functions) {
+                        selector.functions = [];
+                    }
+                    this.pos++;
+                    let args = this.parse_PARENTHESIS_EXPR();
+                    break;
+                }*/
                 case ':': {
                     // parse pseudo
-                    selector.type = 'pseudo-class';
-                    this.pos++;
-                    if (this.nextChar() == ':') {
-                        selector.type = 'pseudo-element';
+                    if (this.nextIsFunction()) {
+                        // functions like :not(...)
+                        let func = {
+                            name: '',
+                            arguments: ''
+                        };
+                        // skip :
                         this.pos++;
+                        func.name = this.parse_SELECTOR_TEXT();
+                        this.skipWhitespaces();
+                        // skip (
+                        this.pos++;
+                        func.arguments = this.parse_PARENTHESIS_EXPR();
+                        if (!selector.functions) {
+                            selector.functions = [];
+                        }
+                        selector.functions.push(func);
+                    }
+                    else {
+                        this.pos++;
+                        if (this.nextChar() == ':') {
+                            // pseudo-element
+                            this.pos++;
+                            if (!selector.pseudoElements) {
+                                selector.pseudoElements = [];
+                            }
+                            selector.pseudoElements.push(this.parse_SELECTOR_TEXT());
+                        }
+                        else {
+                            // pseudo-class
+                            if (!selector.pseudoClasses) {
+                                selector.pseudoClasses = [];
+                            }
+                            selector.pseudoClasses.push(this.parse_SELECTOR_TEXT());
+                        }
                     }
                     break;
                 }
+                default: {
+                    let element = this.parse_SELECTOR_TEXT();
+                    if (!selector.element) {
+                        selector.element = element;
+                    }
+                }
             }
         }
-        if (selector.type == 'attribute') {
-            // Match rules enclosed in brackets: [att='var']
-            selector.selector = this.parse_ATTRIBUTE_SELECTOR();
-        }
-        else {
-            // Match any Text
-            while (!this.eof() && this.nextChar().match(/[a-z0-9_\-%]/i)) {
-                selector.selector += this.nextChar();
-                this.pos++;
-            }
+        return selector;
+    }
+    parse_SELECTOR_TEXT() {
+        let selector = '';
+        while (!this.eof() && this.nextChar().match(/[a-z0-9_\-*%]/i)) {
+            selector += this.nextChar();
+            this.pos++;
         }
         return selector;
     }
@@ -367,6 +407,9 @@ export class CssParser {
     }
     nextIsNumeric() {
         return this.text.substr(this.pos, 100).match(/^([+-]?[0-9]*[.]?[0-9]+)/i) !== null;
+    }
+    nextIsFunction() {
+        return this.text.substr(this.pos, 100).match(/^:([a-zA-Z]+\s*\()/i) !== null;
     }
     nextChar() {
         //console.log('TEXT ' + this.text);
