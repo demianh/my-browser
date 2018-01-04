@@ -1,10 +1,6 @@
 
 import {IHtmlNode} from "./HtmlParser";
-import {ICSSStyleNode} from "./CssParser";
-
-function last(array) {
-    return array[array.length-1];
-}
+import {ICSSRule, ICSSSelector} from "./CssParser";
 
 export class RenderTreeNode {
     public parent: RenderTreeNode = null;
@@ -73,73 +69,137 @@ export class RenderTree {
         }
     }
 
-    private matchStylesForNode(node: RenderTreeNode): any[] {
+    public matchStylesForNode(node: RenderTreeNode): any[] {
         console.log(this.dumpParents(node));
+        let matchedStyles = [];
         for (let style of this.styles) {
             for (let rule of style.rules) {
 
                 // process rule
-                //console.log(rule);
-                // copy rule, so we can modify selectors
-                let ruleCopy = JSON.parse(JSON.stringify(rule));
-                if (this.ruleDoesMatch(node, ruleCopy)) {
-                    console.log('WE HAVE A MACTH!!');
-                    console.log(JSON.stringify(rule.selectors));
+                if (this.ruleDoesMatch(node, rule)) {
+                    console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
+                    matchedStyles.push(style);
                 }
             }
         }
-        return [];
+        return matchedStyles;
     }
 
-    private ruleDoesMatch(node: RenderTreeNode, rule, combinator: string = 'same'): boolean {
-        if (rule.selectors.length == 0) {
-            console.log('no selector left!');
+    private ruleDoesMatch(node: RenderTreeNode, rule: ICSSRule, combinator: string = '', position: number = null): boolean {
+        if (position < 0) {
+            //console.log('no selector left!');
             return false;
         }
         if (!node) {
-            console.log('no node left!');
+            //console.log('no node left!');
             return false;
         }
-        let selector = last(rule.selectors);
-        let doesMatch = false;
-        // 'element'|'class'|'id'|'universal'|'attribute'|'pseudo-element'|'pseudo-class'|'function'
-        switch(selector.type) {
-            case 'element':
-                if (node.tag == selector.selector) {
-                    doesMatch = true;
-                }
-                break;
-            case 'id':
-                break;
+        if (position === null) {
+            position = rule.selectors.length - 1;
         }
-        if (doesMatch) {
-            // remove the matched rule
-            rule.selectors.pop();
+        let selector: ICSSSelector = rule.selectors[position];
+        let doesMatch = false;
 
-            // 'root'|'descendant'|'same'|'child'|'adjacent'|'sibling'
+        // match element
+        if (selector.element) {
+            if (selector.element == node.tag) {
+                doesMatch = true;
+            }
+        }
+
+        if (doesMatch) {
+            // go to next rule
+            position--;
+
+            // 'root'|'descendant'|'child'|'adjacent'|'sibling'
             switch(selector.combinator) {
                 case 'root':
                     return true;
-                case 'same':
-                    return this.ruleDoesMatch(node, rule, selector.combinator);
                 case 'descendant':
+                    return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
                 case 'child':
-                    return this.ruleDoesMatch(node.parent, rule, selector.combinator);
+                    if (combinator == 'descendant') {
+                        let searchnode = node;
+                        while (searchnode.parent) {
+                            let test = this.ruleDoesMatch(searchnode.parent, rule, selector.combinator, position);
+                            if (test) {
+                                return true;
+                            } else {
+                                searchnode = searchnode.parent;
+                            }
+                        }
+                        return false;
+                    } else {
+                        return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
+                    }
+
+                case 'adjacent':
+                case 'sibling':
+                    // TODO: not implemented
+                    return false;
             }
         } else {
             if (combinator == 'descendant') {
                 // search in next descendant
-                return this.ruleDoesMatch(node.parent, rule, selector.combinator);
+                return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
             }
             return false;
         }
     }
 
     private dumpParents(node): string {
-        let path = ' > ' + node.type.toUpperCase() + ': ' + node.tag;
+        //let path = ' > ' + node.type.toUpperCase() + ': ' + node.tag;
+        let path = ' > ';
+        if (node.type == 'element') {
+            path += node.tag;
+        } else if (node.type == 'text') {
+            path += node.type.toUpperCase() + ': ' + node.content;
+        } else {
+            path += node.type.toUpperCase() + ': ' + node.tag;
+        }
         if (node.parent) {
             path = this.dumpParents(node.parent) + path;
         }
         return path;
+    }
+
+    private dumpRule(rule: ICSSRule): string {
+        let dump = '';
+        rule.selectors.forEach((selector) => {
+            if (selector.combinator !== 'root') {
+                dump += ' ';
+            }
+            if (selector.combinator == 'child') {
+                dump += '> ';
+            }
+            if (selector.combinator == 'adjacent') {
+                dump += '+ ';
+            }
+            if (selector.combinator == 'sibling') {
+                dump += '~ ';
+            }
+            if (selector.element) {
+                dump += selector.element;
+            }
+            if (selector.ids) {
+                selector.ids.forEach((id) => dump += '#'+id);
+            }
+            if (selector.classes) {
+                selector.classes.forEach((cls) => dump += '.'+cls);
+            }
+            if (selector.attributes) {
+                selector.attributes.forEach((att) => dump += '['+att+']');
+            }
+            if (selector.pseudoClasses) {
+                selector.pseudoClasses.forEach((cls) => dump += ':'+cls);
+            }
+            if (selector.pseudoElements) {
+                selector.pseudoElements.forEach((el) => dump += '::'+el);
+            }
+            if (selector.functions) {
+                selector.functions.forEach((func) => dump += ':'+func.name+'('+func.arguments+')');
+            }
+        });
+        return dump;
     }
 }

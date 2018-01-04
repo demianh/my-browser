@@ -8,7 +8,7 @@ import {HtmlStyleExtractor} from '../js/HtmlStyleExtractor'
 
 
 test('Create Tree', async t => {
-/*
+
 	var htmlParser = new HtmlParser();
 	var cssParser = new CssParser();
 	var renderTree = new RenderTree();
@@ -30,23 +30,83 @@ test('Create Tree', async t => {
 		<div id="main" class="test test--main">
 			<br>
 			<p>Hello <em>world</em>!</p>
+			<div>
+				<span>
+					<p>
+						<div>
+							<span>
+								<a>link</a>
+							</span>
+						</div>
+					</p>
+				</span>
+			</div>
 		</div>
 	</body>
 </html>`
 
 		let css = `
-			div, em {
+			div > div > span a,
+			body > div > span a,
+			div, em,
+			h1 p,
+			div p,
+			div > p,
+			body > p {
 				color: red;
-			}
-			h1 p {
-				color: blue;
 			}
 		`;
 
 	let nodes = htmlParser.parse(html);
 	let styles = cssParser.parse(css);
 	let tree = renderTree.createRenderTree(nodes, styles);
-*/
+
 	t.is('','');
+});
+
+test('Match CSS: Child and Descendent', async t => {
+
+	var htmlParser = new HtmlParser();
+	var cssParser = new CssParser();
+	var renderTree = new RenderTree();
+	let nodes, styles, tree;
+
+	nodes = htmlParser.parse(`<div><p>Hello <em>world</em>!</p></div>`);
+	styles = cssParser.parse(`em { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[0].children[1].styles));
+
+	nodes = htmlParser.parse(`<div><p>`);
+	styles = cssParser.parse(`div > p { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[0].styles));
+
+	nodes = htmlParser.parse(`<div><span><p>`);
+	styles = cssParser.parse(`div > p { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[0].children[0].styles));
+
+	nodes = htmlParser.parse(`<div><span><p>`);
+	styles = cssParser.parse(`div p { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[0].children[0].styles));
+
+	nodes = htmlParser.parse(`<span><div><p>`);
+	styles = cssParser.parse(`div span p { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[0].children[0].styles));
+
+	nodes = htmlParser.parse(`<body><div><div><span><p><div><span><a>`);
+	styles = cssParser.parse(`div > div > span a { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].styles));
+
+	/*
+	// TODO: fixme!
+	nodes = htmlParser.parse(`<body><div><div><span><p><div><span><a>`);
+	styles = cssParser.parse(`body > div > span a { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[0].children[0].children[0].children[0].children[0].children[0].children[0].styles));
+	*/
 });
 
