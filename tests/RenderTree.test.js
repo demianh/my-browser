@@ -71,6 +71,16 @@ test('Match CSS: Child and Descendent', async t => {
 	var renderTree = new RenderTree();
 	let nodes, styles, tree;
 
+	nodes = htmlParser.parse(`<a>`);
+	styles = cssParser.parse(`em { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].styles));
+
+	nodes = htmlParser.parse(`<em>`);
+	styles = cssParser.parse(`em { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].styles));
+
 	nodes = htmlParser.parse(`<div><p>Hello <em>world</em>!</p></div>`);
 	styles = cssParser.parse(`em { color: red;}`);
 	tree = renderTree.createRenderTree(nodes, styles);
