@@ -43,6 +43,8 @@ export class RenderTree {
 
     public createRenderTree(nodes: IHtmlNode[], styles: any[]): any[] {
 
+        console.log('-------- Render Tree ---------');
+
         this.styles = styles;
 
         let tree: RenderTreeNode[] = [];
@@ -71,12 +73,13 @@ export class RenderTree {
 
     public matchStylesForNode(node: RenderTreeNode): any[] {
         console.log(this.dumpParents(node));
+
         let matchedStyles = [];
         for (let style of this.styles) {
             for (let rule of style.rules) {
 
                 // process rule
-                if (this.ruleDoesMatch(node, rule)) {
+                if (this.matchRule(node, rule)) {
                     console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
                     matchedStyles.push(style);
                 }
@@ -85,70 +88,75 @@ export class RenderTree {
         return matchedStyles;
     }
 
-    private ruleDoesMatch(node: RenderTreeNode, rule: ICSSRule, combinator: string = '', position: number = null): boolean {
-        if (position < 0) {
-            //console.log('no selector left!');
-            return false;
-        }
-        if (!node) {
-            //console.log('no node left!');
-            return false;
-        }
-        if (position === null) {
-            position = rule.selectors.length - 1;
-        }
-        let selector: ICSSSelector = rule.selectors[position];
-        let doesMatch = false;
+    private matchRule(node: RenderTreeNode, rule: ICSSRule): boolean {
+        let position = rule.selectors.length - 1;
+        return this.matchRuleDirect(node, rule, position);
+    }
 
-        // match element
-        if (selector.element) {
-            if (selector.element == node.tag) {
-                doesMatch = true;
+    private matchRuleDescendant(node: RenderTreeNode, rule: ICSSRule, position: number): boolean {
+        //console.log('matchRuleDescendant() "' + this.dumpParents(node) + '", "' + this.dumpRule(rule) + '", "' + position + '"');
+
+        if (position < 0) { return false; } // no selector left
+        if (!node) { return false; } // no node left to match
+
+        let searchnode = node;
+
+        while (searchnode) {
+            let result = this.matchRuleDirect(searchnode, rule, position);
+            if (result === false) {
+                searchnode = searchnode.parent;
+            } else {
+                return true;
             }
         }
+        return false;
+    }
 
-        if (doesMatch) {
-            // go to next rule
-            position--;
+    private matchRuleDirect(node: RenderTreeNode, rule: ICSSRule, position: number): boolean { //false|{node: RenderTreeNode; position: number} {
+        //console.log('matchRuleDirect() "' + this.dumpParents(node) + '", "' + this.dumpRule(rule) + '", "' + position + '"');
 
-            // 'root'|'descendant'|'child'|'adjacent'|'sibling'
-            switch(selector.combinator) {
-                case 'root':
-                    return true;
-                case 'descendant':
-                    return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
-                case 'child':
-                    if (combinator == 'descendant') {
-                        let searchnode = node;
-                        while (searchnode.parent) {
-                            let test = this.ruleDoesMatch(searchnode.parent, rule, selector.combinator, position);
-                            if (test) {
-                                return true;
-                            } else {
-                                searchnode = searchnode.parent;
-                            }
-                        }
-                        return false;
-                    } else {
-                        return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
-                    }
+        if (position < 0) { return false; } // no selector left
+        if (!node) { return false; } // no node left to match
 
-                case 'adjacent':
-                case 'sibling':
-                    // TODO: not implemented
-                    return false;
+        let selector: ICSSSelector = rule.selectors[position];
+
+        if (this.selectorDoesMatchNode(node, selector)) {
+            if (position == 0) {
+                // successfully matched last rule
+                return true;
+            } else {
+                if (selector.combinator == 'descendant') {
+                    return this.matchRuleDescendant(node.parent, rule, position - 1);
+                } else {
+                    return this.matchRuleDirect(node.parent, rule, position - 1);
+                }
             }
         } else {
-            if (combinator == 'descendant') {
-                // search in next descendant
-                return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
-            }
             return false;
         }
     }
 
+
+    private selectorDoesMatchNode(node: RenderTreeNode, selector: ICSSSelector) {
+        let doesMatch = false;
+
+        //console.log('checking selector: ' + JSON.stringify(selector) + ' on node ' + this.dumpParents(node));
+
+        // match element
+        if (selector.element) {
+            if (selector.element == node.tag) {
+                //console.log('SELECTOR MATCHES: ' + selector.element);
+                doesMatch = true;
+            } else {
+                return false;
+            }
+        }
+        return doesMatch;
+    }
+
     private dumpParents(node): string {
         //let path = ' > ' + node.type.toUpperCase() + ': ' + node.tag;
+        if (!node) return '-- null node --';
         let path = ' > ';
         if (node.type == 'element') {
             path += node.tag;

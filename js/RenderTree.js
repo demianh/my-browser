@@ -24,6 +24,7 @@ export class RenderTree {
         this.styles = [];
     }
     createRenderTree(nodes, styles) {
+        console.log('-------- Render Tree ---------');
         this.styles = styles;
         let tree = [];
         for (let node of nodes) {
@@ -48,7 +49,7 @@ export class RenderTree {
         for (let style of this.styles) {
             for (let rule of style.rules) {
                 // process rule
-                if (this.ruleDoesMatch(node, rule)) {
+                if (this.matchRule(node, rule)) {
                     console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
                     matchedStyles.push(style);
                 }
@@ -56,68 +57,76 @@ export class RenderTree {
         }
         return matchedStyles;
     }
-    ruleDoesMatch(node, rule, combinator = '', position = null) {
+    matchRule(node, rule) {
+        let position = rule.selectors.length - 1;
+        return this.matchRuleDirect(node, rule, position);
+    }
+    matchRuleDescendant(node, rule, position) {
+        //console.log('matchRuleDescendant() "' + this.dumpParents(node) + '", "' + this.dumpRule(rule) + '", "' + position + '"');
         if (position < 0) {
-            //console.log('no selector left!');
             return false;
-        }
+        } // no selector left
         if (!node) {
-            //console.log('no node left!');
             return false;
-        }
-        if (position === null) {
-            position = rule.selectors.length - 1;
-        }
-        let selector = rule.selectors[position];
-        let doesMatch = false;
-        // match element
-        if (selector.element) {
-            if (selector.element == node.tag) {
-                doesMatch = true;
+        } // no node left to match
+        let searchnode = node;
+        while (searchnode) {
+            let result = this.matchRuleDirect(searchnode, rule, position);
+            if (result === false) {
+                searchnode = searchnode.parent;
+            }
+            else {
+                return true;
             }
         }
-        if (doesMatch) {
-            // go to next rule
-            position--;
-            // 'root'|'descendant'|'child'|'adjacent'|'sibling'
-            switch (selector.combinator) {
-                case 'root':
-                    return true;
-                case 'descendant':
-                    return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
-                case 'child':
-                    if (combinator == 'descendant') {
-                        let searchnode = node;
-                        while (searchnode.parent) {
-                            let test = this.ruleDoesMatch(searchnode.parent, rule, selector.combinator, position);
-                            if (test) {
-                                return true;
-                            }
-                            else {
-                                searchnode = searchnode.parent;
-                            }
-                        }
-                        return false;
-                    }
-                    else {
-                        return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
-                    }
-                case 'adjacent':
-                case 'sibling':
-                    // TODO: not implemented
-                    return false;
+        return false;
+    }
+    matchRuleDirect(node, rule, position) {
+        //console.log('matchRuleDirect() "' + this.dumpParents(node) + '", "' + this.dumpRule(rule) + '", "' + position + '"');
+        if (position < 0) {
+            return false;
+        } // no selector left
+        if (!node) {
+            return false;
+        } // no node left to match
+        let selector = rule.selectors[position];
+        if (this.selectorDoesMatchNode(node, selector)) {
+            if (position == 0) {
+                // successfully matched last rule
+                return true;
+            }
+            else {
+                if (selector.combinator == 'descendant') {
+                    return this.matchRuleDescendant(node.parent, rule, position - 1);
+                }
+                else {
+                    return this.matchRuleDirect(node.parent, rule, position - 1);
+                }
             }
         }
         else {
-            if (combinator == 'descendant') {
-                // search in next descendant
-                return this.ruleDoesMatch(node.parent, rule, selector.combinator, position);
-            }
             return false;
         }
     }
+    selectorDoesMatchNode(node, selector) {
+        let doesMatch = false;
+        //console.log('checking selector: ' + JSON.stringify(selector) + ' on node ' + this.dumpParents(node));
+        // match element
+        if (selector.element) {
+            if (selector.element == node.tag) {
+                //console.log('SELECTOR MATCHES: ' + selector.element);
+                doesMatch = true;
+            }
+            else {
+                return false;
+            }
+        }
+        return doesMatch;
+    }
     dumpParents(node) {
         //let path = ' > ' + node.type.toUpperCase() + ': ' + node.tag;
+        if (!node)
+            return '-- null node --';
         let path = ' > ';
         if (node.type == 'element') {
             path += node.tag;
