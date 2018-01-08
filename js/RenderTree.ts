@@ -125,17 +125,25 @@ export class RenderTree {
                 // successfully matched last rule
                 return true;
             } else {
-                if (selector.combinator == 'descendant') {
-                    return this.matchRuleDescendant(node.parent, rule, position - 1);
-                } else {
-                    return this.matchRuleDirect(node.parent, rule, position - 1);
+                switch (selector.combinator) {
+                    case 'descendant':
+                        return this.matchRuleDescendant(node.parent, rule, position - 1);
+                    case 'child':
+                        return this.matchRuleDirect(node.parent, rule, position - 1);
+                    case 'adjacent':
+                        let childposition = this.getChildPosition(node);
+                        if (childposition !== null) {
+                            return this.matchRuleDirect(node.parent.children[childposition - 1], rule, position - 1);
+                        }
+                        return false;
+                    default:
+                        throw "unsupported combinator: " + selector.combinator;
                 }
             }
         } else {
             return false;
         }
     }
-
 
     private selectorDoesMatchNode(node: RenderTreeNode, selector: ICSSSelector) {
         let doesMatch = false;
@@ -152,6 +160,18 @@ export class RenderTree {
             }
         }
         return doesMatch;
+    }
+
+    private getChildPosition(node): number {
+        if (!node.parent) {
+            return null;
+        }
+        for(let i = 0; i < node.parent.children.length; i++) {
+            if (node === node.parent.children[i]) {
+                return i;
+            }
+        }
+        return null;
     }
 
     private dumpParents(node): string {

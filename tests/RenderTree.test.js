@@ -64,7 +64,7 @@ test('Create Tree', async t => {
 	t.is('','');
 });
 */
-test('Match CSS: Child and Descendent', async t => {
+test('Match CSS: Child (>) and descendent combinator (whitespace)', async t => {
 
 	var htmlParser = new HtmlParser();
 	var cssParser = new CssParser();
@@ -138,3 +138,32 @@ test('Match CSS: Child and Descendent', async t => {
 
 });
 
+test('Match CSS: Adjacent sibling combinator (+)', async t => {
+
+	var htmlParser = new HtmlParser();
+	var cssParser = new CssParser();
+	var renderTree = new RenderTree();
+	let nodes, styles, tree;
+
+	nodes = htmlParser.parse(`<div><b></b><i></i><b></b><b></b></div>`);
+	styles = cssParser.parse(`i + b { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[0].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[1].styles));
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[2].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[3].styles));
+
+	nodes = htmlParser.parse(`<div><b></b><i></i><b></b><a></a></div>`);
+	styles = cssParser.parse(`a + b { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[0].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[1].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[2].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[3].styles));
+
+	nodes = htmlParser.parse(`<div><div></div><span><i><a></a><b></b></i></span></div>`);
+	styles = cssParser.parse(`div + span a + b { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[1].children[0].children[1].styles));
+
+});
