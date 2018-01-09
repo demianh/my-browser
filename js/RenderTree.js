@@ -107,6 +107,18 @@ export class RenderTree {
                             return this.matchRuleDirect(node.parent.children[childposition - 1], rule, position - 1);
                         }
                         return false;
+                    case 'sibling':
+                        let nodeposition = this.getChildPosition(node);
+                        if (nodeposition !== null) {
+                            let siblingposition = 0;
+                            while (siblingposition < nodeposition) {
+                                if (this.matchRuleDirect(node.parent.children[siblingposition], rule, position - 1)) {
+                                    return true;
+                                }
+                                siblingposition++;
+                            }
+                        }
+                        return false;
                     default:
                         throw "unsupported combinator: " + selector.combinator;
                 }

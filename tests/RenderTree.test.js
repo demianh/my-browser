@@ -167,3 +167,73 @@ test('Match CSS: Adjacent sibling combinator (+)', async t => {
 	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[1].children[0].children[1].styles));
 
 });
+
+test('Match CSS: General sibling combinator (~)', async t => {
+
+	var htmlParser = new HtmlParser();
+	var cssParser = new CssParser();
+	var renderTree = new RenderTree();
+	let nodes, styles, tree;
+
+	nodes = htmlParser.parse(`<div>
+		<span>This is not red.</span>
+		<p>Here is a paragraph.</p>
+		<code>Here is some code.</code>
+		<span>And here is a red span!</span>
+		<code>More code...</code>
+		<span>And this is a red span!</span>
+	</div>`);
+	styles = cssParser.parse(`p ~ span { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[0].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[1].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[2].styles));
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[3].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[4].styles));
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[5].styles));
+
+	nodes = htmlParser.parse(`<div>
+		<span>This is not red.</span>
+		<p>Here is a paragraph.</p>
+		<span>This is a red span.</span>
+		<p>Here is a paragraph.</p>
+		<code>Here is some code.</code>
+		<span>And here is a red span!</span>
+		<code>More code...</code>
+		<span>And this is a red span!</span>
+	</div>`);
+	styles = cssParser.parse(`p ~ span { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[0].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[1].styles));
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[2].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[3].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[4].styles));
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[5].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[6].styles));
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[7].styles));
+
+	nodes = htmlParser.parse(`<div>
+		<span>This is not red.</span>
+		<p>Here is a paragraph.</p>
+		<span>This is not red.</span>
+		<a>a link</a>
+		<p>Here is a paragraph.</p>
+		<code>Here is some code.</code>
+		<span>And here is a red span!</span>
+		<code>More code...</code>
+		<span>And this is a red span!</span>
+	</div>`);
+	styles = cssParser.parse(`a + p ~ span { color: red;}`);
+	tree = renderTree.createRenderTree(nodes, styles);
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[0].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[1].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[2].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[3].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[4].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[5].styles));
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[6].styles));
+	t.is(JSON.stringify([]), JSON.stringify(tree[0].children[7].styles));
+	t.is(JSON.stringify(styles), JSON.stringify(tree[0].children[8].styles));
+
+});
