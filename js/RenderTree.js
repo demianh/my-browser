@@ -141,6 +141,26 @@ export class RenderTree {
                 return false;
             }
         }
+        // match classes
+        if (selector.classes) {
+            if (selector.classes.every((cls) => { return node.classNames.indexOf(cls) >= 0; })) {
+                //console.log('SELECTOR MATCHES: ' + selector.classes.join(', '));
+                doesMatch = true;
+            }
+            else {
+                return false;
+            }
+        }
+        // match ids
+        if (selector.ids) {
+            if (selector.ids.every((id) => { return node.id == id; })) {
+                //console.log('SELECTOR MATCHES: ' + selector.ids.join(', '));
+                doesMatch = true;
+            }
+            else {
+                return false;
+            }
+        }
         return doesMatch;
     }
     getChildPosition(node) {
