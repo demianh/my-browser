@@ -6,12 +6,8 @@ import {CssParser} from '../js/CssParser'
 import {RenderTree} from '../js/RenderTree'
 import {HtmlStyleExtractor} from '../js/HtmlStyleExtractor'
 
-/*
-test('Create Tree', async t => {
 
-	var htmlParser = new HtmlParser();
-	var cssParser = new CssParser();
-	var renderTree = new RenderTree();
+test('Create Render Tree', async t => {
 
 	let html = `
 <!DOCTYPE html>
@@ -20,6 +16,27 @@ test('Create Tree', async t => {
 		<style type="text/css">
 			h1 {
 				color: red;
+			}
+			#main.test p, a {
+				padding: 0 1px 3px .5%;
+			}
+			#main.test p + a.class:not(h2) > div ~ span {
+				font-size: 1em;
+			}
+		</style>
+		<style type="text/css">
+			h2 {
+				color: yellow;
+			}
+			@media only screen and (max-height: 650px) {
+				span.lsbb {
+					height: 17px
+				}
+				h2 {
+					transform: scale(0, 0);
+					background-image: -webkit-linear-gradient(top, #fff, #f8f8f8);
+					transition: box-shadow 200ms cubic-bezier(0.4, 0 , 0.2 , 1 );
+				}
 			}
 		</style>
 		<link rel="stylesheet" href="demo.css"/>
@@ -30,40 +47,29 @@ test('Create Tree', async t => {
 		<div id="main" class="test test--main">
 			<br>
 			<p>Hello <em>world</em>!</p>
-			<div>
-				<span>
-					<p>
-						<div>
-							<span>
-								<a>link</a>
-							</span>
-						</div>
-					</p>
-				</span>
-			</div>
 		</div>
 	</body>
 </html>`
 
-		let css = `
-			div > div > span a,
-			body > div > span a,
-			div, em,
-			h1 p,
-			div p,
-			div > p,
-			body > p {
-				color: red;
-			}
-		`;
+	let htmlParser = new HtmlParser();
+	let cssParser = new CssParser();
+	let renderTree = new RenderTree();
+	let extractor = new HtmlStyleExtractor();
 
 	let nodes = htmlParser.parse(html);
-	let styles = cssParser.parse(css);
-	let tree = renderTree.createRenderTree(nodes, styles);
 
-	t.is('','');
+	let styles = extractor.extractStyles(nodes);
+	styles.forEach((style, index) => {
+		if (style.type === 'inline') {
+			styles[index].cssTree = cssParser.parse(style.css);
+		}
+	});
+
+	let tree = renderTree.createRenderTree(nodes, styles[0].cssTree);
+
+	t.is('html', tree[0].tag);
 });
-*/
+
 test('Match CSS: Child (>) and descendent combinator (whitespace)', async t => {
 
 	var htmlParser = new HtmlParser();

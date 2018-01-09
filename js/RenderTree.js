@@ -47,11 +47,14 @@ export class RenderTree {
         console.log(this.dumpParents(node));
         let matchedStyles = [];
         for (let style of this.styles) {
-            for (let rule of style.rules) {
-                // process rule
-                if (this.matchRule(node, rule)) {
-                    console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
-                    matchedStyles.push(style);
+            // only process style rules for now, ignore @media etc.
+            if (style.type == 'style') {
+                for (let rule of style.rules) {
+                    // process rule
+                    if (this.matchRule(node, rule)) {
+                        console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
+                        matchedStyles.push(style);
+                    }
                 }
             }
         }
@@ -183,7 +186,7 @@ export class RenderTree {
             path += node.tag;
         }
         else if (node.type == 'text') {
-            path += node.type.toUpperCase() + ': ' + node.content;
+            path += node.type.toUpperCase() + ': ' + (node.content ? node.content.substr(0, 20) : node.content);
         }
         else {
             path += node.type.toUpperCase() + ': ' + node.tag;
