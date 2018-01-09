@@ -25,7 +25,14 @@
       <div class="dev-tools__content" v-if="tab=='css'">
         <css-tree :nodes="document.css"></css-tree>
       </div>
-      <div class="dev-tools__content" v-if="tab=='render'">RenderTree</div>
+      <div class="dev-tools__content-divided" v-if="tab=='render'">
+        <div class="dev-tools__content-divided__main" :style="{height: (height - 30) + 'px'}">
+          <render-tree :nodes="document.renderTree"></render-tree>
+        </div>
+        <div class="dev-tools__content-divided__sidebar" :style="{height: (height - 30) + 'px'}">
+          <render-tree-node-info></render-tree-node-info>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -33,11 +40,15 @@
 <script>
     import HtmlTree from './HtmlTree.vue'
     import CssTree from './CssTree.vue'
+    import RenderTree from './RenderTree.vue'
+    import RenderTreeNodeInfo from "./RenderTreeNodeInfo.vue";
 
 export default {
       components: {
+          RenderTreeNodeInfo,
           HtmlTree,
-          CssTree
+          CssTree,
+          RenderTree
       },
       name: 'dev-tools',
       data: function () {
@@ -45,14 +56,15 @@ export default {
           tab: 'html',
           height: 300,
           isResizing: false,
-          document: this.$store.state.Document
+          document: this.$store.state.Document,
+          app: this.$store.state.App
         }
       },
       methods: {
         onMouseMove (event) {
           if (this.isResizing) {
             // pause event to prevent text selection while dragging
-            this.pauseEvent(event)
+            this.pauseEvent(event);
             // set new height
             this.height = this.height - event.movementY
           }
@@ -65,8 +77,8 @@ export default {
           if (e.preventDefault) {
             e.preventDefault()
           }
-          e.cancelBubble = true
-          e.returnValue = false
+          e.cancelBubble = true;
+          e.returnValue = false;
           return false
         }
       }
@@ -116,5 +128,19 @@ export default {
 
   .dev-tools__content {
     padding: 5px;
+  }
+
+  .dev-tools__content-divided {
+    display: grid;
+    grid-template-columns: 66.667% 33.333%;
+  }
+  .dev-tools__content-divided__main {
+    padding: 5px;
+    overflow: scroll;
+  }
+  .dev-tools__content-divided__sidebar {
+    padding: 5px;
+    overflow: scroll;
+    border-left: 1px solid #ddd;
   }
 </style>

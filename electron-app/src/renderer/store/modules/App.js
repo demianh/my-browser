@@ -1,7 +1,8 @@
 const state = {
-  devtoolsOpen: true,
-  url: ''
-}
+    devtoolsOpen: true,
+    url: '',
+    selectedRenderTreeNode: null
+};
 
 const mutations = {
   OPEN_DEVTOOLS (state) {
@@ -12,8 +13,11 @@ const mutations = {
   },
   SET_URL (state, url) {
     state.url = url
+  },
+  SET_SELECTED_RENDER_TREE_NODE (state, node) {
+    state.selectedRenderTreeNode = node
   }
-}
+};
 
 const actions = {
   openDevtools ({ commit }) {
@@ -24,8 +28,11 @@ const actions = {
   },
   setUrl ({ commit }, url) {
     commit('SET_URL', url)
+  },
+  setSelectedRenderTreeNode ({ commit }, node) {
+    commit('SET_SELECTED_RENDER_TREE_NODE', node)
   }
-}
+};
 
 export default {
   state,
