@@ -3,7 +3,6 @@
     <div v-if="node">
       <h3>Node Info &lt;{{node.tag}}&gt;</h3>
       <table>
-        <tr><th>Type</th><td>{{node.type}}</td></tr>
         <tr><th>ID</th><td>{{node.id}}</td></tr>
         <tr><th>Classes</th><td>{{node.classNames.join(', ')}}</td></tr>
       </table>
@@ -55,6 +54,7 @@
 
   th {
     text-align: left;
+    padding-right: 10px;
   }
 
 </style>
