@@ -16,34 +16,12 @@
       </span>
       <span v-for="(rule, index) in node.rules">
         <span v-if="index > 0">,</span>
-        <span v-for="selector in rule.selectors"><!--
-          --><span v-if="selector.combinator !== 'root'">&nbsp;</span><!--
-          --><span v-if="selector.combinator == 'child'" class="css-tree-node__combinator">&gt;&nbsp;</span><!--
-          --><span v-if="selector.combinator == 'adjacent'" class="css-tree-node__combinator">+&nbsp;</span><!--
-          --><span v-if="selector.combinator == 'sibling'" class="css-tree-node__combinator">~&nbsp;</span><!--
-          --><span v-if="selector.element" class="css-tree-node__element">{{selector.element}}</span><!--
-          --><span v-if="selector.ids"><span v-for="id in selector.ids" class="css-tree-node__id">#{{id}}</span></span><!--
-          --><span v-if="selector.classes"><span v-for="cls in selector.classes" class="css-tree-node__class">.{{cls}}</span></span><!--
-          --><span v-if="selector.attributes"><span v-for="att in selector.attributes" class="css-tree-node__attribute">[{{att}}]</span></span><!--
-          --><span v-if="selector.pseudoClasses"><span v-for="cls in selector.pseudoClasses" class="css-tree-node__pseudo-class">:{{cls}}</span></span><!--
-          --><span v-if="selector.pseudoElements"><span v-for="el in selector.pseudoElements" class="css-tree-node__pseudo-element">::{{el}}</span></span><!--
-          --><span v-if="selector.functions"><span v-for="func in selector.functions" class="css-tree-node__parentheses">:{{func.name}}(<!--
-              --><span class="css-tree-node__arguments">{{func.arguments}}</span><!--
-          -->)</span></span><!--
-        --></span>
+        <css-rule-name :rule="rule"></css-rule-name>
       </span>
       <span v-if="!open && node.declarations" class="css-tree-node__rulecount">{ {{node.declarations.length}} }</span>
       <span v-if="open">{</span>
       <div v-if="open" class="css-tree-node__declarations">
-        <div v-for="decl in node.declarations">
-          <span class="css-tree-node__declarations-key">{{decl.name}}</span>:
-          <span class="css-tree-node__declarations-value" v-for="(keyword, index) in decl.value"><!--
-            --><span v-if="index > 0">&nbsp;</span><!--
-            --><span v-if="keyword.type == 'unit'" class="css-tree-node__unit">{{keyword.value}}<i>{{keyword.unit}}</i></span><!--
-            --><span v-if="keyword.type == 'keyword'" class="css-tree-node__keyword">{{keyword.value}}</span><!--
-            --><span v-if="keyword.type == 'function'" class="css-tree-node__function">{{keyword.value}}({{keyword.arguments}})</span><!--
-          --></span>;
-        </div>
+        <css-rule-declarations :declarations="node.declarations"></css-rule-declarations>
       </div>
       <div v-if="open" class="css-tree-node__end">}</div>
     </span>
@@ -51,9 +29,13 @@
 </template>
 
 <script>
+    import CssRuleDeclarations from './CssRuleDeclarations.vue'
+    import CssRuleName from './CssRuleName.vue'
+
     export default {
       name: 'css-tree-node',
       props: ['node'],
+      components: {CssRuleDeclarations, CssRuleName},
       data: function () {
         return {
           open: false
@@ -81,38 +63,6 @@
     width: 20px;
   }
 
-  .css-tree-node__element {
-    font-weight: bold;
-    color: darkgreen;
-  }
-
-  .css-tree-node__id {
-    font-weight: bold;
-    color: darkblue;
-  }
-
-  .css-tree-node__class {
-    font-weight: bold;
-    color: #63002d;
-  }
-
-  .css-tree-node__pseudo-class,
-  .css-tree-node__pseudo-element {
-    font-weight: bold;
-    color: #903400;
-  }
-
-  .css-tree-node__parentheses {
-    font-weight: bold;
-    color: #903400;
-  }
-
-  .css-tree-node__attribute,
-  .css-tree-node__arguments {
-    font-weight: bold;
-    color: #333;
-  }
-
   .css-tree-node__rulecount {
     color: #bbb;
     font-style: italic;
@@ -120,21 +70,6 @@
 
   .css-tree-node__declarations {
     padding-left: 45px;
-  }
-
-  .css-tree-node__declarations-key {
-    color: #0b97c4;
-  }
-  .css-tree-node__declarations-value {
-
-  }
-
-  .css-tree-node__unit {
-    color: #00d6b2;
-  }
-
-  .css-tree-node__function {
-    color: #63002d;
   }
 
   .css-tree-node__at {

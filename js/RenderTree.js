@@ -2,6 +2,7 @@ export class RenderTreeNode {
     constructor(node, parent = null) {
         this.parent = null;
         this.children = [];
+        this.styles = [];
         this.parent = parent;
         this.type = node.type || null;
         this.tag = node.tag || null;
@@ -45,7 +46,7 @@ export class RenderTree {
     }
     matchStylesForNode(node) {
         console.log(this.dumpParents(node));
-        let matchedStyles = [];
+        let matchedRules = [];
         for (let style of this.styles) {
             // only process style rules for now, ignore @media etc.
             if (style.type == 'style') {
@@ -53,12 +54,17 @@ export class RenderTree {
                     // process rule
                     if (this.matchRule(node, rule)) {
                         console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
-                        matchedStyles.push(style);
+                        matchedRules.push({
+                            specificity: rule.specificity,
+                            selectors: rule.selectors,
+                            declarations: style.declarations
+                        });
                     }
                 }
             }
         }
-        return matchedStyles;
+        matchedRules = this.sortCssRules(matchedRules);
+        return matchedRules;
     }
     matchRule(node, rule) {
         let position = rule.selectors.length - 1;
@@ -234,5 +240,40 @@ export class RenderTree {
             }
         });
         return dump;
+    }
+    sortCssRules(cssRules) {
+        return this.stableSort(cssRules, (a, b) => {
+            if (a.specificity[0] < b.specificity[0])
+                return -1;
+            if (a.specificity[0] > b.specificity[0])
+                return 1;
+            if (a.specificity[1] < b.specificity[1])
+                return -1;
+            if (a.specificity[1] > b.specificity[1])
+                return 1;
+            if (a.specificity[2] < b.specificity[2])
+                return -1;
+            if (a.specificity[2] > b.specificity[2])
+                return 1;
+            if (a.specificity[3] < b.specificity[3])
+                return -1;
+            if (a.specificity[3] > b.specificity[3])
+                return 1;
+            return 0;
+        });
+    }
+    stableSort(list, cmp) {
+        let stabilized = list.map((el, index) => [el, index]);
+        let stableCmp = (a, b) => {
+            let order = cmp(a[0], b[0]);
+            if (order != 0)
+                return order;
+            return a[1] - b[1];
+        };
+        stabilized.sort(stableCmp);
+        for (let i = 0; i < list.length; i++) {
+            list[i] = stabilized[i][0];
+        }
+        return list;
     }
 }

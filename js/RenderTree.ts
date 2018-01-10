@@ -1,6 +1,16 @@
 
 import {IHtmlNode} from "./HtmlParser";
-import {ICSSRule, ICSSSelector} from "./CssParser";
+import {ICSSRule, ICSSSelector, ICSSStyleDeclaration} from "./CssParser";
+
+interface Comparator<T> {
+  (a: T, b: T): number
+}
+
+export interface IMatchedCSSRule {
+    specificity: [number,number,number,number];
+    selectors: ICSSSelector[];
+    declarations: ICSSStyleDeclaration[];
+}
 
 export class RenderTreeNode {
     public parent: RenderTreeNode = null;
@@ -14,7 +24,7 @@ export class RenderTreeNode {
     public params: string[];
     public content: string;
 
-    public styles: any[];
+    public styles: IMatchedCSSRule[] = [];
 
     constructor(node, parent: RenderTreeNode = null) {
         this.parent = parent;
@@ -74,7 +84,7 @@ export class RenderTree {
     public matchStylesForNode(node: RenderTreeNode): any[] {
         console.log(this.dumpParents(node));
 
-        let matchedStyles = [];
+        let matchedRules = [];
         for (let style of this.styles) {
             // only process style rules for now, ignore @media etc.
             if (style.type == 'style') {
@@ -83,12 +93,17 @@ export class RenderTree {
                     // process rule
                     if (this.matchRule(node, rule)) {
                         console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
-                        matchedStyles.push(style);
+                        matchedRules.push({
+                            specificity: rule.specificity,
+                            selectors: rule.selectors,
+                            declarations: style.declarations
+                        });
                     }
                 }
             }
         }
-        return matchedStyles;
+        matchedRules = this.sortCssRules(matchedRules);
+        return matchedRules;
     }
 
     private matchRule(node: RenderTreeNode, rule: ICSSRule): boolean {
@@ -264,5 +279,35 @@ export class RenderTree {
             }
         });
         return dump;
+    }
+
+    private sortCssRules(cssRules: IMatchedCSSRule[]): IMatchedCSSRule[] {
+        return this.stableSort(cssRules, (a: IMatchedCSSRule, b: IMatchedCSSRule) => {
+            if (a.specificity[0] < b.specificity[0]) return -1;
+            if (a.specificity[0] > b.specificity[0]) return 1;
+            if (a.specificity[1] < b.specificity[1]) return -1;
+            if (a.specificity[1] > b.specificity[1]) return 1;
+            if (a.specificity[2] < b.specificity[2]) return -1;
+            if (a.specificity[2] > b.specificity[2]) return 1;
+            if (a.specificity[3] < b.specificity[3]) return -1;
+            if (a.specificity[3] > b.specificity[3]) return 1;
+            return 0;
+        });
+    }
+
+    private stableSort<T>(list: T[], cmp: Comparator<T>): T[] {
+        let stabilized = list.map((el, index) => <[T, number]>[el, index]);
+        let stableCmp: Comparator<[T, number]> = (a, b) => {
+            let order = cmp(a[0], b[0]);
+            if (order != 0) return order;
+            return a[1] - b[1];
+        };
+
+        stabilized.sort(stableCmp);
+        for (let i = 0; i < list.length; i++) {
+            list[i] = stabilized[i][0];
+        }
+
+        return list;
     }
 }
