@@ -359,3 +359,25 @@ test('Match CSS by ID', async t => {
     tree = renderTree.createRenderTree(nodes, styles);
     t.deepEqual([], tree[0].children[0].styles);
 });
+
+test('Test Inline Styles', async t => {
+
+    var htmlParser = new HtmlParser();
+    var cssParser = new CssParser();
+    var renderTree = new RenderTree();
+    let nodes, styles, tree;
+
+    nodes = htmlParser.parse(`<h1 class="title" style="border: 1px solid red; padding-left: 10px">Title</h1>`);
+    tree = renderTree.createRenderTree(nodes, []);
+    let expectedStyles = [{"specificity":[1,0,0,0],"selectors":[{"inline":true}],"declarations":[{"name":"border","value":[{"type":"unit","value":1,"unit":"px"},{"type":"keyword","value":"solid"},{"type":"keyword","value":"red"}]},{"name":"padding-left","value":[{"type":"unit","value":10,"unit":"px"}]}]}];
+    t.is(JSON.stringify(expectedStyles), JSON.stringify(tree[0].styles));
+
+    nodes = htmlParser.parse(`<h1 style=" "></h1>`);
+    tree = renderTree.createRenderTree(nodes, []);
+    t.is(JSON.stringify([]), JSON.stringify(tree[0].styles));
+
+    nodes = htmlParser.parse(`<h1 style=".we.we-=()$s"></h1>`);
+    tree = renderTree.createRenderTree(nodes, []);
+    t.is(JSON.stringify([]), JSON.stringify(tree[0].styles));
+
+});

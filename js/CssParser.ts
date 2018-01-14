@@ -71,6 +71,7 @@ export interface ICSSSelector {
     pseudoElements?: string[];
     pseudoClasses?: string[];
     functions?: ICSSSelectorFunction[];
+    inline?: boolean;
     combinator: 'root'|'descendant'|'child'|'adjacent'|'sibling';
 }
 
@@ -88,8 +89,12 @@ export class CssParser {
         //console.log(text);
         this.text = text;
         this.pos = 0;
-        let nodes = this.parse_STYLES();
-        return nodes;
+        return this.parse_STYLES();
+    }
+
+    public setText(text: string): void {
+        this.text = text;
+        this.pos = 0;
     }
 
     public parse_STYLES(): ICSSNode[] {
@@ -132,18 +137,7 @@ export class CssParser {
         // skip {
         this.pos++;
 
-        this.skipWhitespaces();
-        while(!this.eof() && this.nextChar() !== '}') {
-            let newDeclaration = this.parse_DECLARATION();
-            // de-duplicate declarations
-            node.declarations = node.declarations.filter((decl) => {
-                return decl.name !== newDeclaration.name;
-            });
-            node.declarations.push(newDeclaration);
-            this.skipWhitespaces();
-        }
-        // skip }
-        this.pos++;
+        node.declarations = this.parse_DECLARATIONS();
 
         // dont return empty style nodes
         if (node.rules.length == 0 && node.declarations.length == 0) {
@@ -343,6 +337,26 @@ export class CssParser {
         }
         this.pos++;
         return selector;
+    }
+
+    public parse_DECLARATIONS(): ICSSStyleDeclaration[] {
+        let declarations: ICSSStyleDeclaration[] = [];
+        this.skipWhitespaces();
+        while(!this.eof() && this.nextChar() !== '}') {
+            let newDeclaration = this.parse_DECLARATION();
+            // only add non-empty declarations
+            if (newDeclaration.value.length > 0) {
+                // de-duplicate declarations
+                declarations = declarations.filter((decl) => {
+                    return decl.name !== newDeclaration.name;
+                });
+                declarations.push(newDeclaration);
+            }
+            this.skipWhitespaces();
+        }
+        // skip }
+        this.pos++;
+        return declarations;
     }
 
     public parse_DECLARATION(): ICSSStyleDeclaration {

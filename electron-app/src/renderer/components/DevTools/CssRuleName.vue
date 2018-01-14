@@ -1,6 +1,7 @@
 <template>
   <span class="css-rule-name">
       <span v-for="selector in rule.selectors"><!--
+        --><span v-if="selector.inline == true" class="css-tree-node__inline">Inline Styles</span><!--
         --><span v-if="selector.combinator !== 'root'">&nbsp;</span><!--
         --><span v-if="selector.combinator == 'child'" class="css-tree-node__combinator">&gt;&nbsp;</span><!--
         --><span v-if="selector.combinator == 'adjacent'" class="css-tree-node__combinator">+&nbsp;</span><!--
@@ -56,6 +57,11 @@
   .css-tree-node__arguments {
     font-weight: bold;
     color: #333;
+  }
+
+  .css-tree-node__inline {
+    color: #555;
+    font-style: italic;
   }
 
 </style>

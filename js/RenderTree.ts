@@ -1,6 +1,6 @@
 
 import {IHtmlNode} from "./HtmlParser";
-import {ICSSRule, ICSSSelector, ICSSStyleDeclaration} from "./CssParser";
+import {CssParser, ICSSRule, ICSSSelector, ICSSStyleDeclaration} from "./CssParser";
 
 interface Comparator<T> {
   (a: T, b: T): number
@@ -85,6 +85,21 @@ export class RenderTree {
         console.log(this.dumpParents(node));
 
         let matchedRules = [];
+
+        // handle inline styles
+        if (node.attributes['style']) {
+            let cssParser = new CssParser();
+            cssParser.setText(node.attributes['style']);
+            let inlineStyleDeclarations = cssParser.parse_DECLARATIONS();
+            if (inlineStyleDeclarations.length > 0) {
+                matchedRules.push({
+                    specificity: [1,0,0,0],
+                    selectors: [{inline: true}],
+                    declarations: inlineStyleDeclarations
+                });
+            }
+        }
+
         for (let style of this.styles) {
             // only process style rules for now, ignore @media etc.
             if (style.type == 'style') {

@@ -11,8 +11,11 @@ export class CssParser {
         //console.log(text);
         this.text = text;
         this.pos = 0;
-        let nodes = this.parse_STYLES();
-        return nodes;
+        return this.parse_STYLES();
+    }
+    setText(text) {
+        this.text = text;
+        this.pos = 0;
     }
     parse_STYLES() {
         let nodes = [];
@@ -52,18 +55,7 @@ export class CssParser {
         }
         // skip {
         this.pos++;
-        this.skipWhitespaces();
-        while (!this.eof() && this.nextChar() !== '}') {
-            let newDeclaration = this.parse_DECLARATION();
-            // de-duplicate declarations
-            node.declarations = node.declarations.filter((decl) => {
-                return decl.name !== newDeclaration.name;
-            });
-            node.declarations.push(newDeclaration);
-            this.skipWhitespaces();
-        }
-        // skip }
-        this.pos++;
+        node.declarations = this.parse_DECLARATIONS();
         // dont return empty style nodes
         if (node.rules.length == 0 && node.declarations.length == 0) {
             return null;
@@ -251,6 +243,25 @@ export class CssParser {
         }
         this.pos++;
         return selector;
+    }
+    parse_DECLARATIONS() {
+        let declarations = [];
+        this.skipWhitespaces();
+        while (!this.eof() && this.nextChar() !== '}') {
+            let newDeclaration = this.parse_DECLARATION();
+            // only add non-empty declarations
+            if (newDeclaration.value.length > 0) {
+                // de-duplicate declarations
+                declarations = declarations.filter((decl) => {
+                    return decl.name !== newDeclaration.name;
+                });
+                declarations.push(newDeclaration);
+            }
+            this.skipWhitespaces();
+        }
+        // skip }
+        this.pos++;
+        return declarations;
     }
     parse_DECLARATION() {
         let declaration = {

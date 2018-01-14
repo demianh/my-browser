@@ -365,6 +365,15 @@ test('Unit Declarations', async t => {
 	// transition: opacity 0.5s ease-out,left 0.5s ease-out;
 });
 
+test('Invalid Declarations', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	nodes = parser.parse('h1 { color: red; ha- this !$ in()v@lid }');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
+
+});
+
 test('Functions in Declarations', async t => {
 	var parser = new CssParser();
 	var nodes;

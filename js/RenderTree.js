@@ -1,3 +1,4 @@
+import { CssParser } from "./CssParser";
 export class RenderTreeNode {
     constructor(node, parent = null) {
         this.parent = null;
@@ -47,6 +48,19 @@ export class RenderTree {
     matchStylesForNode(node) {
         console.log(this.dumpParents(node));
         let matchedRules = [];
+        // handle inline styles
+        if (node.attributes['style']) {
+            let cssParser = new CssParser();
+            cssParser.setText(node.attributes['style']);
+            let inlineStyleDeclarations = cssParser.parse_DECLARATIONS();
+            if (inlineStyleDeclarations.length > 0) {
+                matchedRules.push({
+                    specificity: [1, 0, 0, 0],
+                    selectors: [{ inline: true }],
+                    declarations: inlineStyleDeclarations
+                });
+            }
+        }
         for (let style of this.styles) {
             // only process style rules for now, ignore @media etc.
             if (style.type == 'style') {
