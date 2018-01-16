@@ -53,7 +53,7 @@ export default {
       name: 'dev-tools',
       data: function () {
         return {
-          tab: 'html',
+          tab: 'render',
           height: 300,
           isResizing: false,
           document: this.$store.state.Document,
