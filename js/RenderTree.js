@@ -1,9 +1,11 @@
 import { CssParser } from "./CssParser";
+import { CssSpec } from "./CssSpec";
 export class RenderTreeNode {
     constructor(node, parent = null) {
         this.parent = null;
         this.children = [];
         this.styles = [];
+        this.computedStyles = {};
         this.parent = parent;
         this.type = node.type || null;
         this.tag = node.tag || null;
@@ -41,9 +43,36 @@ export class RenderTree {
     }
     matchCSSRecursive(node) {
         node.styles = this.matchStylesForNode(node);
+        node.computedStyles = this.calculateComputedStyles(node);
         for (let child of node.children) {
             this.matchCSSRecursive(child);
         }
+    }
+    calculateComputedStyles(node) {
+        let computed = {};
+        if (node.parent) {
+            computed = this.getInheritedStyleDeclarations(node.parent.computedStyles);
+        }
+        else {
+            computed = this.getInheritedStyleDeclarations({});
+        }
+        node.styles.forEach((style) => {
+            style.declarations.forEach((value) => {
+                computed[value.name] = value.value;
+            });
+        });
+        return computed;
+    }
+    getInheritedStyleDeclarations(parentStyles) {
+        // copy objects so we dont' modify the originals
+        let computed = JSON.parse(JSON.stringify(CssSpec.INITIAL_VALUES));
+        parentStyles = JSON.parse(JSON.stringify(parentStyles));
+        Object.keys(parentStyles).forEach((key) => {
+            if (CssSpec.INHERITED_PROPS.indexOf(key) >= 0) {
+                computed[key] = parentStyles[key];
+            }
+        });
+        return computed;
     }
     matchStylesForNode(node) {
         console.log(this.dumpParents(node));

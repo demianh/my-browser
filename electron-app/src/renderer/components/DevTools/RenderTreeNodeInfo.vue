@@ -3,8 +3,11 @@
     <div v-if="node">
       <h3>Node Info &lt;{{node.tag}}&gt;</h3>
       <table>
-        <tr><th>ID</th><td>{{node.id}}</td></tr>
-        <tr><th>Classes</th><td>{{node.classNames.join(', ')}}</td></tr>
+        <tr><th>ID</th><td>
+          <span v-if="node.id">#{{node.id}}</span>
+        </td></tr>
+        <tr><th>Classes</th><td>
+          <span v-if="node.classNames.length">.{{node.classNames.join(', .')}}</span></td></tr>
       </table>
 
       <h3>Styles ({{node.styles.length}})</h3>
@@ -17,6 +20,18 @@
         </div>
         <div>}</div>
       </div>
+
+      <h3>Computed Styles</h3>
+      <div v-for="(computed, key) in node.computedStyles" class="render-tree-node-info__computed">
+        <span class="css-rule-declarations__key">{{key}}</span>:
+        <span class="css-rule-declarations__value" v-for="(keyword, index) in computed"><!--
+          --><span v-if="index > 0">&nbsp;</span><!--
+          --><span v-if="keyword.type == 'unit'" class="css-rule-declarations__unit">{{keyword.value}}<i>{{keyword.unit}}</i></span><!--
+          --><span v-if="keyword.type == 'keyword'" class="css-rule-declarations__keyword">{{keyword.value}}</span><!--
+          --><span v-if="keyword.type == 'function'" class="css-rule-declarations__function">{{keyword.value}}({{keyword.arguments}})</span><!--
+        --></span>;
+      </div>
+
     </div>
   </div>
 </template>
@@ -77,4 +92,24 @@
     padding-left: 25px;
   }
 
+  .render-tree-node-info__computed {
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+
+  .css-rule-declarations__key {
+    color: #0b97c4;
+  }
+  .css-rule-declarations__value {
+
+  }
+
+  .css-rule-declarations__unit {
+    color: #00d6b2;
+  }
+
+  .css-rule-declarations__function {
+    color: #63002d;
+  }
 </style>

@@ -1,6 +1,10 @@
 
 import {IHtmlNode} from "./HtmlParser";
-import {CssParser, ICSSRule, ICSSSelector, ICSSStyleDeclaration} from "./CssParser";
+import {
+    CssParser, ICSSFunction, ICSSKeyword, ICSSRule, ICSSSelector, ICSSStyleDeclaration,
+    ICSSUnit
+} from "./CssParser";
+import {CssSpec} from "./CssSpec";
 
 interface Comparator<T> {
   (a: T, b: T): number
@@ -25,6 +29,7 @@ export class RenderTreeNode {
     public content: string;
 
     public styles: IMatchedCSSRule[] = [];
+    public computedStyles: {[key: string]: (ICSSKeyword|ICSSUnit|ICSSFunction)[]} = {};
 
     constructor(node, parent: RenderTreeNode = null) {
         this.parent = parent;
@@ -75,10 +80,38 @@ export class RenderTree {
     private matchCSSRecursive(node: RenderTreeNode) {
 
         node.styles = this.matchStylesForNode(node);
+        node.computedStyles = this.calculateComputedStyles(node);
 
         for (let child of node.children) {
             this.matchCSSRecursive(child);
         }
+    }
+
+    public calculateComputedStyles(node: RenderTreeNode): {[key: string]: (ICSSKeyword|ICSSUnit|ICSSFunction)[]} {
+        let computed = {};
+        if (node.parent) {
+            computed = this.getInheritedStyleDeclarations(node.parent.computedStyles);
+        } else {
+            computed = this.getInheritedStyleDeclarations({});
+        }
+        node.styles.forEach((style) => {
+            style.declarations.forEach((value) => {
+                computed[value.name] = value.value;
+            });
+        });
+        return computed;
+    }
+
+    public getInheritedStyleDeclarations(parentStyles) {
+        // copy objects so we dont' modify the originals
+        let computed = JSON.parse(JSON.stringify(CssSpec.INITIAL_VALUES));
+        parentStyles = JSON.parse(JSON.stringify(parentStyles));
+        Object.keys(parentStyles).forEach((key) => {
+            if (CssSpec.INHERITED_PROPS.indexOf(key) >= 0) {
+                computed[key] = parentStyles[key];
+            }
+        });
+        return computed;
     }
 
     public matchStylesForNode(node: RenderTreeNode): any[] {
