@@ -289,16 +289,16 @@ test('Simple Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 { color: red; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]}]}]');
 
 	nodes = parser.parse('h1 { color : red; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]}]}]');
 
 	nodes = parser.parse('h1 {color:red;}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]}]}]');
 
 	nodes = parser.parse('h1 {color:red}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]}]}]');
 
 	nodes = parser.parse(`col {
 			display: table-column;
@@ -312,11 +312,11 @@ test('Multiple Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 { color: red; font-family:helvetica,arial,sans-serif; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]},{"name":"font-family","value":[{"type":"keyword","value":"helvetica,arial,sans-serif"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]},{"name":"font-family","value":[{"type":"keyword","value":"helvetica,arial,sans-serif"}]}]}]');
 
 	// duplicate rules, use latest only
 	nodes = parser.parse('h1 { color: red; color: blue; }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"blue"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"color","value":"blue"}]}]}]');
 
 });
 
@@ -370,7 +370,7 @@ test('Invalid Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 { color: red; ha- this !$ in()v@lid }');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]}]}]');
 
 });
 
@@ -379,7 +379,7 @@ test('Functions in Declarations', async t => {
 	var nodes;
 
 	nodes = parser.parse('h1 {background: url("bla") white}');
-	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"background","value":[{"type":"function","value":"url","arguments":"\\"bla\\""},{"type":"keyword","value":"white"}]}]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"background","value":[{"type":"function","value":"url","arguments":"\\"bla\\""},{"type":"color","value":"white"}]}]}]');
 
 	nodes = parser.parse('h1 {transform: scale(0, 0)}');
 	t.is(JSON.stringify(nodes), '[{"type":"style","rules":[{"specificity":[0,0,0,1],"selectors":[{"combinator":"root","element":"h1"}]}],"declarations":[{"name":"transform","value":[{"type":"function","value":"scale","arguments":"0, 0"}]}]}]');
@@ -425,7 +425,7 @@ test('At Rules', async t => {
 			{
 				"type":"style",
 				"rules":[{"specificity":[0,0,1,0],"selectors":[{"combinator":"root","classes":["class"]}]}],
-				"declarations":[{"name":"color","value":[{"type":"keyword","value":"red"}]}]
+				"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]}]
 			}
 		]}]));
 
@@ -444,6 +444,54 @@ test('At Rules', async t => {
 			]
 		}]
 	));
+
+});
+
+test('Parse Color Declarations', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	parser.setText('#ffa');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"color","value":"#ffa"}]');
+
+	parser.setText('#red');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"keyword","value":"#red"}]');
+
+	parser.setText('red');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"color","value":"red"}]');
+
+	parser.setText('#09f');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"color","value":"#09f"}]');
+
+	parser.setText('#ff00');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"keyword","value":"#ff00"}]');
+
+	parser.setText('rgb(155, 0, 200)');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"color","value":"rgb","arguments":"155, 0, 200"}]');
+
+	parser.setText('hsla(155, 0, 200, 0.2)');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"color","value":"hsla","arguments":"155, 0, 200, 0.2"}]');
+
+	parser.setText('1px solid #fa7');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"unit","value":1,"unit":"px"},{"type":"keyword","value":"solid"},{"type":"color","value":"#fa7"}]');
+
+});
+
+test('Shorthand Declarations', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	parser.setText('1px solid red');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"unit","value":1,"unit":"px"},{"type":"keyword","value":"solid"},{"type":"color","value":"red"}]');
 
 });
 

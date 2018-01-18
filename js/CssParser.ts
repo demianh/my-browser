@@ -2,6 +2,7 @@
  * Grammar of CSS 2.1: https://www.w3.org/TR/CSS2/grammar.html
  * CSS3 Tokenization: https://www.w3.org/TR/css-syntax-3/#tokenization
  */
+import {CssSpec} from "./CssSpec";
 
 export interface ICSSNode {
     type: 'style'|'at'|'comment'|'import';
@@ -414,17 +415,30 @@ export class CssParser {
                     // skip (
                     this.pos++;
 
+                    let args = this.parse_PARENTHESIS_EXPR();
+                    let type = 'function';
+
+                    if (['rgb', 'rgba', 'hsl', 'hsla'].indexOf(value.toLowerCase()) >= 0) {
+                        type = 'color';
+                    }
                     // function
                     values.push({
-                        type: 'function',
+                        type: type,
                         value: value,
-                        arguments: this.parse_PARENTHESIS_EXPR()
+                        arguments: args
                     });
                 } else {
-                    values.push({
-                        type: 'keyword',
-                        value: value
-                    });
+                    if (this.isColor(value)) {
+                        values.push({
+                            type: 'color',
+                            value: value
+                        });
+                    } else {
+                        values.push({
+                            type: 'keyword',
+                            value: value
+                        });
+                    }
                 }
             }
             this.skipWhitespaces();
@@ -510,6 +524,16 @@ export class CssParser {
             node.styles = this.parse_STYLES();
         }
         return node;
+    }
+
+    public isColor(value: string): boolean {
+        if (CssSpec.COLOR_NAMES[value.toLowerCase()] !== undefined) {
+            return true;
+        }
+        if (value.match(/^#(?:[0-9a-f]{3}){1,2}$/i)) {
+            return true;
+        }
+        return false;
     }
 
     public skipWhitespaces(): void {

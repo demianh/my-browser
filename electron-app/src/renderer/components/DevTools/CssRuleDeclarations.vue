@@ -6,6 +6,7 @@
         --><span v-if="index > 0">&nbsp;</span><!--
         --><span v-if="keyword.type == 'unit'" class="css-rule-declarations__unit">{{keyword.value}}<i>{{keyword.unit}}</i></span><!--
         --><span v-if="keyword.type == 'keyword'" class="css-rule-declarations__keyword">{{keyword.value}}</span><!--
+        --><span v-if="keyword.type == 'color'" class="css-rule-declarations__color">{{keyword.value}}</span><!--
         --><span v-if="keyword.type == 'function'" class="css-rule-declarations__function">{{keyword.value}}({{keyword.arguments}})</span><!--
       --></span>;
     </div>
@@ -39,6 +40,10 @@
 
   .css-rule-declarations__unit {
     color: #00d6b2;
+  }
+
+  .css-rule-declarations__color {
+    color: blueviolet;
   }
 
   .css-rule-declarations__function {
