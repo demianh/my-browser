@@ -1,5 +1,6 @@
 import { CssParser } from "./CssParser";
 import { CssSpec } from "./CssSpec";
+import { CssShorthandExpander } from "./CssShorthandExpander";
 export class RenderTreeNode {
     constructor(node, parent = null) {
         this.parent = null;
@@ -28,7 +29,7 @@ export class RenderTree {
         this.styles = [];
     }
     createRenderTree(nodes, styles) {
-        console.log('-------- Render Tree ---------');
+        // console.log('-------- Render Tree ---------');
         this.styles = styles;
         let tree = [];
         for (let node of nodes) {
@@ -58,13 +59,23 @@ export class RenderTree {
         }
         node.styles.forEach((style) => {
             style.declarations.forEach((value) => {
-                computed[value.name] = value.value;
+                this.applyStyleDeclaration(computed, value);
             });
         });
         return computed;
     }
+    applyStyleDeclaration(computed, value) {
+        computed[value.name] = value.value;
+        // handle shorthand properties
+        if (typeof CssShorthandExpander[value.name] == 'function') {
+            let derived = CssShorthandExpander[value.name](value);
+            derived.forEach((decl) => {
+                this.applyStyleDeclaration(computed, decl);
+            });
+        }
+    }
     getInheritedStyleDeclarations(parentStyles) {
-        // copy objects so we dont' modify the originals
+        // copy objects so we don't modify the originals
         let computed = JSON.parse(JSON.stringify(CssSpec.INITIAL_VALUES));
         parentStyles = JSON.parse(JSON.stringify(parentStyles));
         Object.keys(parentStyles).forEach((key) => {
@@ -75,7 +86,7 @@ export class RenderTree {
         return computed;
     }
     matchStylesForNode(node) {
-        console.log(this.dumpParents(node));
+        //console.log(this.dumpParents(node));
         let matchedRules = [];
         // handle inline styles
         if (node.attributes['style']) {
@@ -96,7 +107,7 @@ export class RenderTree {
                 for (let rule of style.rules) {
                     // process rule
                     if (this.matchRule(node, rule)) {
-                        console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
+                        // console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
                         matchedRules.push({
                             specificity: rule.specificity,
                             selectors: rule.selectors,

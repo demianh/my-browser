@@ -5,6 +5,7 @@ import {
     ICSSUnit
 } from "./CssParser";
 import {CssSpec} from "./CssSpec";
+import {CssShorthandExpander} from "./CssShorthandExpander";
 
 interface Comparator<T> {
   (a: T, b: T): number
@@ -58,7 +59,7 @@ export class RenderTree {
 
     public createRenderTree(nodes: IHtmlNode[], styles: any[]): any[] {
 
-        console.log('-------- Render Tree ---------');
+        // console.log('-------- Render Tree ---------');
 
         this.styles = styles;
 
@@ -96,14 +97,26 @@ export class RenderTree {
         }
         node.styles.forEach((style) => {
             style.declarations.forEach((value) => {
-                computed[value.name] = value.value;
+                this.applyStyleDeclaration(computed, value);
             });
         });
         return computed;
     }
 
+    public applyStyleDeclaration(computed, value) {
+        computed[value.name] = value.value;
+
+        // handle shorthand properties
+        if (typeof CssShorthandExpander[value.name] == 'function') {
+            let derived = CssShorthandExpander[value.name](value);
+            derived.forEach((decl) => {
+                this.applyStyleDeclaration(computed, decl);
+            });
+        }
+    }
+
     public getInheritedStyleDeclarations(parentStyles) {
-        // copy objects so we dont' modify the originals
+        // copy objects so we don't modify the originals
         let computed = JSON.parse(JSON.stringify(CssSpec.INITIAL_VALUES));
         parentStyles = JSON.parse(JSON.stringify(parentStyles));
         Object.keys(parentStyles).forEach((key) => {
@@ -115,7 +128,7 @@ export class RenderTree {
     }
 
     public matchStylesForNode(node: RenderTreeNode): any[] {
-        console.log(this.dumpParents(node));
+        //console.log(this.dumpParents(node));
 
         let matchedRules = [];
 
@@ -140,7 +153,7 @@ export class RenderTree {
 
                     // process rule
                     if (this.matchRule(node, rule)) {
-                        console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
+                        // console.log('WE HAVE A MATCH: "' + this.dumpRule(rule) + '"');
                         matchedRules.push({
                             specificity: rule.specificity,
                             selectors: rule.selectors,
