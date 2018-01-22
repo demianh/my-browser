@@ -479,6 +479,10 @@ test('Parse Color Declarations', async t => {
 	nodes = parser.parse_DECLARATION_VALUE();
 	t.is(JSON.stringify(nodes), '[{"type":"color","value":"hsla","arguments":"155, 0, 200, 0.2"}]');
 
+	parser.setText('transparent');
+	nodes = parser.parse_DECLARATION_VALUE();
+	t.is(JSON.stringify(nodes), '[{"type":"color","value":"transparent"}]');
+
 	parser.setText('1px solid #fa7');
 	nodes = parser.parse_DECLARATION_VALUE();
 	t.is(JSON.stringify(nodes), '[{"type":"unit","value":1,"unit":"px"},{"type":"keyword","value":"solid"},{"type":"color","value":"#fa7"}]');
