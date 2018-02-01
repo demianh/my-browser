@@ -87,7 +87,7 @@ export default {
 
 <style scoped>
   .dev-tools {
-    overflow: scroll;
+    overflow: auto;
   }
 
   .dev-tools__menu  {
@@ -136,11 +136,11 @@ export default {
   }
   .dev-tools__content-divided__main {
     padding: 5px;
-    overflow: scroll;
+    overflow: auto;
   }
   .dev-tools__content-divided__sidebar {
     padding: 5px;
-    overflow: scroll;
+    overflow: auto;
     border-left: 1px solid #ddd;
   }
 </style>

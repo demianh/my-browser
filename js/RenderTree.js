@@ -95,7 +95,7 @@ export class RenderTree {
             let inlineStyleDeclarations = cssParser.parse_DECLARATIONS();
             if (inlineStyleDeclarations.length > 0) {
                 matchedRules.push({
-                    specificity: [1, 0, 0, 0],
+                    specificity: [2, 1, 0, 0, 0],
                     selectors: [{ inline: true }],
                     declarations: inlineStyleDeclarations
                 });
@@ -312,6 +312,10 @@ export class RenderTree {
             if (a.specificity[3] < b.specificity[3])
                 return -1;
             if (a.specificity[3] > b.specificity[3])
+                return 1;
+            if (a.specificity[4] < b.specificity[4])
+                return -1;
+            if (a.specificity[4] > b.specificity[4])
                 return 1;
             return 0;
         });

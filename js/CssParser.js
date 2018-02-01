@@ -7,11 +7,13 @@ export class CssParser {
     constructor() {
         this.text = '';
         this.pos = 0;
+        this.baseSpecificity = 2;
     }
-    parse(text) {
+    parse(text, baseSpecificity = 2) {
         //console.log(text);
         this.text = text;
         this.pos = 0;
+        this.baseSpecificity = baseSpecificity;
         return this.parse_STYLES();
     }
     setText(text) {
@@ -67,7 +69,7 @@ export class CssParser {
     }
     parse_RULE() {
         let rule = {
-            specificity: [0, 0, 0, 0],
+            specificity: [this.baseSpecificity, 0, 0, 0, 0],
             selectors: []
         };
         this.skipWhitespaces();
@@ -78,24 +80,24 @@ export class CssParser {
             // increase specificity
             // 1 ID
             if (sel.ids && sel.ids.length) {
-                rule.specificity[1] += sel.ids.length;
+                rule.specificity[2] += sel.ids.length;
             }
             // 2 CLASSES
             if (sel.classes && sel.classes.length) {
-                rule.specificity[2] += sel.classes.length;
+                rule.specificity[3] += sel.classes.length;
             }
             if (sel.attributes && sel.attributes.length) {
-                rule.specificity[2] += sel.attributes.length;
+                rule.specificity[3] += sel.attributes.length;
             }
             if (sel.pseudoClasses && sel.pseudoClasses.length) {
-                rule.specificity[2] += sel.pseudoClasses.length;
+                rule.specificity[3] += sel.pseudoClasses.length;
             }
             // 3 ELEMENTS
             if (sel.element) {
-                rule.specificity[3]++;
+                rule.specificity[4]++;
             }
             if (sel.pseudoElements && sel.pseudoElements.length) {
-                rule.specificity[3] += sel.pseudoElements.length;
+                rule.specificity[4] += sel.pseudoElements.length;
             }
             rule.selectors.push(sel);
             this.skipWhitespaces();

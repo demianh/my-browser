@@ -11,7 +11,7 @@
       </table>
 
       <h3>Styles ({{node.styles.length}})</h3>
-      <div v-for="style in node.styles" class="render-tree-node-info__styles">
+      <div v-for="style in reversedStyles" class="render-tree-node-info__styles">
         <css-rule-name :rule="style"></css-rule-name>
         <span class="render-tree-node-info__specificity">[{{style.specificity.join(',')}}]</span>
         {
@@ -52,6 +52,9 @@
       computed: {
         node () {
           return this.app.selectedRenderTreeNode
+        },
+        reversedStyles () {
+          return this.node.styles.slice().reverse();
         }
       },
       data: function () {

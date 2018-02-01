@@ -4,6 +4,7 @@ import { HtmlParser } from "../../../../js/HtmlParser";
 import { CssParser } from "../../../../js/CssParser";
 import { RenderTree } from "../../../../js/RenderTree";
 import { HtmlStyleExtractor } from "../../../../js/HtmlStyleExtractor";
+import { DefaultBrowserCss } from "./DefaultBrowserCss";
 export class Engine {
     loadURL(url) {
         let network = new Network();
@@ -23,10 +24,20 @@ export class Engine {
             let extractor = new HtmlStyleExtractor();
             let cssParser = new CssParser();
             let styles = extractor.extractStyles(nodes);
+            // add browser default styles
+            styles.push({
+                type: 'browser',
+                css: DefaultBrowserCss.css,
+            });
             let allStyleRules = [];
             styles.forEach((style, index) => {
                 if (style.type === 'inline') {
                     let tree = cssParser.parse(style.css);
+                    styles[index].cssTree = tree;
+                    allStyleRules = allStyleRules.concat(tree);
+                }
+                if (style.type === 'browser') {
+                    let tree = cssParser.parse(style.css, 0);
                     styles[index].cssTree = tree;
                     allStyleRules = allStyleRules.concat(tree);
                 }

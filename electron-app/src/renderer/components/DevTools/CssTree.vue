@@ -3,6 +3,7 @@
     <div v-for="(source, key) in nodes">
       <div class="css-tree__source-title">
         <span v-if="source.type == 'inline'">Inline Styles:</span>
+        <span v-if="source.type == 'browser'">Browser Default Styles:</span>
         <span v-if="source.type == 'link'">Linked Style: {{source.href}}</span>
       </div>
       <div v-for="(rule, key2) in source.cssTree">
