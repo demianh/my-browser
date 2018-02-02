@@ -14,16 +14,22 @@
         <span v-if="open" class="css-tree-node__open"><i class="far fa-minus-square"></i></span>
         <span v-if="!open" class="css-tree-node__close"><i class="far fa-plus-square"></i></span>
       </span>
-      <span v-for="(rule, index) in node.rules">
-        <span v-if="index > 0">,</span>
-        <css-rule-name :rule="rule"></css-rule-name>
+      <span v-if="node.type == 'comment'" class="css-tree-node__comment">
+        <span v-if="!open">/*{{node.content.substr(0, 140)}}*/</span>
+        <span v-if="open">/*{{node.content}}*/</span>
       </span>
-      <span v-if="!open && node.declarations" class="css-tree-node__rulecount">{ {{node.declarations.length}} }</span>
-      <span v-if="open">{</span>
-      <div v-if="open" class="css-tree-node__declarations">
-        <css-rule-declarations :declarations="node.declarations"></css-rule-declarations>
-      </div>
-      <div v-if="open" class="css-tree-node__end">}</div>
+      <span v-else>
+        <span v-for="(rule, index) in node.rules">
+          <span v-if="index > 0">,</span>
+          <css-rule-name :rule="rule"></css-rule-name>
+        </span>
+        <span v-if="!open && node.declarations" class="css-tree-node__rulecount">{ {{node.declarations.length}} }</span>
+        <span v-if="open">{</span>
+        <div v-if="open" class="css-tree-node__declarations">
+          <css-rule-declarations :declarations="node.declarations"></css-rule-declarations>
+        </div>
+        <div v-if="open" class="css-tree-node__end">}</div>
+      </span>
     </span>
   </div>
 </template>
@@ -70,6 +76,10 @@
 
   .css-tree-node__declarations {
     padding-left: 45px;
+  }
+
+  .css-tree-node__comment {
+    color: #666;
   }
 
   .css-tree-node__at {
