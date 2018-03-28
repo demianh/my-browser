@@ -32,6 +32,12 @@ export class RenderTreeNode {
     public styles: IMatchedCSSRule[] = [];
     public computedStyles: {[key: string]: (ICSSKeyword|ICSSUnit|ICSSFunction)[]} = {};
 
+    // added later by the layout tree
+    public top: number;
+    public left: number;
+    public width: number;
+    public height: number;
+
     constructor(node, parent: RenderTreeNode = null) {
         this.parent = parent;
         this.type = node.type || null;
@@ -107,8 +113,9 @@ export class RenderTree {
         computed[value.name] = value.value;
 
         // handle shorthand properties
-        if (typeof CssShorthandExpander[value.name] == 'function') {
-            let derived = CssShorthandExpander[value.name](value);
+        let shorthandFunc = value.name.replace('-','');
+        if (typeof CssShorthandExpander[shorthandFunc] == 'function') {
+            let derived = CssShorthandExpander[shorthandFunc](value);
             derived.forEach((decl) => {
                 this.applyStyleDeclaration(computed, decl);
             });

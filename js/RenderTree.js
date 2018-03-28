@@ -67,8 +67,9 @@ export class RenderTree {
     applyStyleDeclaration(computed, value) {
         computed[value.name] = value.value;
         // handle shorthand properties
-        if (typeof CssShorthandExpander[value.name] == 'function') {
-            let derived = CssShorthandExpander[value.name](value);
+        let shorthandFunc = value.name.replace('-', '');
+        if (typeof CssShorthandExpander[shorthandFunc] == 'function') {
+            let derived = CssShorthandExpander[shorthandFunc](value);
             derived.forEach((decl) => {
                 this.applyStyleDeclaration(computed, decl);
             });
