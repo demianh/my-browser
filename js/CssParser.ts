@@ -28,7 +28,14 @@ export interface ICSSCommentNode extends ICSSNode {
 
 export interface ICSSStyleDeclaration {
     name: string;
-    value: (ICSSKeyword|ICSSUnit|ICSSFunction)[];
+    value: ICSSGenericValue[];
+}
+
+export interface ICSSGenericValue {
+    type: string
+    value: number|string;
+    unit?: string;
+    arguments?: string;
 }
 
 export interface ICSSKeyword {

@@ -27,8 +27,8 @@
     },
     methods: {
       openUrl () {
-        let engine = new Engine()
-        engine.loadURL(this.url)
+        let engine = new Engine();
+        engine.loadURL(this.url, document.getElementById("canvas"));
       }
     }
   }

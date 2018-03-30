@@ -12,30 +12,89 @@ export class LayoutTree {
         this.viewportHeight = viewportHeight;
 
         for (let node of nodes) {
-            this.calculateLayoutRecursive(node);
+            this.calculateLayoutRecursive(node, 0, 0);
         }
 
         return nodes;
     }
 
-    public calculateLayoutRecursive(node: RenderTreeNode) {
-        let parentWidth = this.viewportWidth;
+    public calculateLayoutRecursive(node: RenderTreeNode, left: number, top: number) {
+        let display = node.computedStyles.display[0].value;
 
-        if (node.parent) {
-            node.width = this.calculateInnerWidth(node.parent);
-            parentWidth = node.parent.width;
-        } else {
-            node.width = this.viewportWidth;
+        if (display != 'none') {
+            node.left = left;
+            node.top = top;
+
+            if (node.parent) {
+                node.width = this.calculateInnerWidth(node.parent);
+            } else {
+                node.width = this.viewportWidth;
+            }
+
+            let selfHeight = this.calculateHeight(node);
+
+            let leftOffset = left + this.calculateLeftOffset(node);
+            let topOffset = top + this.calculateTopOffset(node);
+
+            let childHeights = 0;
+            for (let child of node.children) {
+                this.calculateLayoutRecursive(child, leftOffset, topOffset + childHeights);
+                childHeights += child.height;
+            }
+
+            node.height = childHeights + selfHeight;
         }
 
-        for (let child of node.children) {
-            this.calculateLayoutRecursive(child);
+
+    }
+
+    private calculateLeftOffset(node: RenderTreeNode): number {
+        let left = 0;
+        let rules = ['border-left-width', 'margin-left', 'padding-left'];
+        rules.forEach((rule) => {
+            if (node.computedStyles[rule] && node.computedStyles[rule].length > 0) {
+                let style = node.computedStyles[rule][0];
+                if (style.type == 'unit' && style.unit && style.unit == 'px') {
+                    left = left + <number> style.value;
+                }
+            }
+        });
+        return left;
+    }
+
+    private calculateTopOffset(node: RenderTreeNode): number {
+        let top = 0;
+        let rules = ['border-top-width', 'margin-top', 'padding-top'];
+        rules.forEach((rule) => {
+            if (node.computedStyles[rule] && node.computedStyles[rule].length > 0) {
+                let style = node.computedStyles[rule][0];
+                if (style.type == 'unit' && style.unit && style.unit == 'px') {
+                    top = top + <number> style.value;
+                }
+            }
+        });
+        return top;
+    }
+
+    private calculateHeight(node: RenderTreeNode) {
+        let height = 0;
+
+        // add some space for the text
+        if (node.type == 'text') {
+            height += 20;
         }
 
-        let childheights = 100;
-        node.height = childheights;
+        let rules = ['padding-top', 'padding-bottom', 'margin-top', 'margin-bottom', 'border-top-width', 'border-bottom-width'];
+        rules.forEach((rule) => {
+            if (node.computedStyles[rule] && node.computedStyles[rule].length > 0) {
+                let style = node.computedStyles[rule][0];
+                if (style.type == 'unit' && style.unit && style.unit == 'px') {
+                    height = height + <number> style.value;
+                }
+            }
+        });
 
-
+        return height;
     }
 
     private calculateInnerWidth(node: RenderTreeNode): number {

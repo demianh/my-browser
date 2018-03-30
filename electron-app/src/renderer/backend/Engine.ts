@@ -7,10 +7,12 @@ import {CssParser} from "../../../../js/CssParser";
 import {RenderTree} from "../../../../js/RenderTree";
 import {HtmlStyleExtractor} from "../../../../js/HtmlStyleExtractor";
 import {DefaultBrowserCss} from "./DefaultBrowserCss";
+import {CanvasPainter} from "../../../../js/CanvasPainter";
+import {LayoutTree} from "../../../../js/LayoutTree";
 
 export class Engine {
 
-    public loadURL(url: string): void {
+    public loadURL(url: string, canvas: HTMLElement): void {
         let network = new Network();
 
         store.dispatch('setUrl', url);
@@ -22,6 +24,7 @@ export class Engine {
 
             //console.log(data);
 
+            // Parse HTML
             let tStartHtml = performance.now();
             let htmlParser = new HtmlParser();
             let nodes = htmlParser.parse(data);
@@ -39,6 +42,7 @@ export class Engine {
                 css: DefaultBrowserCss.css,
             });
 
+            // Parse CSS
             let allStyleRules = [];
             styles.forEach((style, index) => {
                 if (style.type === 'inline') {
@@ -55,11 +59,24 @@ export class Engine {
             store.dispatch('setCSS', styles);
             console.log("Parsing CSS: " + Math.round(performance.now() - tStartCss) + " milliseconds.");
 
+            // RenderTree
             let tStartRendertree = performance.now();
             let renderTree = new RenderTree();
             let rtree = renderTree.createRenderTree(nodes, allStyleRules);
-            store.dispatch('setRenderTree', rtree);
+            //store.dispatch('setRenderTree', rtree);
             console.log("Create Rendertree: " + Math.round(performance.now() - tStartRendertree) + " milliseconds.");
+
+            let tStartLayouttree = performance.now();
+            let layoutTree = new LayoutTree();
+            let ltree = layoutTree.createLayoutTree(rtree, canvas.clientWidth, canvas.clientHeight);
+            store.dispatch('setRenderTree', ltree);
+            console.log("Create LayoutTree: " + Math.round(performance.now() - tStartLayouttree) + " milliseconds.");
+
+            // Paint
+            let tStartPaint = performance.now();
+            let painter = new CanvasPainter();
+            painter.paintTree(<HTMLCanvasElement> canvas, rtree);
+            console.log("Paint: " + Math.round(performance.now() - tStartPaint) + " milliseconds.");
 
             console.log("Parsing & Rendering took " + Math.round(performance.now() - tStart) + " milliseconds.");
         });

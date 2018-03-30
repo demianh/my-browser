@@ -7,6 +7,11 @@ export class RenderTreeNode {
         this.children = [];
         this.styles = [];
         this.computedStyles = {};
+        // added later by the layout tree
+        this.top = 0;
+        this.left = 0;
+        this.width = 0;
+        this.height = 0;
         this.parent = parent;
         this.type = node.type || null;
         this.tag = node.tag || null;

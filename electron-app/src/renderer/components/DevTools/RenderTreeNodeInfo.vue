@@ -3,11 +3,36 @@
     <div v-if="node">
       <h3>Node Info &lt;{{node.tag}}&gt;</h3>
       <table>
-        <tr><th>ID</th><td>
-          <span v-if="node.id">#{{node.id}}</span>
-        </td></tr>
-        <tr><th>Classes</th><td>
-          <span v-if="node.classNames.length">.{{node.classNames.join(', .')}}</span></td></tr>
+        <tr>
+          <th>ID</th>
+          <td>
+            <span v-if="node.id">#{{node.id}}</span>
+          </td>
+        </tr>
+        <tr>
+          <th>Classes</th>
+          <td>
+            <span v-if="node.classNames.length">.{{node.classNames.join(', .')}}</span>
+          </td>
+        </tr>
+        <tr>
+          <th>Measures</th>
+          <td>
+            width: {{node.width}}px, height: {{node.height}}px
+          </td>
+        </tr>
+        <tr>
+          <th>Position</th>
+          <td>
+            top: {{node.top}}px, left: {{node.left}}px
+          </td>
+        </tr>
+        <tr>
+          <th>Display</th>
+          <td>
+            <span v-if="node.computedStyles.display">{{node.computedStyles.display[0].value}}</span>
+          </td>
+        </tr>
       </table>
 
       <h3>Styles ({{node.styles.length}})</h3>

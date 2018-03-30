@@ -1,8 +1,7 @@
 
 import {IHtmlNode} from "./HtmlParser";
 import {
-    CssParser, ICSSFunction, ICSSKeyword, ICSSRule, ICSSSelector, ICSSStyleDeclaration,
-    ICSSUnit
+    CssParser, ICSSRule, ICSSSelector, ICSSStyleDeclaration, ICSSGenericValue
 } from "./CssParser";
 import {CssSpec} from "./CssSpec";
 import {CssShorthandExpander} from "./CssShorthandExpander";
@@ -30,13 +29,13 @@ export class RenderTreeNode {
     public content: string;
 
     public styles: IMatchedCSSRule[] = [];
-    public computedStyles: {[key: string]: (ICSSKeyword|ICSSUnit|ICSSFunction)[]} = {};
+    public computedStyles: {[key: string]: ICSSGenericValue[]} = {};
 
     // added later by the layout tree
-    public top: number;
-    public left: number;
-    public width: number;
-    public height: number;
+    public top: number = 0;
+    public left: number = 0;
+    public width: number = 0;
+    public height: number = 0;
 
     constructor(node, parent: RenderTreeNode = null) {
         this.parent = parent;
@@ -94,7 +93,7 @@ export class RenderTree {
         }
     }
 
-    public calculateComputedStyles(node: RenderTreeNode): {[key: string]: (ICSSKeyword|ICSSUnit|ICSSFunction)[]} {
+    public calculateComputedStyles(node: RenderTreeNode): {[key: string]: ICSSGenericValue[]} {
         let computed = {};
         if (node.parent) {
             computed = this.getInheritedStyleDeclarations(node.parent.computedStyles);

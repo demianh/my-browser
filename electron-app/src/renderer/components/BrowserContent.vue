@@ -1,16 +1,49 @@
 <template>
-  <div class="browser-content">
-    &nbsp;
+  <div class="browser-content" ref="content">
+    <div class="inspected-element" :style="inspectedElementStyle"></div>
+    <canvas id="canvas" :width="width" :height="height"></canvas>
   </div>
 </template>
 
 <script>
   export default {
     name: 'browser-content',
+    data: function() {
+      return {
+          width: 600,
+          height: 100,
+          app: this.$store.state.App,
+          inspectedElementStyle: {
+              border: '1px solid red',
+              width: '0',
+              height: '0',
+              marginTop: '0',
+              left: '-10px',
+              position: 'absolute'
+          }
+      }
+    },
+    computed: {
+      node () {
+        return this.app.selectedRenderTreeNode
+      },
+    },
+    watch: {
+      node: function (node) {
+        this.inspectedElementStyle.width = node.width + 'px';
+        this.inspectedElementStyle.height = node.height + 'px';
+        this.inspectedElementStyle.marginTop = node.top + 'px';
+        this.inspectedElementStyle.left = node.left + 'px';
+      }
+    },
     methods: {
       open (link) {
         this.$electron.shell.openExternal(link)
       }
+    },
+    mounted() {
+      this.width = this.$refs.content.clientWidth;
+      this.height = this.$refs.content.clientHeight;
     }
   }
 </script>
