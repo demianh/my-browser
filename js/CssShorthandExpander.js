@@ -191,4 +191,13 @@ export class CssShorthandExpander {
         });
         return derived;
     }
+    static background(declaration) {
+        let derived = [];
+        declaration.value.forEach((def) => {
+            if (def.type == 'color') {
+                derived.push({ name: 'background-color', value: [def] });
+            }
+        });
+        return derived;
+    }
 }

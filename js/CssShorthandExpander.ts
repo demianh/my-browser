@@ -203,4 +203,14 @@ export class CssShorthandExpander {
         });
         return derived;
     }
+
+    public static background(declaration: ICSSStyleDeclaration) {
+        let derived: ICSSStyleDeclaration[] = [];
+        declaration.value.forEach((def) => {
+            if (def.type == 'color') {
+                derived.push({name: 'background-color', value: [def]});
+            }
+        });
+        return derived;
+    }
 }

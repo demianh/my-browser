@@ -39,14 +39,24 @@
     methods: {
       open (link) {
         this.$electron.shell.openExternal(link)
+      },
+      resizeContentArea() {
+        this.width = this.$refs.content.clientWidth;
+        this.height = this.$refs.content.clientHeight;
       }
     },
     mounted() {
-      this.width = this.$refs.content.clientWidth;
-      this.height = this.$refs.content.clientHeight;
+      this.resizeContentArea();
+      window.addEventListener('resize', () => {
+        this.resizeContentArea();
+      }, true);
     }
   }
 </script>
 
 <style scoped>
+  .browser-content {
+    margin-top: 40px;
+    height: 100%;
+  }
 </style>

@@ -4,9 +4,14 @@ export class CanvasPainter {
 
     private ctx = null;
 
+    private debugLayers: boolean = true;
+
     public paintTree(canvas: HTMLCanvasElement, tree: RenderTreeNode[]) {
 
         this.ctx = canvas.getContext("2d");
+
+        // Basic Canvas Settings
+        this.ctx.textBaseline = "top";
 
         // clear screen
         this.ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -21,18 +26,24 @@ export class CanvasPainter {
 
         if (display != 'none') {
 
-            // Draw demo background
-            this.ctx.fillStyle = "rgba(0, 0, 255, 0.02)";
-            this.ctx.fillRect(node.left, node.top, node.width, node.height);
-
-            // Draw Borders
-            // TODO
-
             // Draw Text
             if (node.type == 'text') {
-                this.ctx.font = "15px Arial";
-                this.ctx.fillStyle = node.computedStyles.color[0].value;
-                this.ctx.fillText(node.content, node.left, node.top);
+                this.paintTextNode(node);
+            } else {
+                // Draw debug background
+                if (this.debugLayers) {
+                    this.ctx.fillStyle = "rgba(0, 0, 255, 0.02)";
+                    this.ctx.fillRect(node.left, node.top, node.width, node.height);
+                }
+
+                // Draw Backgrounds
+                if (node.computedStyles['background-color'][0].value !== 'transparent') {
+                    this.ctx.fillStyle = node.computedStyles['background-color'][0].value;
+                    this.ctx.fillRect(node.left, node.top, node.width, node.height);
+                }
+
+                // Draw Borders
+                // TODO
             }
 
             node.children.forEach((child) => {
@@ -40,5 +51,18 @@ export class CanvasPainter {
             })
         }
 
+    }
+
+    private paintTextNode(node: RenderTreeNode) {
+
+        if (this.debugLayers) {
+            // Draw debug background
+            this.ctx.fillStyle = "rgba(0, 255, 0, 0.1)";
+            this.ctx.fillRect(node.left, node.top, node.width, node.height);
+        }
+
+        this.ctx.font = "15px Arial";
+        this.ctx.fillStyle = node.computedStyles.color[0].value;
+        this.ctx.fillText(node.content, node.left, node.top);
     }
 }

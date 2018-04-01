@@ -66,7 +66,9 @@ export default {
             // pause event to prevent text selection while dragging
             this.pauseEvent(event);
             // set new height
-            this.height = this.height - event.movementY
+            if (this.height > 50 || event.movementY < 0) {
+              this.height = this.height - event.movementY;
+            }
           }
         },
         pauseEvent (e) {
@@ -88,6 +90,10 @@ export default {
 <style scoped>
   .dev-tools {
     overflow: auto;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    background: white;
   }
 
   .dev-tools__menu  {
