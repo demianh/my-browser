@@ -2,6 +2,7 @@ export class LayoutTree {
     constructor() {
         this.viewportWidth = 0;
         this.viewportHeight = 0;
+        this.canvasContext = null;
     }
     createLayoutTree(nodes, viewportWidth, viewportHeight) {
         this.viewportWidth = viewportWidth;
@@ -16,19 +17,37 @@ export class LayoutTree {
         if (display != 'none') {
             node.left = left;
             node.top = top;
-            if (node.parent) {
-                node.width = this.calculateInnerWidth(node.parent);
-            }
-            else {
-                node.width = this.viewportWidth;
+            switch (display) {
+                case 'inline':
+                    if (node.type == 'text') {
+                        node.width = this.getTextWidth(node);
+                    }
+                    break;
+                case 'block':
+                default:
+                    if (node.parent) {
+                        // width is inner with of parent
+                        node.width = this.calculateInnerWidth(node.parent);
+                    }
+                    else {
+                        // use viewport width if it's a root element
+                        node.width = this.viewportWidth;
+                    }
+                    break;
             }
             let selfHeight = this.calculateHeight(node);
             let leftOffset = left + this.calculateLeftOffset(node);
             let topOffset = top + this.calculateTopOffset(node);
             let childHeights = 0;
+            let childWidths = 0;
             for (let child of node.children) {
                 this.calculateLayoutRecursive(child, leftOffset, topOffset + childHeights);
                 childHeights += child.height;
+                childWidths += child.width;
+            }
+            if (display == 'inline' && node.type !== 'text') {
+                // TODO: add paddings & margins
+                node.width = childWidths;
             }
             node.height = childHeights + selfHeight;
         }
@@ -63,7 +82,7 @@ export class LayoutTree {
         let height = 0;
         // add some space for the text
         if (node.type == 'text') {
-            height += 20;
+            height += node.computedStyles['font-size'][0].value;
         }
         let rules = ['padding-top', 'padding-bottom', 'margin-top', 'margin-bottom', 'border-top-width', 'border-bottom-width'];
         rules.forEach((rule) => {
@@ -105,5 +124,26 @@ export class LayoutTree {
             }
         }
         return width;
+    }
+    getTextWidth(node) {
+        if (typeof document != "undefined") {
+            if (this.canvasContext === null) {
+                let canvas = document.createElement('canvas');
+                this.canvasContext = canvas.getContext("2d");
+            }
+            let size = node.computedStyles['font-size'][0].value;
+            let family = node.computedStyles['font-size'][0].value;
+            let style = node.computedStyles['font-style'][0].value;
+            let weight = node.computedStyles['font-weight'][0].value;
+            this.canvasContext.font = (style == 'italic' ? 'italic ' : '')
+                + (weight == 'bold' ? 'bold ' : '')
+                + size + 'px "'
+                + family + '"';
+            return Math.ceil(this.canvasContext.measureText(node.content).width);
+        }
+        else {
+            // return an estimated value if dom/canvas is not available
+            return Math.ceil(node.content.length * node.computedStyles['font-size'][0].value / 2);
+        }
     }
 }

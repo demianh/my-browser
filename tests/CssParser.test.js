@@ -365,6 +365,18 @@ test('Unit Declarations', async t => {
 	// transition: opacity 0.5s ease-out,left 0.5s ease-out;
 });
 
+test('Keyword Declarations', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	nodes = parser.parse('h1 { font-size: small; }');
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[2,0,0,0,1],"selectors":[
+			{"combinator":"root","element":"h1"}
+		]}],"declarations":[
+			{"name":"font-size","value":[{"type":"keyword","value":"small"}]}
+		]}]));
+});
+
 test('Invalid Declarations', async t => {
 	var parser = new CssParser();
 	var nodes;

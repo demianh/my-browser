@@ -6,6 +6,8 @@ export class LayoutTree {
     private viewportWidth: number = 0;
     private viewportHeight: number = 0;
 
+    private canvasContext = null;
+
     public createLayoutTree(nodes: RenderTreeNode[], viewportWidth: number, viewportHeight: number): RenderTreeNode[] {
 
         this.viewportWidth = viewportWidth;
@@ -25,10 +27,24 @@ export class LayoutTree {
             node.left = left;
             node.top = top;
 
-            if (node.parent) {
-                node.width = this.calculateInnerWidth(node.parent);
-            } else {
-                node.width = this.viewportWidth;
+
+            switch (display) {
+                case 'inline':
+                    if (node.type == 'text') {
+                        node.width = this.getTextWidth(node);
+                    }
+                    break;
+
+                case 'block':
+                default:
+                    if (node.parent) {
+                        // width is inner with of parent
+                        node.width = this.calculateInnerWidth(node.parent);
+                    } else {
+                        // use viewport width if it's a root element
+                        node.width = this.viewportWidth;
+                    }
+                    break;
             }
 
             let selfHeight = this.calculateHeight(node);
@@ -37,14 +53,20 @@ export class LayoutTree {
             let topOffset = top + this.calculateTopOffset(node);
 
             let childHeights = 0;
+            let childWidths = 0;
             for (let child of node.children) {
                 this.calculateLayoutRecursive(child, leftOffset, topOffset + childHeights);
                 childHeights += child.height;
+                childWidths += child.width;
+            }
+
+            if (display == 'inline' && node.type !== 'text') {
+                // TODO: add paddings & margins
+                node.width = childWidths;
             }
 
             node.height = childHeights + selfHeight;
         }
-
 
     }
 
@@ -81,7 +103,7 @@ export class LayoutTree {
 
         // add some space for the text
         if (node.type == 'text') {
-            height += 20;
+            height += <number>node.computedStyles['font-size'][0].value;
         }
 
         let rules = ['padding-top', 'padding-bottom', 'margin-top', 'margin-bottom', 'border-top-width', 'border-bottom-width'];
@@ -130,5 +152,27 @@ export class LayoutTree {
         }
 
         return width;
+    }
+
+    public getTextWidth(node: RenderTreeNode): number {
+        if (typeof document != "undefined") {
+            if (this.canvasContext === null) {
+                let canvas = document.createElement('canvas');
+                this.canvasContext = canvas.getContext("2d");
+            }
+            let size = node.computedStyles['font-size'][0].value;
+            let family = node.computedStyles['font-size'][0].value;
+            let style = node.computedStyles['font-style'][0].value;
+            let weight = node.computedStyles['font-weight'][0].value;
+            this.canvasContext.font = (style == 'italic' ? 'italic ': '')
+                + (weight == 'bold' ? 'bold ': '')
+                + size + 'px "'
+                + family + '"';
+            return Math.ceil(this.canvasContext.measureText(node.content).width);
+
+        } else {
+            // return an estimated value if dom/canvas is not available
+            return Math.ceil(node.content.length * <number>node.computedStyles['font-size'][0].value / 2);
+        }
     }
 }

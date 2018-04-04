@@ -102,13 +102,13 @@ export class RenderTree {
         }
         node.styles.forEach((style) => {
             style.declarations.forEach((value) => {
-                this.applyStyleDeclaration(computed, value);
+                this.applyStyleDeclaration(node, computed, value);
             });
         });
         return computed;
     }
 
-    public applyStyleDeclaration(computed, value) {
+    public applyStyleDeclaration(node: RenderTreeNode, computed, value) {
         computed[value.name] = value.value;
 
         // handle shorthand properties
@@ -116,9 +116,58 @@ export class RenderTree {
         if (typeof CssShorthandExpander[shorthandFunc] == 'function') {
             let derived = CssShorthandExpander[shorthandFunc](value);
             derived.forEach((decl) => {
-                this.applyStyleDeclaration(computed, decl);
+                this.applyStyleDeclaration(node, computed, decl);
             });
         }
+
+        // handle font-sizes
+        if (value.name == 'font-size') {
+            let calculated = this.calculateUnitSizeInPx(node, computed, 'font-size');
+            computed[value.name] = [{"type": "unit", "value": calculated, "unit": "px"}];
+        }
+
+    }
+
+    public calculateUnitSizeInPx(node: RenderTreeNode, computed, declarationName: string): number {
+        let current = computed[declarationName][0];
+
+        if (node.parent) {
+            if (current.type == 'unit') {
+                if (current.unit == 'em') {
+                    return <number>current.value * this.calculateUnitSizeInPx(node.parent, node.parent.computedStyles, declarationName);
+                }
+                // TODO: other units like % rem inch cm etc.
+            } else if (current.type == 'keyword') {
+                // <absolute-size> = xx-small | x-small | small | medium | large | x-large | xx-large
+                // <relative-size> = larger | smaller
+                switch (current.value) {
+                    case 'xx-small':
+                        return 16 * 0.5;
+                    case 'x-small':
+                        return 16 * 0.75;
+                    case 'small':
+                        return 16 * 0.875;
+                    case 'large':
+                        return 16 * 1.25;
+                    case 'x-large':
+                        return 16 * 1.5;
+                    case 'xx-large':
+                        return 16 * 2;
+                    case 'larger':
+                        return this.calculateUnitSizeInPx(node.parent, node.parent.computedStyles, declarationName) * 1.5;
+                    case 'smaller':
+                        return this.calculateUnitSizeInPx(node.parent, node.parent.computedStyles, declarationName) * 0.75;
+                    case 'medium':
+                    default:
+                        return this.calculateUnitSizeInPx(node.parent, node.parent.computedStyles, declarationName);
+                }
+            } else {
+
+            }
+            return <number>current.value;
+        }
+        // fallback
+        return <number>current.value;
     }
 
     public getInheritedStyleDeclarations(parentStyles) {

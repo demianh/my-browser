@@ -61,7 +61,15 @@ export class CanvasPainter {
             this.ctx.fillRect(node.left, node.top, node.width, node.height);
         }
 
-        this.ctx.font = "15px Arial";
+        let size = node.computedStyles['font-size'][0].value;
+        let family = node.computedStyles['font-size'][0].value;
+        let style = node.computedStyles['font-style'][0].value;
+        let weight = node.computedStyles['font-weight'][0].value;
+        this.ctx.font = (style == 'italic' ? 'italic ': '')
+            + (weight == 'bold' ? 'bold ': '')
+            + size + 'px "'
+            + family + '"';
+
         this.ctx.fillStyle = node.computedStyles.color[0].value;
         this.ctx.fillText(node.content, node.left, node.top);
     }
