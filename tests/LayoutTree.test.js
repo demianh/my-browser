@@ -62,5 +62,14 @@ test('display:inline Width', async t => {
 	t.is(40, tree[0].children[0].width);
 	t.is(32, tree[0].children[1].width);
 
+	tree = createLayoutTree('<span>Hallo</span>', 'span {padding: 100px;}', 200, 400);
+	t.is(240, tree[0].width);
+	t.is(40, tree[0].children[0].width);
+
+	tree = createLayoutTree('<span>Hallo<span>Hallo</span>Hallo</span>', 'span {padding: 100px;}', 200, 400);
+	t.is(520, tree[0].width);
+	t.is(40, tree[0].children[0].width);
+	t.is(240, tree[0].children[1].width);
+
 });
 

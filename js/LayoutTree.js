@@ -46,8 +46,8 @@ export class LayoutTree {
                 childWidths += child.width;
             }
             if (display == 'inline' && node.type !== 'text') {
-                // TODO: add paddings & margins
-                node.width = childWidths;
+                // add paddings
+                node.width = childWidths + this.calculateHorizontalPaddings(node);
             }
             node.height = childHeights + selfHeight;
         }
@@ -122,6 +122,18 @@ export class LayoutTree {
             if (styles['border-left-width'][0].type == 'unit') {
                 width = width - styles['border-left-width'][0].value;
             }
+        }
+        return width;
+    }
+    calculateHorizontalPaddings(node) {
+        let styles = node.computedStyles;
+        let width = 0;
+        // paddings
+        if (styles['padding-right'][0].type == 'unit') {
+            width = width + styles['padding-right'][0].value;
+        }
+        if (styles['padding-left'][0].type == 'unit') {
+            width = width + styles['padding-left'][0].value;
         }
         return width;
     }
