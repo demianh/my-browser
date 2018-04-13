@@ -5,6 +5,7 @@ export class CanvasPainter {
     }
     paintTree(canvas, tree) {
         this.ctx = canvas.getContext("2d");
+        this.ctx.scale(2, 2);
         // Basic Canvas Settings
         this.ctx.textBaseline = "top";
         // clear screen

@@ -1,7 +1,7 @@
 <template>
   <div class="browser-content" ref="content">
     <div class="inspected-element" :style="inspectedElementStyle"></div>
-    <canvas id="canvas" :width="width" :height="height"></canvas>
+    <canvas id="canvas" :width="width * 2" :height="height * 2" :style="{width: width + 'px', height: height + 'px'}"></canvas>
   </div>
 </template>
 

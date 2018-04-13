@@ -9,6 +9,7 @@ export class CanvasPainter {
     public paintTree(canvas: HTMLCanvasElement, tree: RenderTreeNode[]) {
 
         this.ctx = canvas.getContext("2d");
+        this.ctx.scale(2,2);
 
         // Basic Canvas Settings
         this.ctx.textBaseline = "top";
