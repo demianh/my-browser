@@ -73,3 +73,37 @@ test('display:inline Width', async t => {
 
 });
 
+test('display:inline Position', async t => {
+
+	let tree;
+
+	tree = createLayoutTree('<div><span>Hallo</span><span>Welt</span></div>', '', 200, 400);
+	t.is(72, tree[0].width);
+	t.is(40, tree[0].children[0].width);
+	t.is(0, tree[0].children[0].top);
+	t.is(0, tree[0].children[0].left);
+	// <span> 2 should be after first on same line
+	t.is(32, tree[0].children[1].width);
+	t.is(0, tree[0].children[1].top);
+	t.is(40, tree[0].children[1].left);
+
+	tree = createLayoutTree('<div>Hallo<span>Welt</span>!</div>', '', 200, 400);
+	t.is(80, tree[0].width);
+	t.is(40, tree[0].children[0].width);
+	t.is(0, tree[0].children[0].top);
+	t.is(0, tree[0].children[0].left);
+	// <span> should be on the same line as "Hallo"
+	t.is(32, tree[0].children[1].width);
+	t.is(0, tree[0].children[1].top);
+	t.is(40, tree[0].children[1].left);
+	// "Welt" should be the same as the <span>
+	t.is(32, tree[0].children[1].children[0].width);
+	t.is(0, tree[0].children[1].children[0].top);
+	t.is(40, tree[0].children[1].children[0].left);
+	// "!" should be after <span>
+	t.is(8, tree[0].children[2].width);
+	t.is(0, tree[0].children[2].top);
+	t.is(72, tree[0].children[2].left);
+
+});
+

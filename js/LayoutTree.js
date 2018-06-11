@@ -41,7 +41,13 @@ export class LayoutTree {
             let childHeights = 0;
             let childWidths = 0;
             for (let child of node.children) {
-                this.calculateLayoutRecursive(child, leftOffset, topOffset + childHeights);
+                let childDisplay = child.computedStyles.display[0].value;
+                if (childDisplay == 'block') {
+                    this.calculateLayoutRecursive(child, leftOffset, topOffset + childHeights);
+                }
+                if (childDisplay == 'inline') {
+                    this.calculateLayoutRecursive(child, leftOffset + childWidths, top);
+                }
                 childHeights += child.height;
                 childWidths += child.width;
             }
