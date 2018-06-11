@@ -1,9 +1,9 @@
 export class CanvasPainter {
     constructor() {
         this.ctx = null;
-        this.debugLayers = true;
     }
-    paintTree(canvas, tree) {
+    paintTree(canvas, tree, debugLayers = false) {
+        this.debugLayers = debugLayers;
         this.ctx = canvas.getContext("2d");
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.scale(2, 2);

@@ -75,7 +75,7 @@ export class Engine {
             // Paint
             let tStartPaint = performance.now();
             let painter = new CanvasPainter();
-            painter.paintTree(<HTMLCanvasElement> canvas, rtree);
+            painter.paintTree(<HTMLCanvasElement> canvas, rtree, store.state.App.showDebugLayers);
             console.log("Paint: " + Math.round(performance.now() - tStartPaint) + " milliseconds.");
 
             console.log("Parsing & Rendering took " + Math.round(performance.now() - tStart) + " milliseconds.");

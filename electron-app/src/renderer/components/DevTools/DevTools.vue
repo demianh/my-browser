@@ -9,23 +9,24 @@
     <div class="dev-tools__menu">
       Dev Tools
       &nbsp;&nbsp;|&nbsp;
-      <a @click="tab = 'html'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab == 'html'}">HTML</a>
-      <a @click="tab = 'css'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab == 'css'}">CSS</a>
-      <a @click="tab = 'render'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab == 'render'}">RenderTree</a>
+      <a @click="tab = 'html'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'html'}">HTML</a>
+      <a @click="tab = 'css'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'css'}">CSS</a>
+      <a @click="tab = 'render'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'render'}">RenderTree</a>
 
       <span class="dev-tools__menu_buttons">
+        <label><input type="checkbox" v-model="showDebugLayers"> Show Debug Layers</label>&nbsp;&nbsp;
         <a @mousedown="isResizing = true"><i class="fas fa-arrows-alt-v"></i></a>
         <a @click="$store.dispatch('closeDevtools')" class="dev-tools__close"><i class="fas fa-times"></i></a>
       </span>
     </div>
     <div class="dev-tools__tabarea">
-      <div class="dev-tools__content" v-if="tab=='html'">
+      <div class="dev-tools__content" v-if="tab === 'html'">
         <html-tree :nodes="document.html"></html-tree>
       </div>
-      <div class="dev-tools__content" v-if="tab=='css'">
+      <div class="dev-tools__content" v-if="tab === 'css'">
         <css-tree :nodes="document.css"></css-tree>
       </div>
-      <div class="dev-tools__content-divided" v-if="tab=='render'">
+      <div class="dev-tools__content-divided" v-if="tab === 'render'">
         <div class="dev-tools__content-divided__main" :style="{height: (height - 30) + 'px'}">
           <render-tree :nodes="document.renderTree"></render-tree>
         </div>
@@ -60,6 +61,16 @@ export default {
           app: this.$store.state.App
         }
       },
+      computed: {
+        showDebugLayers: {
+          get () {
+            return this.app.showDebugLayers;
+          },
+          set (value) {
+            this.$store.dispatch('setShowDebugLayers', value)
+          }
+        }
+      },
       methods: {
         onMouseMove (event) {
           if (this.isResizing) {
@@ -91,7 +102,7 @@ export default {
   .dev-tools {
     overflow: auto;
     position: fixed;
-    bottom: 0px;
+    bottom: 0;
     width: 100%;
     background: white;
   }

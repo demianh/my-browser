@@ -1,7 +1,8 @@
 const state = {
     devtoolsOpen: true,
     url: '',
-    selectedRenderTreeNode: null
+    selectedRenderTreeNode: null,
+    showDebugLayers: true
 };
 
 const mutations = {
@@ -16,7 +17,10 @@ const mutations = {
   },
   SET_SELECTED_RENDER_TREE_NODE (state, node) {
     state.selectedRenderTreeNode = node
-  }
+  },
+  SET_SHOW_DEBUG_LAYERS (state, value) {
+    state.showDebugLayers = value
+  },
 };
 
 const actions = {
@@ -31,6 +35,9 @@ const actions = {
   },
   setSelectedRenderTreeNode ({ commit }, node) {
     commit('SET_SELECTED_RENDER_TREE_NODE', node)
+  },
+  setShowDebugLayers ({ commit }, value) {
+    commit('SET_SHOW_DEBUG_LAYERS', value)
   }
 };
 

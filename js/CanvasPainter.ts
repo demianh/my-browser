@@ -4,9 +4,11 @@ export class CanvasPainter {
 
     private ctx = null;
 
-    private debugLayers: boolean = true;
+    private debugLayers: boolean;
 
-    public paintTree(canvas: HTMLCanvasElement, tree: RenderTreeNode[]) {
+    public paintTree(canvas: HTMLCanvasElement, tree: RenderTreeNode[], debugLayers: boolean = false) {
+
+        this.debugLayers = debugLayers;
 
         this.ctx = canvas.getContext("2d");
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
