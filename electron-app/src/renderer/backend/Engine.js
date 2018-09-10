@@ -34,6 +34,7 @@ export class Engine {
             });
             // Parse CSS
             let allStyleRules = [];
+            let promises = [];
             styles.forEach((style, index) => {
                 if (style.type === 'inline') {
                     let tree = cssParser.parse(style.css);
@@ -45,26 +46,45 @@ export class Engine {
                     styles[index].cssTree = tree;
                     allStyleRules = allStyleRules.concat(tree);
                 }
+                if (style.type === 'link') {
+                    try {
+                        let cssFileUrl = new URL(style.href, url);
+                        let promise = network.GET(cssFileUrl.href);
+                        promise.then((data) => {
+                            let tree = cssParser.parse(data);
+                            styles[index].cssTree = tree;
+                            allStyleRules = allStyleRules.concat(tree);
+                        });
+                        promises.push(promise);
+                    }
+                    catch (e) {
+                        console.warn('Could not parse URL for file: ' + style.href);
+                    }
+                }
             });
-            store.dispatch('setCSS', styles);
-            console.log("Parsing CSS: " + Math.round(performance.now() - tStartCss) + " milliseconds.");
-            // RenderTree
-            let tStartRendertree = performance.now();
-            let renderTree = new RenderTree();
-            let rtree = renderTree.createRenderTree(nodes, allStyleRules);
-            //store.dispatch('setRenderTree', rtree);
-            console.log("Create Rendertree: " + Math.round(performance.now() - tStartRendertree) + " milliseconds.");
-            let tStartLayouttree = performance.now();
-            let layoutTree = new LayoutTree();
-            let ltree = layoutTree.createLayoutTree(rtree, canvas.clientWidth, canvas.clientHeight);
-            store.dispatch('setRenderTree', ltree);
-            console.log("Create LayoutTree: " + Math.round(performance.now() - tStartLayouttree) + " milliseconds.");
-            // Paint
-            let tStartPaint = performance.now();
-            let painter = new CanvasPainter();
-            painter.paintTree(canvas, rtree, store.state.App.showDebugLayers);
-            console.log("Paint: " + Math.round(performance.now() - tStartPaint) + " milliseconds.");
-            console.log("Parsing & Rendering took " + Math.round(performance.now() - tStart) + " milliseconds.");
+            // wait for all files to load
+            Promise.all(promises).then(() => {
+                // apply css tree
+                store.dispatch('setCSS', styles);
+                console.log("Loading and parsing CSS: " + Math.round(performance.now() - tStartCss) + " milliseconds.");
+                // RenderTree
+                let tStartRendertree = performance.now();
+                let renderTree = new RenderTree();
+                let rtree = renderTree.createRenderTree(nodes, allStyleRules);
+                //store.dispatch('setRenderTree', rtree);
+                console.log("Create Rendertree: " + Math.round(performance.now() - tStartRendertree) + " milliseconds.");
+                let tStartLayouttree = performance.now();
+                let layoutTree = new LayoutTree();
+                let ltree = layoutTree.createLayoutTree(rtree, canvas.clientWidth, canvas.clientHeight);
+                store.dispatch('setRenderTree', ltree);
+                console.log("Create LayoutTree: " + Math.round(performance.now() - tStartLayouttree) + " milliseconds.");
+                // Paint
+                let tStartPaint = performance.now();
+                let painter = new CanvasPainter();
+                painter.paintTree(canvas, rtree, store.state.App.showDebugLayers);
+                console.log("Paint: " + Math.round(performance.now() - tStartPaint) + " milliseconds.");
+                console.log("Parsing & Rendering took " + Math.round(performance.now() - tStart) + " milliseconds.");
+            });
         });
     }
 }
