@@ -1,10 +1,10 @@
 const state = {
-    devtoolsOpen: true,
-    url: '',
-    selectedRenderTreeNode: null,
-    showDebugLayers: true,
-    compareOverlayOpacity: 0
-};
+  devtoolsOpen: true,
+  url: '',
+  selectedRenderTreeNode: null,
+  showDebugLayers: true,
+  compareOverlayOpacity: 0
+}
 
 const mutations = {
   OPEN_DEVTOOLS (state) {
@@ -24,8 +24,8 @@ const mutations = {
   },
   SET_COMPARE_OVERLAY_OPACITY (state, value) {
     state.compareOverlayOpacity = value
-  },
-};
+  }
+}
 
 const actions = {
   openDevtools ({ commit }) {
@@ -46,7 +46,7 @@ const actions = {
   setCompareOverlayOpacity ({ commit }, value) {
     commit('SET_COMPARE_OVERLAY_OPACITY', value)
   }
-};
+}
 
 export default {
   state,

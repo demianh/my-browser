@@ -63,8 +63,8 @@
 </template>
 
 <script>
-    import CssRuleDeclarations from "./CssRuleDeclarations.vue";
-    import CssRuleName from './CssRuleName.vue'
+    import CssRuleDeclarations from './CssRuleDeclarations.vue'
+import CssRuleName from './CssRuleName.vue'
 
     export default {
       components: {CssRuleDeclarations, CssRuleName},
@@ -79,7 +79,7 @@
           return this.app.selectedRenderTreeNode
         },
         reversedStyles () {
-          return this.node.styles.slice().reverse();
+          return this.node.styles.slice().reverse()
         }
       },
       data: function () {

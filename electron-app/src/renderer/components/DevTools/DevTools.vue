@@ -43,14 +43,14 @@
     import HtmlTree from './HtmlTree.vue'
     import CssTree from './CssTree.vue'
     import RenderTree from './RenderTree.vue'
-    import RenderTreeNodeInfo from "./RenderTreeNodeInfo.vue";
+    import RenderTreeNodeInfo from './RenderTreeNodeInfo.vue'
 
 export default {
       components: {
-          RenderTreeNodeInfo,
-          HtmlTree,
-          CssTree,
-          RenderTree
+        RenderTreeNodeInfo,
+        HtmlTree,
+        CssTree,
+        RenderTree
       },
       name: 'dev-tools',
       data: function () {
@@ -65,7 +65,7 @@ export default {
       computed: {
         showDebugLayers: {
           get () {
-            return this.app.showDebugLayers;
+            return this.app.showDebugLayers
           },
           set (value) {
             this.$store.dispatch('setShowDebugLayers', value)
@@ -73,7 +73,7 @@ export default {
         },
         compareOverlayOpacity: {
           get () {
-            return this.app.compareOverlayOpacity;
+            return this.app.compareOverlayOpacity
           },
           set (value) {
             this.$store.dispatch('setCompareOverlayOpacity', value)
@@ -84,10 +84,10 @@ export default {
         onMouseMove (event) {
           if (this.isResizing) {
             // pause event to prevent text selection while dragging
-            this.pauseEvent(event);
+            this.pauseEvent(event)
             // set new height
             if (this.height > 50 || event.movementY < 0) {
-              this.height = this.height - event.movementY;
+              this.height = this.height - event.movementY
             }
           }
         },
@@ -99,8 +99,8 @@ export default {
           if (e.preventDefault) {
             e.preventDefault()
           }
-          e.cancelBubble = true;
-          e.returnValue = false;
+          e.cancelBubble = true
+          e.returnValue = false
           return false
         }
       }

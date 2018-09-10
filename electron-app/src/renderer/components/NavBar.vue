@@ -12,9 +12,6 @@
 </template>
 
 <script>
-  import {HtmlParser} from '../../../../js/HtmlParser'
-  import {HtmlStyleExtractor} from '../../../../js/HtmlStyleExtractor'
-
   import {Engine} from '../backend/Engine'
 
   export default {
@@ -28,8 +25,8 @@
     methods: {
       openUrl () {
         if (this.url.length > 0) {
-          let engine = new Engine();
-          engine.loadURL(this.url, document.getElementById("canvas"));
+          let engine = new Engine()
+          engine.loadURL(this.url, document.getElementById('canvas'))
         }
       }
     }

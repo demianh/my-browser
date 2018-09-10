@@ -1,9 +1,9 @@
 const state = {
-    html: null,
-    css: null,
-    dom: null,
-    renderTree: null
-};
+  html: null,
+  css: null,
+  dom: null,
+  renderTree: null
+}
 
 const mutations = {
   SET_HTML (state, value) {
@@ -18,7 +18,7 @@ const mutations = {
   SET_RENDERTREE (state, value) {
     state.renderTree = value
   }
-};
+}
 
 const actions = {
   setHTML ({commit}, value) {
@@ -33,7 +33,7 @@ const actions = {
   setRenderTree ({commit}, value) {
     commit('SET_RENDERTREE', value)
   }
-};
+}
 
 export default {
   state,
