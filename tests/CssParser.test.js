@@ -238,8 +238,13 @@ test('Function Rules', async t => {
 			{"combinator":"root","element":"p","functions":[{"name":"not","arguments":":first-child, .special"}]}
 		]}],"declarations":[]}]));
 
-	//
-
+	/*
+	TODO: fixme
+	nodes = parser.parse('tr:nth-child(even){}');
+	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"style","rules":[{"specificity":[2,0,0,0,1],"selectors":[
+			{"combinator":"root","element":"p","functions":[{"name":"not","arguments":":first-child, .special"}]}
+		]}],"declarations":[]}]));
+	*/
 });
 
 test('Combinators', async t => {
