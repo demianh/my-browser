@@ -2,7 +2,8 @@ const state = {
     devtoolsOpen: true,
     url: '',
     selectedRenderTreeNode: null,
-    showDebugLayers: true
+    showDebugLayers: true,
+    compareOverlayOpacity: 0
 };
 
 const mutations = {
@@ -21,6 +22,9 @@ const mutations = {
   SET_SHOW_DEBUG_LAYERS (state, value) {
     state.showDebugLayers = value
   },
+  SET_COMPARE_OVERLAY_OPACITY (state, value) {
+    state.compareOverlayOpacity = value
+  },
 };
 
 const actions = {
@@ -38,6 +42,9 @@ const actions = {
   },
   setShowDebugLayers ({ commit }, value) {
     commit('SET_SHOW_DEBUG_LAYERS', value)
+  },
+  setCompareOverlayOpacity ({ commit }, value) {
+    commit('SET_COMPARE_OVERLAY_OPACITY', value)
   }
 };
 

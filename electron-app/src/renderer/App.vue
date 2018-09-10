@@ -6,6 +6,9 @@
     <div class="content">
       <browser-content></browser-content>
     </div>
+    <div class="compare-overlay" v-if="appState.compareOverlayOpacity > 0" :style="{ opacity: appState.compareOverlayOpacity / 100 }">
+      <webview id="fcompare-webview" :src="appState.url"></webview>
+    </div>
     <footer v-if="appState.devtoolsOpen">
       <dev-tools></dev-tools>
     </footer>
@@ -72,6 +75,20 @@
     border: 0;
     border-radius: 5px;
     color: white;
+  }
+
+  .compare-overlay {
+    position: absolute;
+    background: white;
+    top: 40px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .compare-overlay webview {
+    width: 100%;
+    height: 100%;
+    display: inline-flex;
   }
 
 

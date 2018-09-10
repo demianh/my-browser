@@ -27,8 +27,10 @@
     },
     methods: {
       openUrl () {
-        let engine = new Engine();
-        engine.loadURL(this.url, document.getElementById("canvas"));
+        if (this.url.length > 0) {
+          let engine = new Engine();
+          engine.loadURL(this.url, document.getElementById("canvas"));
+        }
       }
     }
   }

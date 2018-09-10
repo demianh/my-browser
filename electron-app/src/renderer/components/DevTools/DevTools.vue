@@ -14,6 +14,7 @@
       <a @click="tab = 'render'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'render'}">RenderTree</a>
 
       <span class="dev-tools__menu_buttons">
+        Compare: <input type="range" min="0" max="100" v-model="compareOverlayOpacity" class="dev-tools__compare-input">&nbsp;&nbsp;
         <label><input type="checkbox" v-model="showDebugLayers"> Show Debug Layers</label>&nbsp;&nbsp;
         <a @mousedown="isResizing = true"><i class="fas fa-arrows-alt-v"></i></a>
         <a @click="$store.dispatch('closeDevtools')" class="dev-tools__close"><i class="fas fa-times"></i></a>
@@ -69,6 +70,14 @@ export default {
           set (value) {
             this.$store.dispatch('setShowDebugLayers', value)
           }
+        },
+        compareOverlayOpacity: {
+          get () {
+            return this.app.compareOverlayOpacity;
+          },
+          set (value) {
+            this.$store.dispatch('setCompareOverlayOpacity', value)
+          }
         }
       },
       methods: {
@@ -115,10 +124,15 @@ export default {
     position: absolute;
     width: 100%;
     z-index: 10;
+    user-select: none;
   }
 
   .dev-tools__menu_buttons {
     float: right;
+  }
+
+  .dev-tools__compare-input {
+    height: 10px;
   }
 
   .dev-tools__close {
