@@ -577,7 +577,7 @@ export class CssParser {
     }
 
     public nextIsFunction(): boolean {
-        return this.text.substr(this.pos, 100).match(/^:([a-zA-Z]+\s*\()/i) !== null;
+        return this.text.substr(this.pos, 100).match(/^:([a-zA-Z-]+\s*\()/i) !== null;
     }
 
     public nextChar(): string {

@@ -445,7 +445,7 @@ export class CssParser {
         return this.text.substr(this.pos, 100).match(/^([+-]?[0-9]*[.]?[0-9]+)/i) !== null;
     }
     nextIsFunction() {
-        return this.text.substr(this.pos, 100).match(/^:([a-zA-Z]+\s*\()/i) !== null;
+        return this.text.substr(this.pos, 100).match(/^:([a-zA-Z-]+\s*\()/i) !== null;
     }
     nextChar() {
         //console.log('TEXT ' + this.text);
