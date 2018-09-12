@@ -459,6 +459,12 @@ test('At Rules', async t => {
 		}]
 	));
 
+	/*
+	// FIXME
+	nodes = parser.parse('@media print{@page {margin:.5cm}p{orphans:3}}');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
+	*/
+
 });
 
 test('Parse Color Declarations', async t => {
