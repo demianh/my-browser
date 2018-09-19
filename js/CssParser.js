@@ -391,7 +391,8 @@ export class CssParser {
             type: 'at',
             at: '',
             selector: '',
-            styles: []
+            styles: [],
+            declarations: []
         };
         // skip @
         this.pos++;
@@ -416,7 +417,12 @@ export class CssParser {
             if (this.nextChar() == '}') {
                 return node;
             }
-            node.styles = this.parse_STYLES();
+            if (CssSpec.AT_RULES_WITH_DECLARATIONS.indexOf(node.at) >= 0) {
+                node.declarations = this.parse_DECLARATIONS();
+            }
+            else {
+                node.styles = this.parse_STYLES();
+            }
         }
         return node;
     }

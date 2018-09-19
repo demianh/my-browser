@@ -19,6 +19,7 @@ export interface ICSSAtNode extends ICSSNode {
     at: string;
     selector: string;
     styles: ICSSNode[];
+    declarations: ICSSStyleDeclaration[];
 }
 
 export interface ICSSCommentNode extends ICSSNode {
@@ -511,7 +512,8 @@ export class CssParser {
             type: 'at',
             at: '',
             selector: '',
-            styles: []
+            styles: [],
+            declarations: []
         };
 
         // skip @
@@ -541,7 +543,11 @@ export class CssParser {
             if (this.nextChar() == '}') {
                 return node;
             }
-            node.styles = this.parse_STYLES();
+            if (CssSpec.AT_RULES_WITH_DECLARATIONS.indexOf(node.at) >= 0) {
+                node.declarations = this.parse_DECLARATIONS();
+            } else {
+                node.styles = this.parse_STYLES();
+            }
         }
         return node;
     }

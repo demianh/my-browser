@@ -1,5 +1,11 @@
 export class CssSpec {
 }
+// TODO: investigate more on this
+CssSpec.AT_RULES_WITH_DECLARATIONS = [
+    'page',
+    'font-face',
+    '-ms-viewport'
+];
 CssSpec.INHERITED_PROPS = [
     'azimuth',
     'border-collapse',

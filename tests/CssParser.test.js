@@ -426,13 +426,13 @@ test('At Rules', async t => {
 	var nodes;
 
 	nodes = parser.parse('@page {}');
-	t.is(JSON.stringify(nodes), '[{"type":"at","at":"page","selector":"","styles":[]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"page","selector":"","styles":[],"declarations":[]}]');
 
 	nodes = parser.parse('@page :first { {}');
-	t.is(JSON.stringify(nodes), '[{"type":"at","at":"page","selector":":first","styles":[]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"page","selector":":first","styles":[],"declarations":[]}]');
 
 	nodes = parser.parse('@media print {}');
-	t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"print","styles":[]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"print","styles":[],"declarations":[]}]');
 
 	nodes = parser.parse('@media print {.class{color:red;}}');
 	t.is(JSON.stringify(nodes), JSON.stringify([{"type":"at","at":"media","selector":"print","styles":[
@@ -441,13 +441,15 @@ test('At Rules', async t => {
 				"rules":[{"specificity":[2,0,0,1,0],"selectors":[{"combinator":"root","classes":["class"]}]}],
 				"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]}]
 			}
-		]}]));
+		],
+		"declarations":[]
+	}]));
 
 	nodes = parser.parse('@media only screen and (max-height: 650px) {}');
-	t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"only screen and (max-height: 650px)","styles":[]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"only screen and (max-height: 650px)","styles":[],"declarations":[]}]');
 
 	nodes = parser.parse('@import url("fineprint.css") print;');
-	t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[],"declarations":[]}]');
 
 	nodes = parser.parse('@keyframes mymove {0% {width: 0} 50% {width: 50px}');
 	t.is(JSON.stringify(nodes), JSON.stringify(
@@ -455,16 +457,22 @@ test('At Rules', async t => {
 			"styles":[
 				{"type":"style","rules":[{"specificity":[2,0,0,0,1],"selectors":[{"combinator":"root","element":"0%"}]}],"declarations":[{"name":"width","value":[{"type":"unit","value":0,"unit":""}]}]},
 				{"type":"style","rules":[{"specificity":[2,0,0,0,1],"selectors":[{"combinator":"root","element":"50%"}]}],"declarations":[{"name":"width","value":[{"type":"unit","value":50,"unit":"px"}]}]}
-			]
+			],
+			"declarations":[]
 		}]
 	));
 
 	// FIXME
-	//nodes = parser.parse('@page {margin:0}');
-	//t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
+	nodes = parser.parse('@page {margin:0}');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"page","selector":"","styles":[],"declarations":[{"name":"margin","value":[{"type":"unit","value":0,"unit":""}]}]}]');
 
-	//nodes = parser.parse('@media print{@page {margin:.5cm}p{orphans:3}}');
-	//t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
+	nodes = parser.parse('@font-face {font-family: "Signika";font-style: normal}');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"font-face","selector":"","styles":[],"declarations":[{"name":"font-family","value":[{"type":"keyword","value":"\\"Signika\\""}]},{"name":"font-style","value":[{"type":"keyword","value":"normal"}]}]}]');
+
+	nodes = parser.parse('@media print{@page {margin:.5cm}p{orphans:3}}');
+	t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"print","styles":[{"type":"at","at":"page","selector":"","styles":[],"declarations":[{"name":"margin","value":[{"type":"unit","value":0.5,"unit":"cm"}]}]},{"type":"style","rules":[{"specificity":[2,0,0,0,1],"selectors":[{"combinator":"root","element":"p"}]}],"declarations":[{"name":"orphans","value":[{"type":"unit","value":3,"unit":""}]}]}],"declarations":[]}]');
+
+
 
 });
 
