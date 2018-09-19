@@ -1,6 +1,7 @@
 const state = {
   devtoolsOpen: true,
   url: '',
+  isLoading: false,
   selectedRenderTreeNode: null,
   showDebugLayers: true,
   compareOverlayOpacity: 0
@@ -15,6 +16,12 @@ const mutations = {
   },
   SET_URL (state, url) {
     state.url = url
+  },
+  SHOW_LOADING (state) {
+    state.isLoading = true
+  },
+  HIDE_LOADING (state) {
+    state.isLoading = false
   },
   SET_SELECTED_RENDER_TREE_NODE (state, node) {
     state.selectedRenderTreeNode = node
@@ -36,6 +43,12 @@ const actions = {
   },
   setUrl ({ commit }, url) {
     commit('SET_URL', url)
+  },
+  showLoading ({ commit }) {
+    commit('SHOW_LOADING')
+  },
+  hideLoading ({ commit }) {
+    commit('HIDE_LOADING')
   },
   setSelectedRenderTreeNode ({ commit }, node) {
     commit('SET_SELECTED_RENDER_TREE_NODE', node)
