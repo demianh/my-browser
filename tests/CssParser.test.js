@@ -459,11 +459,12 @@ test('At Rules', async t => {
 		}]
 	));
 
-	/*
 	// FIXME
-	nodes = parser.parse('@media print{@page {margin:.5cm}p{orphans:3}}');
-	t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
-	*/
+	//nodes = parser.parse('@page {margin:0}');
+	//t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
+
+	//nodes = parser.parse('@media print{@page {margin:.5cm}p{orphans:3}}');
+	//t.is(JSON.stringify(nodes), '[{"type":"at","at":"import","selector":"url(\\"fineprint.css\\") print","styles":[]}]');
 
 });
 

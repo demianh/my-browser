@@ -101,6 +101,8 @@ export class CssParser {
 
     private text = '';
     private pos = 0;
+    private last_next_char_pos = 0;
+    private same_pos_counter = 0;
     private baseSpecificity: number = 2;
 
     public parse(text: string, baseSpecificity: number = 2) {
@@ -583,6 +585,18 @@ export class CssParser {
     public nextChar(): string {
         //console.log('TEXT ' + this.text);
         //console.log('CHAR ' + this.pos + ': ' + this.text.substr(this.pos, 40));
+        //console.log(this.text.charAt(this.pos));
+
+        // try to catch infinite loops
+        if (this.pos == this.last_next_char_pos) {
+            this.same_pos_counter++;
+            if (this.same_pos_counter > 1000) {
+                this.reportParseError();
+            }
+        } else {
+            this.same_pos_counter = 0;
+            this.last_next_char_pos = this.pos;
+        }
         return this.text.charAt(this.pos);
     }
 
@@ -597,5 +611,17 @@ export class CssParser {
 
     public eof() {
         return this.pos > this.text.length;
+    }
+
+    public reportParseError() {
+        let before = 60;
+        let after = 40;
+        let text_before = this.text.substr(Math.max(this.pos - before, 0), Math.min(this.pos, before));
+        let wrong_char = this.text.charAt(this.pos);
+        let text_after = this.text.substr(this.pos + 1, after);
+        let error = "CSS Parse Error at Position " + this.pos + '/' + (this.text.length - 1);
+        error += "\n";
+        error += text_before + '----->' + wrong_char + '<-----' + text_after;
+        throw error;
     }
 }
