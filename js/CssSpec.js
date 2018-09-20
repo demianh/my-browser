@@ -1,10 +1,10 @@
 export class CssSpec {
 }
 // TODO: investigate more on this
-CssSpec.AT_RULES_WITH_DECLARATIONS = [
-    'page',
-    'font-face',
-    '-ms-viewport'
+CssSpec.AT_GROUP_RULES = [
+    'media',
+    'supports',
+    'document'
 ];
 CssSpec.INHERITED_PROPS = [
     'azimuth',

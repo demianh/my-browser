@@ -2,10 +2,10 @@
 export class CssSpec {
 
     // TODO: investigate more on this
-    public static readonly AT_RULES_WITH_DECLARATIONS = [
-        'page',
-        'font-face',
-        '-ms-viewport'
+    public static readonly AT_GROUP_RULES = [
+        'media',
+        'supports',
+        'document'
     ]
 
     public static readonly INHERITED_PROPS = [

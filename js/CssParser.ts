@@ -543,10 +543,10 @@ export class CssParser {
             if (this.nextChar() == '}') {
                 return node;
             }
-            if (CssSpec.AT_RULES_WITH_DECLARATIONS.indexOf(node.at) >= 0) {
-                node.declarations = this.parse_DECLARATIONS();
-            } else {
+            if (CssSpec.AT_GROUP_RULES.indexOf(node.at) >= 0) {
                 node.styles = this.parse_STYLES();
+            } else {
+                node.declarations = this.parse_DECLARATIONS();
             }
         }
         return node;
