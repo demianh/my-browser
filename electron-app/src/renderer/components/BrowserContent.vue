@@ -1,6 +1,9 @@
 <template>
   <div class="browser-content" ref="content">
     <div class="inspected-element" :style="inspectedElementStyle"></div>
+    <div class="compare-overlay" v-if="app.compareOverlayOpacity > 0" :style="{ opacity: app.compareOverlayOpacity / 100 }">
+      <webview id="fcompare-webview" :src="app.url"></webview>
+    </div>
     <canvas id="canvas" :width="width * 2" :height="height * 2" :style="{width: width + 'px', height: height + 'px'}"></canvas>
   </div>
 </template>
@@ -11,7 +14,7 @@
     data: function () {
       return {
         width: 600,
-        height: 100,
+        height: 1000,
         app: this.$store.state.App,
         inspectedElementStyle: {
           border: '1px solid red',
@@ -30,10 +33,17 @@
     },
     watch: {
       node: function (node) {
-        this.inspectedElementStyle.width = node.width + 'px'
-        this.inspectedElementStyle.height = node.height + 'px'
-        this.inspectedElementStyle.marginTop = node.top + 'px'
-        this.inspectedElementStyle.left = node.left + 'px'
+        if (node) {
+          this.inspectedElementStyle.width = node.width + 'px'
+          this.inspectedElementStyle.height = node.height + 'px'
+          this.inspectedElementStyle.marginTop = node.top + 'px'
+          this.inspectedElementStyle.left = node.left + 'px'
+        } else {
+          this.inspectedElementStyle.width = '0px'
+          this.inspectedElementStyle.height = '0px'
+          this.inspectedElementStyle.marginTop = '0px'
+          this.inspectedElementStyle.left = '-10px'
+        }
       }
     },
     methods: {

@@ -6,9 +6,6 @@
     <main class="content">
       <browser-content></browser-content>
     </main>
-    <div class="compare-overlay" v-if="appState.compareOverlayOpacity > 0" :style="{ opacity: appState.compareOverlayOpacity / 100 }">
-      <webview id="fcompare-webview" :src="appState.url"></webview>
-    </div>
     <footer v-if="appState.devtoolsOpen">
       <dev-tools></dev-tools>
     </footer>
@@ -82,9 +79,7 @@
   .compare-overlay {
     position: absolute;
     background: white;
-    top: 40px;
     width: 100%;
-    height: 100%;
   }
 
   .compare-overlay webview {
@@ -102,6 +97,7 @@
   }
   footer {
     grid-area: footer;
+    z-index: 50;
   }
 
 

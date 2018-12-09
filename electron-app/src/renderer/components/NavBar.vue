@@ -71,6 +71,7 @@
       openUrl () {
         if (this.url.length > 0) {
           this.$store.commit('SHOW_LOADING')
+          this.$store.commit('SET_SELECTED_RENDER_TREE_NODE', null)
           this.$nextTick(() => {
             let engine = new Engine()
             engine.loadURL(this.url, document.getElementById('canvas')).then(() => {
@@ -118,6 +119,7 @@
 
   .nav-bar__bookmarks-popup {
     position: absolute;
+    z-index: 100;
     background: #fafafa;
     width: 200px;
     right: 26px;

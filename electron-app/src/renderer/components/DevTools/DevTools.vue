@@ -18,6 +18,7 @@
         <a @mousedown="isResizing = true"><i class="fas fa-arrows-alt-v"></i></a>
         <a @click="$store.commit('CLOSE_DEVTOOLS')" class="dev-tools__close"><i class="fas fa-times"></i></a>
       </span>
+      <div class="dev-tools__resizer" @mousedown="isResizing = true"></div>
     </div>
     <div class="dev-tools__tabarea">
       <div class="dev-tools__content" v-if="tab === 'html'">
@@ -156,6 +157,15 @@ export default {
     background: #0b97c4;
     color: white;
     border-radius: 2px;
+  }
+
+  .dev-tools__resizer {
+    height: 7px;
+    width: 100%;
+    cursor: ns-resize;
+    position: absolute;
+    margin-top: -25px;
+    left: 0;
   }
 
   .dev-tools__tabarea {
