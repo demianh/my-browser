@@ -53,10 +53,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .browser-content {
-    margin-top: 40px;
-    height: 100%;
-  }
-</style>

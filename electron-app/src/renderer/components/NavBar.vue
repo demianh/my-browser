@@ -90,7 +90,6 @@
     height: 40px;
     line-height: 40px;
     padding: 0 10px;
-    position: fixed;
     width: 100%;
     z-index: 1;
   }

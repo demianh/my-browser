@@ -1,5 +1,6 @@
 const state = {
   devtoolsOpen: true,
+  devtoolsHeight: 300,
   url: '',
   isLoading: false,
   selectedRenderTreeNode: null,
@@ -16,6 +17,9 @@ const mutations = {
   },
   SET_URL (state, url) {
     state.url = url
+  },
+  SET_DEVTOOLS_HEIGHT (state, height) {
+    state.devtoolsHeight = height
   },
   SHOW_LOADING (state) {
     state.isLoading = true

@@ -1,19 +1,17 @@
 <template>
-  <div id="app">
+  <div id="app" :style="gridStyles">
     <header>
       <nav-bar></nav-bar>
     </header>
-    <div class="content">
+    <main class="content">
       <browser-content></browser-content>
-    </div>
+    </main>
     <div class="compare-overlay" v-if="appState.compareOverlayOpacity > 0" :style="{ opacity: appState.compareOverlayOpacity / 100 }">
       <webview id="fcompare-webview" :src="appState.url"></webview>
     </div>
     <footer v-if="appState.devtoolsOpen">
       <dev-tools></dev-tools>
     </footer>
-
-    <!--router-view></router-view-->
   </div>
 </template>
 
@@ -31,6 +29,15 @@
     data: function () {
       return {
         appState: this.$store.state.App
+      }
+    },
+    computed: {
+      gridStyles () {
+        return {
+          display: 'grid',
+          gridTemplateAreas: '"header" "main" "footer"',
+          gridTemplateRows: '40px auto ' + (this.appState.devtoolsOpen ? this.appState.devtoolsHeight + 'px' : '0px')
+        }
       }
     },
     name: 'electron-app'
@@ -52,12 +59,7 @@
   }
 
   #app {
-    display: flex;
-    flex-direction: column;
     height: 100vh;
-  }
-  .content {
-    flex: 1; /* this is the key; consumes all available height */
   }
 
   a {
@@ -89,6 +91,17 @@
     width: 100%;
     height: 100%;
     display: inline-flex;
+  }
+
+  header {
+    grid-area: header;
+  }
+  main {
+    grid-area: main;
+    overflow: auto;
+  }
+  footer {
+    grid-area: footer;
   }
 
 

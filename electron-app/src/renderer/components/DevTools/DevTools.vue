@@ -4,7 +4,6 @@
           @mousemove="onMouseMove"
           @mouseup="isResizing = false"
           @mouseleave="isResizing = false"
-          :style="{height: height + 'px'}"
   >
     <div class="dev-tools__menu">
       Dev Tools
@@ -56,13 +55,20 @@ export default {
       data: function () {
         return {
           tab: 'render',
-          height: 300,
           isResizing: false,
           document: this.$store.state.Document,
           app: this.$store.state.App
         }
       },
       computed: {
+        height: {
+          get () {
+            return this.app.devtoolsHeight
+          },
+          set (value) {
+            this.$store.commit('SET_DEVTOOLS_HEIGHT', value)
+          }
+        },
         showDebugLayers: {
           get () {
             return this.app.showDebugLayers
@@ -110,9 +116,8 @@ export default {
 <style scoped>
   .dev-tools {
     overflow: auto;
-    position: fixed;
-    bottom: 0;
     width: 100%;
+    height: 100%;
     background: white;
   }
 
