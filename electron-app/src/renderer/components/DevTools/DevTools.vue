@@ -17,7 +17,7 @@
         Compare: <input type="range" min="0" max="100" v-model="compareOverlayOpacity" class="dev-tools__compare-input">&nbsp;&nbsp;
         <label><input type="checkbox" v-model="showDebugLayers"> Show Debug Layers</label>&nbsp;&nbsp;
         <a @mousedown="isResizing = true"><i class="fas fa-arrows-alt-v"></i></a>
-        <a @click="$store.dispatch('closeDevtools')" class="dev-tools__close"><i class="fas fa-times"></i></a>
+        <a @click="$store.commit('CLOSE_DEVTOOLS')" class="dev-tools__close"><i class="fas fa-times"></i></a>
       </span>
     </div>
     <div class="dev-tools__tabarea">
@@ -68,7 +68,7 @@ export default {
             return this.app.showDebugLayers
           },
           set (value) {
-            this.$store.dispatch('setShowDebugLayers', value)
+            this.$store.commit('SET_SHOW_DEBUG_LAYERS', value)
           }
         },
         compareOverlayOpacity: {
@@ -76,7 +76,7 @@ export default {
             return this.app.compareOverlayOpacity
           },
           set (value) {
-            this.$store.dispatch('setCompareOverlayOpacity', value)
+            this.$store.commit('SET_COMPARE_OVERLAY_OPACITY', value)
           }
         }
       },

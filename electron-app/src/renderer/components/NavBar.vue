@@ -14,8 +14,8 @@
           </a>
         </div>
       </div>
-      <a v-if="!appState.devtoolsOpen" @click="$store.dispatch('openDevtools')"><i class="fas fa-cog"></i></a>
-      <a v-if="appState.devtoolsOpen" @click="$store.dispatch('closeDevtools')"><i class="fas fa-cog"></i></a>
+      <a v-if="!appState.devtoolsOpen" @click="$store.commit('OPEN_DEVTOOLS')"><i class="fas fa-cog"></i></a>
+      <a v-if="appState.devtoolsOpen" @click="$store.commit('CLOSE_DEVTOOLS')"><i class="fas fa-cog"></i></a>
     </div>
   </div>
 </template>
@@ -70,11 +70,11 @@
       },
       openUrl () {
         if (this.url.length > 0) {
-          this.$store.dispatch('showLoading')
+          this.$store.commit('SHOW_LOADING')
           this.$nextTick(() => {
             let engine = new Engine()
             engine.loadURL(this.url, document.getElementById('canvas')).then(() => {
-              this.$store.dispatch('hideLoading')
+              this.$store.commit('HIDE_LOADING')
             })
           })
         }

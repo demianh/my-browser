@@ -20,20 +20,7 @@ const mutations = {
   }
 }
 
-const actions = {
-  setHTML ({commit}, value) {
-    commit('SET_HTML', value)
-  },
-  setCSS ({commit}, value) {
-    commit('SET_CSS', value)
-  },
-  setDOM ({commit}, value) {
-    commit('SET_DOM', value)
-  },
-  setRenderTree ({commit}, value) {
-    commit('SET_RENDERTREE', value)
-  }
-}
+const actions = {}
 
 export default {
   state,

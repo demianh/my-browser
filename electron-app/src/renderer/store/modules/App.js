@@ -34,32 +34,7 @@ const mutations = {
   }
 }
 
-const actions = {
-  openDevtools ({ commit }) {
-    commit('OPEN_DEVTOOLS')
-  },
-  closeDevtools ({ commit }) {
-    commit('CLOSE_DEVTOOLS')
-  },
-  setUrl ({ commit }, url) {
-    commit('SET_URL', url)
-  },
-  showLoading ({ commit }) {
-    commit('SHOW_LOADING')
-  },
-  hideLoading ({ commit }) {
-    commit('HIDE_LOADING')
-  },
-  setSelectedRenderTreeNode ({ commit }, node) {
-    commit('SET_SELECTED_RENDER_TREE_NODE', node)
-  },
-  setShowDebugLayers ({ commit }, value) {
-    commit('SET_SHOW_DEBUG_LAYERS', value)
-  },
-  setCompareOverlayOpacity ({ commit }, value) {
-    commit('SET_COMPARE_OVERLAY_OPACITY', value)
-  }
-}
+const actions = {}
 
 export default {
   state,
