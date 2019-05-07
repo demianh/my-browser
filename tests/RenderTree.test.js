@@ -381,3 +381,29 @@ test('Test Inline Styles', async t => {
     t.is(JSON.stringify([]), JSON.stringify(tree[0].styles));
 
 });
+
+test('Test Text Whitespace', async t => {
+
+    var htmlParser = new HtmlParser();
+    var cssParser = new CssParser();
+    var renderTree = new RenderTree();
+    let nodes, styles, tree;
+
+    nodes = htmlParser.parse(`<div>  Text  with 
+     white 		 spaces   </div>`);
+    t.is(`  Text  with 
+     white 		 spaces   `, nodes[0].children[0].content);
+    tree = renderTree.createRenderTree(nodes, []);
+    t.is('Text with white spaces', tree[0].children[0].content);
+
+    nodes = htmlParser.parse(`<div>  	 		   </div>`);
+    tree = renderTree.createRenderTree(nodes, []);
+    // does not have a text node at all
+    t.is(0, tree[0].children.length);
+
+    nodes = htmlParser.parse(`<div>  	 	<a>  	 </a>	   </div>`);
+    tree = renderTree.createRenderTree(nodes, []);
+    // does not have a text node at all
+    t.is(1, tree[0].children.length);
+    t.is(0, tree[0].children[0].children.length);
+});

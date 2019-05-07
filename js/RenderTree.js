@@ -45,7 +45,20 @@ export class RenderTree {
         for (let node of tree) {
             this.matchCSSRecursive(node);
         }
+        tree.forEach((node, index) => {
+            tree[index] = this.computeTextRecursive(node);
+        });
         return tree;
+    }
+    computeTextRecursive(node) {
+        if (node.content !== null) {
+            node.content = node.content.replace(/\s\s+/g, ' ');
+            node.content = node.content.trim();
+        }
+        node.children.forEach((child, index) => {
+            node.children[index] = this.computeTextRecursive(child);
+        });
+        return node;
     }
     matchCSSRecursive(node) {
         node.styles = this.matchStylesForNode(node);
