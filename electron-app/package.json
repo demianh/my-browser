@@ -21,8 +21,8 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "electron-app",
-    "appId": "org.simulatedgreg.electron-vue",
+    "productName": "MyBrowser",
+    "appId": "org.holderegger.electron-vue-browser",
     "directories": {
       "output": "build"
     },
