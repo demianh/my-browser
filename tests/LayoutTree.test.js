@@ -107,3 +107,54 @@ test('display:inline Position', async t => {
 
 });
 
+test('break text in block element', async t => {
+
+	let tree;
+
+	tree = createLayoutTree('<div>This text should wrap to multiple lines. We should get a few rows of text on multiple lines.</div>', 'div {display: block;}', 200, 400);
+	t.is(200, tree[0].width);
+	t.is(200, tree[0].children[0].width);
+	t.is(
+		JSON.stringify([
+			'This text should wrap to',
+			'multiple lines. We should',
+			'get a few rows of text on',
+			'multiple lines.'
+		]),
+		JSON.stringify(tree[0].children[0].textLines)
+	);
+
+	tree = createLayoutTree('<div>This text should wrap to multiple lines.</div>', 'div {display: block;}', 200, 400);
+	t.is(200, tree[0].width);
+	t.is(192, tree[0].children[0].width);
+	t.is(
+		JSON.stringify([
+			'This text should wrap to',
+			'multiple lines.'
+		]),
+		JSON.stringify(tree[0].children[0].textLines)
+	);
+
+});
+
+/*
+// TODO: make inline text breaking work
+test('break text in inline element', async t => {
+
+	let tree;
+
+	tree = createLayoutTree('<span>This text should wrap to multiple lines. We should get a few rows of text on multiple lines.</span>', '', 200, 400);
+	t.is(200, tree[0].width);
+	t.is(200, tree[0].children[0].width);
+	t.is(
+		JSON.stringify([
+			'This text should wrap to',
+			'multiple lines. We should',
+			'get a few rows of text on',
+			'multiple lines.'
+		]),
+		JSON.stringify(tree[0].children[0].textLines)
+	);
+
+});
+*/

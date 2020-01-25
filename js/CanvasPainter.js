@@ -42,12 +42,7 @@ export class CanvasPainter {
         }
     }
     paintTextNode(node) {
-        if (this.debugLayers) {
-            // Draw debug background
-            this.ctx.fillStyle = "rgba(0, 255, 0, 0.1)";
-            this.ctx.fillRect(node.left, node.top, node.width, node.height);
-        }
-        let size = node.computedStyles['font-size'][0].value;
+        let size = parseFloat(node.computedStyles['font-size'][0].value);
         let family = node.computedStyles['font-size'][0].value;
         let style = node.computedStyles['font-style'][0].value;
         let weight = node.computedStyles['font-weight'][0].value;
@@ -55,7 +50,17 @@ export class CanvasPainter {
             + (weight == 'bold' ? 'bold ' : '')
             + size + 'px "'
             + family + '"';
-        this.ctx.fillStyle = node.computedStyles.color[0].value;
-        this.ctx.fillText(node.content, node.left, node.top);
+        if (this.debugLayers) {
+            // Draw debug background
+            this.ctx.fillStyle = "rgba(0, 255, 0, 0.1)";
+            this.ctx.fillRect(node.left, node.top, node.width, node.height);
+        }
+        let top = node.top;
+        node.textLines.forEach(line => {
+            this.ctx.fillStyle = node.computedStyles.color[0].value;
+            this.ctx.fillText(line, node.left, top);
+            // TODO: use correct line-height
+            top += size;
+        });
     }
 }

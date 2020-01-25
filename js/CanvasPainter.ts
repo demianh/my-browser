@@ -58,6 +58,15 @@ export class CanvasPainter {
     }
 
     private paintTextNode(node: RenderTreeNode) {
+        let size: number = parseFloat(<string>node.computedStyles['font-size'][0].value);
+        let family = node.computedStyles['font-size'][0].value;
+        let style = node.computedStyles['font-style'][0].value;
+        let weight = node.computedStyles['font-weight'][0].value;
+
+        this.ctx.font = (style == 'italic' ? 'italic ': '')
+            + (weight == 'bold' ? 'bold ': '')
+            + size + 'px "'
+            + family + '"';
 
         if (this.debugLayers) {
             // Draw debug background
@@ -65,16 +74,13 @@ export class CanvasPainter {
             this.ctx.fillRect(node.left, node.top, node.width, node.height);
         }
 
-        let size = node.computedStyles['font-size'][0].value;
-        let family = node.computedStyles['font-size'][0].value;
-        let style = node.computedStyles['font-style'][0].value;
-        let weight = node.computedStyles['font-weight'][0].value;
-        this.ctx.font = (style == 'italic' ? 'italic ': '')
-            + (weight == 'bold' ? 'bold ': '')
-            + size + 'px "'
-            + family + '"';
+        let top = node.top;
 
-        this.ctx.fillStyle = node.computedStyles.color[0].value;
-        this.ctx.fillText(node.content, node.left, node.top);
+        node.textLines.forEach(line => {
+            this.ctx.fillStyle = node.computedStyles.color[0].value;
+            this.ctx.fillText(line, node.left, top);
+            // TODO: use correct line-height
+            top += size;
+        })
     }
 }

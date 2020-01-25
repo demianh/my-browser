@@ -27,6 +27,7 @@ export class RenderTreeNode {
     public attributes: {};
     public params: string[];
     public content: string;
+    public textLines: string[];
 
     public styles: IMatchedCSSRule[] = [];
     public computedStyles: {[key: string]: ICSSGenericValue[]} = {};
@@ -46,6 +47,7 @@ export class RenderTreeNode {
         this.attributes = node.attributes || {};
         this.params = node.params || [];
         this.content = node.content || null;
+        this.textLines = node.textLines || [];
 
         if (node.children) {
             for (let child of node.children) {

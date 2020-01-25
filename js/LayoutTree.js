@@ -2,7 +2,14 @@ export class LayoutTree {
     constructor() {
         this.viewportWidth = 0;
         this.viewportHeight = 0;
-        this.canvasContext = null;
+        this.cachedCanvasContext = null;
+    }
+    get canvasContext() {
+        if (this.cachedCanvasContext === null) {
+            let canvas = document.createElement('canvas');
+            this.cachedCanvasContext = canvas.getContext("2d");
+        }
+        return this.cachedCanvasContext;
     }
     createLayoutTree(nodes, viewportWidth, viewportHeight) {
         this.viewportWidth = viewportWidth;
@@ -12,6 +19,35 @@ export class LayoutTree {
         }
         return nodes;
     }
+    splitTextNodeIntoRows(node) {
+        let maxTextWidth = 0;
+        let maxWidth;
+        if (node.parent) {
+            // max width is with of parent (textnodes have no padding etc.)
+            maxWidth = node.parent.width;
+        }
+        else {
+            // use viewport width if it's a root element
+            maxWidth = this.viewportWidth;
+        }
+        let words = node.content.split(' ');
+        let line = '';
+        for (let n = 0; n < words.length; n++) {
+            let testLine = (line + ' ' + words[n]).trim();
+            let width = this.getTextWidth(node, testLine);
+            //console.log(testLine, width, maxWidth);
+            if (width > maxWidth && n > 0) {
+                node.textLines.push(line);
+                line = words[n];
+            }
+            else {
+                maxTextWidth = Math.max(maxTextWidth, width);
+                line = testLine;
+            }
+        }
+        node.textLines.push(line);
+        node.width = maxTextWidth;
+    }
     calculateLayoutRecursive(node, left, top) {
         let display = node.computedStyles.display[0].value;
         if (display != 'none') {
@@ -20,7 +56,8 @@ export class LayoutTree {
             switch (display) {
                 case 'inline':
                     if (node.type == 'text') {
-                        node.width = this.getTextWidth(node);
+                        this.splitTextNodeIntoRows(node);
+                        //node.width = this.getTextWidth(node, node.content);
                     }
                     break;
                 case 'block':
@@ -87,8 +124,9 @@ export class LayoutTree {
     calculateHeight(node) {
         let height = 0;
         // add some space for the text
+        // TODO: use correct line-height
         if (node.type == 'text') {
-            height += node.computedStyles['font-size'][0].value;
+            height += node.computedStyles['font-size'][0].value * node.textLines.length;
         }
         let rules = ['padding-top', 'padding-bottom', 'margin-top', 'margin-bottom', 'border-top-width', 'border-bottom-width'];
         rules.forEach((rule) => {
@@ -143,12 +181,8 @@ export class LayoutTree {
         }
         return width;
     }
-    getTextWidth(node) {
+    getTextWidth(node, text) {
         if (typeof document != "undefined") {
-            if (this.canvasContext === null) {
-                let canvas = document.createElement('canvas');
-                this.canvasContext = canvas.getContext("2d");
-            }
             let size = node.computedStyles['font-size'][0].value;
             let family = node.computedStyles['font-size'][0].value;
             let style = node.computedStyles['font-style'][0].value;
@@ -157,11 +191,11 @@ export class LayoutTree {
                 + (weight == 'bold' ? 'bold ' : '')
                 + size + 'px "'
                 + family + '"';
-            return Math.ceil(this.canvasContext.measureText(node.content).width);
+            return Math.ceil(this.canvasContext.measureText(text).width);
         }
         else {
             // return an estimated value if dom/canvas is not available
-            return Math.ceil(node.content.length * node.computedStyles['font-size'][0].value / 2);
+            return Math.ceil(text.length * node.computedStyles['font-size'][0].value / 2);
         }
     }
 }

@@ -20,6 +20,7 @@ export class RenderTreeNode {
         this.attributes = node.attributes || {};
         this.params = node.params || [];
         this.content = node.content || null;
+        this.textLines = node.textLines || [];
         if (node.children) {
             for (let child of node.children) {
                 if (child.type == 'element' || child.type == 'text') {
