@@ -22,7 +22,8 @@
           height: '0',
           marginTop: '0',
           left: '-10px',
-          position: 'absolute'
+          position: 'absolute',
+          'pointer-events': 'none'
         }
       }
     },

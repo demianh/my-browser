@@ -3,7 +3,7 @@
     <div class="nav-bar__left">
       <input type="text" class="nav-bar__url" placeholder="Type URL" v-model="url" @keyup.enter="openUrl()"/>
       <span v-if="appState.isLoading" class="nav-bar__loading"><i class="fas fa-spinner fa-pulse"></i></span>
-      <button @click="openUrl()" class="button">Go</button>
+      <button @click="openUrl()" class="button nav-bar__button">Go</button>
     </div>
     <div class="nav-bar__right">
       <a @click="bookmarksOpen = !bookmarksOpen"><i class="fas fa-bookmark"></i></a>&nbsp;
@@ -14,8 +14,8 @@
           </a>
         </div>
       </div>
-      <a v-if="!appState.devtoolsOpen" @click="$store.commit('OPEN_DEVTOOLS')"><i class="fas fa-cog"></i></a>
-      <a v-if="appState.devtoolsOpen" @click="$store.commit('CLOSE_DEVTOOLS')"><i class="fas fa-cog"></i></a>
+      <a v-if="!appState.devtoolsOpen" @click="$store.commit('OPEN_DEVTOOLS')"><i class="fas fa-bug"></i></a>
+      <a v-if="appState.devtoolsOpen" @click="$store.commit('CLOSE_DEVTOOLS')"><i class="fas fa-bug"></i></a>
     </div>
   </div>
 </template>
@@ -115,6 +115,10 @@
     top: 0;
     right: 150px;
     position: absolute;
+  }
+
+  .nav-bar__button {
+    cursor: pointer;
   }
 
   .nav-bar__bookmarks-popup {

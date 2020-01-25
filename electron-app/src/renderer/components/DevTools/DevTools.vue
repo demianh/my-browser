@@ -11,14 +11,12 @@
       <a @click="tab = 'html'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'html'}">HTML</a>
       <a @click="tab = 'css'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'css'}">CSS</a>
       <a @click="tab = 'render'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'render'}">RenderTree</a>
+      <a @click="tab = 'debug'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'debug'}">Debug</a>
 
       <span class="dev-tools__menu_buttons">
-        Compare: <input type="range" min="0" max="100" v-model="compareOverlayOpacity" class="dev-tools__compare-input">&nbsp;&nbsp;
-        <label><input type="checkbox" v-model="showDebugLayers"> Show Debug Layers</label>&nbsp;&nbsp;
-        <a @mousedown="isResizing = true"><i class="fas fa-arrows-alt-v"></i></a>
         <a @click="$store.commit('CLOSE_DEVTOOLS')" class="dev-tools__close"><i class="fas fa-times"></i></a>
       </span>
-      <div class="dev-tools__resizer" @mousedown="isResizing = true"></div>
+      <div class="dev-tools__resizer" :class="{'dev-tools__resizer--resizing': isResizing}" @mousedown="isResizing = true"></div>
     </div>
     <div class="dev-tools__tabarea">
       <div class="dev-tools__content" v-if="tab === 'html'">
@@ -34,6 +32,12 @@
         <div class="dev-tools__content-divided__sidebar" :style="{height: (height - 30) + 'px'}">
           <render-tree-node-info></render-tree-node-info>
         </div>
+      </div>
+      <div class="dev-tools__content" v-if="tab === 'debug'">
+        <br>
+        <label><input type="checkbox" v-model="showDebugLayers"> Show Debug Layers</label>
+        <br><br>
+        Compare with Chrome Rendering: <input type="range" min="0" max="100" v-model="compareOverlayOpacity" class="dev-tools__compare-input"> Opacity: {{compareOverlayOpacity}}%
       </div>
     </div>
   </div>
@@ -166,6 +170,13 @@ export default {
     position: absolute;
     margin-top: -25px;
     left: 0;
+  }
+
+  .dev-tools__resizer--resizing {
+    height: 100vh;
+    position: fixed;
+    margin-top: 0;
+    top: 0;
   }
 
   .dev-tools__tabarea {

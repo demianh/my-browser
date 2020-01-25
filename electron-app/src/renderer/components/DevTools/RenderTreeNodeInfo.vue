@@ -33,6 +33,12 @@
             <span v-if="node.computedStyles.display">{{node.computedStyles.display[0].value}}</span>
           </td>
         </tr>
+        <tr v-if="node.type === 'text'">
+          <th>Text Lines</th>
+          <td>
+            <span>{{node.textLines.length}}</span>
+          </td>
+        </tr>
       </table>
 
       <h3>Styles ({{node.styles.length}})</h3>
