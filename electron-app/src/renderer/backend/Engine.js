@@ -22,7 +22,9 @@ export class Engine {
                 let tStartHtml = performance.now();
                 let htmlParser = new HtmlParser();
                 let nodes = htmlParser.parse(data);
-                store.commit('SET_HTML', nodes);
+                if (store.state.App.devtoolsOpen) {
+                    store.commit('SET_HTML', nodes);
+                }
                 console.log("Parsing HTML: " + Math.round(performance.now() - tStartHtml) + " milliseconds.");
                 let tStartCss = performance.now();
                 let extractor = new HtmlStyleExtractor();
@@ -66,7 +68,9 @@ export class Engine {
                 // wait for all files to load
                 Promise.all(promises).then(() => {
                     // apply css tree
-                    store.commit('SET_CSS', styles);
+                    if (store.state.App.devtoolsOpen) {
+                        store.commit('SET_CSS', styles);
+                    }
                     console.log("Loading and parsing CSS: " + Math.round(performance.now() - tStartCss) + " milliseconds.");
                     // RenderTree
                     let tStartRendertree = performance.now();
@@ -76,7 +80,9 @@ export class Engine {
                     let tStartLayouttree = performance.now();
                     let layoutTree = new LayoutTree();
                     let ltree = layoutTree.createLayoutTree(rtree, canvas.clientWidth, canvas.clientHeight);
-                    store.commit('SET_RENDERTREE', ltree);
+                    if (store.state.App.devtoolsOpen) {
+                        store.commit('SET_RENDERTREE', ltree);
+                    }
                     console.log("Create LayoutTree: " + Math.round(performance.now() - tStartLayouttree) + " milliseconds.");
                     // Paint
                     let tStartPaint = performance.now();
