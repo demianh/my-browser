@@ -22,9 +22,9 @@ test('Create Layout Tree', async t => {
 
 	let tree = createLayoutTree('<div>Hallo</div>', 'div {display: block;}', 200, 400);
 	t.is(200, tree[0].width);
-	//t.is(400, tree[0].height);
-	//t.is(0, tree[0].top);
-	//t.is(0, tree[0].left);
+	t.is(16, tree[0].height);
+	t.is(0, tree[0].top);
+	t.is(0, tree[0].left);
 
 });
 
@@ -46,6 +46,12 @@ test('display:block Width', async t => {
 	tree = createLayoutTree('<div><p>Paragraph</p></div>', 'div {display: block; padding: 10px; margin-left: 5px; border: 1px solid black;} p {display: block;}', 200, 400);
 	t.is(200, tree[0].width);
 	t.is(173, tree[0].children[0].width);
+
+	tree = createLayoutTree('<div style="width: 128px">Hallo</div>', 'div {display: block;}', 200, 400);
+	t.is(128, tree[0].width);
+
+	tree = createLayoutTree('<div style="width: 80%">Hallo</div>', 'div {display: block;}', 200, 400);
+	t.is(160, tree[0].width);
 
 });
 

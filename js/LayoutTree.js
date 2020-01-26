@@ -62,13 +62,26 @@ export class LayoutTree {
                     break;
                 case 'block':
                 default:
+                    let parentWidth;
                     if (node.parent) {
-                        // width is inner with of parent
-                        node.width = this.calculateInnerWidth(node.parent);
+                        // width is inner width of parent
+                        parentWidth = this.calculateInnerWidth(node.parent);
                     }
                     else {
                         // use viewport width if it's a root element
-                        node.width = this.viewportWidth;
+                        parentWidth = this.viewportWidth;
+                    }
+                    let widthFromStyles = node.computedStyles.width[0];
+                    if (widthFromStyles.value !== 'auto') {
+                        if (widthFromStyles.unit == 'px') {
+                            node.width = parseFloat(widthFromStyles.value);
+                        }
+                        if (widthFromStyles.unit == '%') {
+                            node.width = parentWidth / 100 * parseFloat(widthFromStyles.value);
+                        }
+                    }
+                    else {
+                        node.width = parentWidth;
                     }
                     break;
             }
