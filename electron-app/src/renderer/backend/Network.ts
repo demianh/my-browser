@@ -9,7 +9,7 @@ export class Network {
 
         url = this.getBaseUrl() + url;
         return new Promise((resolve, reject) => {
-                console.log('Loading URL: ' + url);
+                console.log('🌐 Loading URL: ' + url);
                 axios.get(url).then((response) => {
                     resolve(response.data);
                 }).catch((error) => {

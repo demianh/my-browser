@@ -11,22 +11,22 @@ export class Engine {
     loadURL(url, canvas) {
         return new Promise((resolve, reject) => {
             let network = new Network();
+            performance.mark('total');
+            console.log('');
             store.commit('SET_URL', url);
             store.commit('SET_HTML', null);
             store.commit('SET_CSS', null);
             store.commit('SET_RENDERTREE', null);
             network.GET(url).then((data) => {
-                let tStart = performance.now();
-                //console.log(data);
                 // Parse HTML
-                let tStartHtml = performance.now();
+                performance.mark('parse-html');
                 let htmlParser = new HtmlParser();
                 let nodes = htmlParser.parse(data);
                 if (store.state.App.devtoolsOpen) {
                     store.commit('SET_HTML', nodes);
                 }
-                console.log("Parsing HTML: " + Math.round(performance.now() - tStartHtml) + " milliseconds.");
-                let tStartCss = performance.now();
+                performance.measure('Parse HTML', 'parse-html');
+                performance.mark('parse-embedded-css');
                 let extractor = new HtmlStyleExtractor();
                 let cssParser = new CssParser();
                 let styles = extractor.extractStyles(nodes);
@@ -65,31 +65,39 @@ export class Engine {
                         }
                     }
                 });
+                performance.measure('Parse embedded CSS', 'parse-embedded-css');
                 // wait for all files to load
+                performance.mark('load-and-parse-external-css');
                 Promise.all(promises).then(() => {
                     // apply css tree
                     if (store.state.App.devtoolsOpen) {
                         store.commit('SET_CSS', styles);
                     }
-                    console.log("Loading and parsing CSS: " + Math.round(performance.now() - tStartCss) + " milliseconds.");
+                    performance.measure('Load & parse external CSS', 'load-and-parse-external-css');
                     // RenderTree
-                    let tStartRendertree = performance.now();
+                    performance.mark('render-tree');
                     let renderTree = new RenderTree();
                     let rtree = renderTree.createRenderTree(nodes, allStyleRules);
-                    console.log("Create Rendertree: " + Math.round(performance.now() - tStartRendertree) + " milliseconds.");
-                    let tStartLayouttree = performance.now();
+                    performance.measure('Building Render Tree', 'render-tree');
+                    performance.mark('layout-tree');
                     let layoutTree = new LayoutTree();
                     let ltree = layoutTree.createLayoutTree(rtree, canvas.clientWidth, canvas.clientHeight);
                     if (store.state.App.devtoolsOpen) {
                         store.commit('SET_RENDERTREE', ltree);
                     }
-                    console.log("Create LayoutTree: " + Math.round(performance.now() - tStartLayouttree) + " milliseconds.");
+                    performance.measure('Building Layout Tree', 'layout-tree');
                     // Paint
-                    let tStartPaint = performance.now();
+                    performance.mark('paint');
                     let painter = new CanvasPainter();
                     painter.paintTree(canvas, rtree, store.state.App.devtoolsOpen && store.state.App.showDebugLayers);
-                    console.log("Paint: " + Math.round(performance.now() - tStartPaint) + " milliseconds.");
-                    console.log("Parsing & Rendering took " + Math.round(performance.now() - tStart) + " milliseconds.");
+                    performance.measure('Paint', 'paint');
+                    // show performance measures
+                    performance.measure('=> Total Time', 'total');
+                    performance.getEntriesByType('measure').forEach(measure => {
+                        console.log('🕙 ' + measure.name + ': ' + new Intl.NumberFormat('de-CH').format(Math.round(measure.duration)) + 'ms');
+                    });
+                    performance.clearMarks();
+                    performance.clearMeasures();
                     resolve();
                 });
             });
