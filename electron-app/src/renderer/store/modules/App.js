@@ -1,6 +1,7 @@
 const state = {
   devtoolsOpen: true,
   devtoolsHeight: 300,
+  scrollPosition: 0,
   url: '',
   isLoading: false,
   selectedRenderTreeNode: null,
@@ -20,6 +21,9 @@ const mutations = {
   },
   SET_DEVTOOLS_HEIGHT (state, height) {
     state.devtoolsHeight = height
+  },
+  SET_SCROLL_POSITION (state, scrollPosition) {
+    state.scrollPosition = scrollPosition
   },
   SHOW_LOADING (state) {
     state.isLoading = true

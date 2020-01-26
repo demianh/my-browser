@@ -16,7 +16,14 @@
         width: 600,
         height: 1000,
         app: this.$store.state.App,
-        inspectedElementStyle: {
+      }
+    },
+    computed: {
+      node () {
+        return this.app.selectedRenderTreeNode
+      },
+      inspectedElementStyle() {
+        let base = {
           border: '1px solid red',
           width: '0',
           height: '0',
@@ -25,26 +32,13 @@
           position: 'absolute',
           'pointer-events': 'none'
         }
-      }
-    },
-    computed: {
-      node () {
-        return this.app.selectedRenderTreeNode
-      }
-    },
-    watch: {
-      node: function (node) {
-        if (node) {
-          this.inspectedElementStyle.width = node.width + 'px'
-          this.inspectedElementStyle.height = node.height + 'px'
-          this.inspectedElementStyle.marginTop = node.top + 'px'
-          this.inspectedElementStyle.left = node.left + 'px'
-        } else {
-          this.inspectedElementStyle.width = '0px'
-          this.inspectedElementStyle.height = '0px'
-          this.inspectedElementStyle.marginTop = '0px'
-          this.inspectedElementStyle.left = '-10px'
+        if (this.node) {
+          base.width = this.node.width + 'px'
+          base.height = this.node.height + 'px'
+          base.marginTop = (this.node.top - this.app.scrollPosition) + 'px'
+          base.left = this.node.left + 'px'
         }
+        return base;
       }
     },
     methods: {

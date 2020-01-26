@@ -3,7 +3,7 @@
     <header>
       <nav-bar></nav-bar>
     </header>
-    <main class="content">
+    <main class="content" ref="content" @scroll="onScroll">
       <browser-content></browser-content>
     </main>
     <footer v-if="appState.devtoolsOpen">
@@ -26,6 +26,11 @@
     data: function () {
       return {
         appState: this.$store.state.App
+      }
+    },
+    methods: {
+      onScroll() {
+        this.$store.commit('SET_SCROLL_POSITION', this.$refs.content.scrollTop || 0)
       }
     },
     computed: {
