@@ -4,7 +4,7 @@
     <div class="compare-overlay" v-if="app.compareOverlayOpacity > 0" :style="{ opacity: app.compareOverlayOpacity / 100 }">
       <webview id="fcompare-webview" :src="app.url"></webview>
     </div>
-    <canvas id="canvas" :width="width * 2" :height="height * 2" :style="{width: width + 'px', height: height + 'px'}"></canvas>
+    <canvas id="canvas" :width="width * 2" :height="200" :style="{width: width + 'px'}"></canvas>
   </div>
 </template>
 
@@ -14,7 +14,6 @@
     data: function () {
       return {
         width: 600,
-        height: 1000,
         app: this.$store.state.App,
       }
     },
@@ -49,7 +48,6 @@
       resizeContentArea () {
         if (this.$refs.content) {
           this.width = this.$refs.content.clientWidth
-          this.height = this.$refs.content.clientHeight
         }
       }
     },

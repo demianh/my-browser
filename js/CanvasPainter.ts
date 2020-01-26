@@ -11,6 +11,10 @@ export class CanvasPainter {
 
         this.debugLayers = debugLayers;
 
+        // set height of canvas
+        // chrome limits canvas height/width to 32'767 px
+        canvas.height = Math.min(tree[0].height * 2, 32767);
+
         this.ctx = canvas.getContext("2d");
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.scale(2,2);
