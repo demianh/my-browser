@@ -47,8 +47,10 @@
         this.$electron.shell.openExternal(link)
       },
       resizeContentArea () {
-        this.width = this.$refs.content.clientWidth
-        this.height = this.$refs.content.clientHeight
+        if (this.$refs.content) {
+          this.width = this.$refs.content.clientWidth
+          this.height = this.$refs.content.clientHeight
+        }
       }
     },
     mounted () {
