@@ -110,7 +110,7 @@ export class LayoutTree {
                     this.calculateLayoutRecursive(child, leftOffset, topOffset + childHeights);
                 }
                 if (childDisplay == 'inline') {
-                    this.calculateLayoutRecursive(child, leftOffset + childWidths, top);
+                    this.calculateLayoutRecursive(child, leftOffset + childWidths, topOffset);
                 }
                 childHeights += child.height;
                 childWidths += child.width;

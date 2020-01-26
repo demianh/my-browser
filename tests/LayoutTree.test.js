@@ -166,3 +166,21 @@ test('break text in inline element', async t => {
 
 });
 */
+
+test('display:block Margin', async t => {
+
+	let tree;
+
+	tree = createLayoutTree('<div>Block with Margin</div>', 'div {margin-right: 40px;}', 200, 400);
+	t.is(200, tree[0].width);
+	t.is(136, tree[0].children[0].width);
+	t.is(0, tree[0].children[0].top);
+	t.is(0, tree[0].children[0].left);
+
+	tree = createLayoutTree('<div>Block with Margin</div>', 'div {margin: 20px;}', 200, 400);
+	t.is(200, tree[0].width);
+	t.is(136, tree[0].children[0].width);
+	t.is(20, tree[0].children[0].top);
+	t.is(20, tree[0].children[0].left);
+
+});

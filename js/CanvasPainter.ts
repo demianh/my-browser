@@ -1,4 +1,5 @@
 import {RenderTreeNode} from "./RenderTree";
+import {ICSSGenericValue} from "./CssParser";
 
 export class CanvasPainter {
 
@@ -42,8 +43,17 @@ export class CanvasPainter {
 
                 // Draw Backgrounds
                 if (node.computedStyles['background-color'][0].value !== 'transparent') {
+                    let mTop = this.getPixelValue(node.computedStyles['margin-top'][0]);
+                    let mBottom = this.getPixelValue(node.computedStyles['margin-bottom'][0]);
+                    let mLeft = this.getPixelValue(node.computedStyles['margin-left'][0]);
+                    let mRight = this.getPixelValue(node.computedStyles['margin-right'][0]);
                     this.ctx.fillStyle = node.computedStyles['background-color'][0].value;
-                    this.ctx.fillRect(node.left, node.top, node.width, node.height);
+                    this.ctx.fillRect(
+                        node.left + mLeft,
+                        node.top + mTop,
+                        node.width - (mLeft + mRight),
+                        node.height - (mTop + mBottom)
+                    );
                 }
 
                 // Draw Borders
@@ -54,7 +64,14 @@ export class CanvasPainter {
                 this.paintNode(child);
             })
         }
+    }
 
+    private getPixelValue(style: ICSSGenericValue): number {
+        let pixels = 0;
+        if (style.type == 'unit' && style.unit && style.unit == 'px') {
+            pixels = parseFloat(<string>style.value);
+        }
+        return pixels;
     }
 
     private paintTextNode(node: RenderTreeNode) {

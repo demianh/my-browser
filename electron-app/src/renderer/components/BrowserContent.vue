@@ -30,7 +30,8 @@
           marginTop: '0',
           left: '-10px',
           position: 'absolute',
-          'pointer-events': 'none'
+          'pointer-events': 'none',
+          transition: 'all 0.3s ease-out'
         }
         if (this.node) {
           base.width = this.node.width + 'px'
