@@ -23,6 +23,7 @@ export class LayoutTree {
         let maxTextWidth = 0;
         let maxWidth;
         if (node.parent) {
+            // TODO: parent width is not yet available in this state
             // max width is with of parent (textnodes have no padding etc.)
             maxWidth = node.parent.width;
         }
@@ -88,26 +89,42 @@ export class LayoutTree {
             let selfHeight = this.calculateHeight(node);
             let leftOffset = left + this.calculateLeftOffset(node);
             let topOffset = top + this.calculateTopOffset(node);
-            let childHeights = 0;
-            let childWidths = 0;
+            let heightOfAllChildren = 0;
+            let widthOfAllChildren = 0;
+            let maxWidthOfChildren = 0;
+            let inlineMaxHeight = 0;
+            let previousChildDisplay = null;
             for (let child of node.children) {
                 let childDisplay = child.computedStyles.display[0].value;
                 switch (childDisplay) {
                     case 'inline':
-                        this.calculateLayoutRecursive(child, leftOffset + childWidths, topOffset);
+                        if (previousChildDisplay === 'block') {
+                            // wrap to new line after block element
+                            widthOfAllChildren = 0;
+                        }
+                        this.calculateLayoutRecursive(child, leftOffset + widthOfAllChildren, topOffset + heightOfAllChildren);
+                        widthOfAllChildren += child.width;
+                        inlineMaxHeight = Math.max(child.height, inlineMaxHeight);
                         break;
                     case 'block':
                     default:
-                        this.calculateLayoutRecursive(child, leftOffset, topOffset + childHeights);
+                        if (previousChildDisplay === 'inline') {
+                            heightOfAllChildren += inlineMaxHeight;
+                            inlineMaxHeight = 0;
+                        }
+                        this.calculateLayoutRecursive(child, leftOffset, topOffset + heightOfAllChildren);
+                        heightOfAllChildren += child.height;
+                        widthOfAllChildren = child.width;
                 }
-                childHeights += child.height;
-                childWidths += child.width;
+                previousChildDisplay = childDisplay;
+                maxWidthOfChildren = Math.max(maxWidthOfChildren, widthOfAllChildren);
             }
+            heightOfAllChildren += inlineMaxHeight;
             if (display == 'inline' && node.type !== 'text') {
                 // add paddings
-                node.width = childWidths + this.calculateHorizontalPaddings(node);
+                node.width = maxWidthOfChildren + this.calculateHorizontalPaddings(node);
             }
-            node.height = childHeights + selfHeight;
+            node.height = heightOfAllChildren + selfHeight;
         }
     }
     calculateLeftOffset(node) {
