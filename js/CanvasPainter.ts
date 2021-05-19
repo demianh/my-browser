@@ -45,12 +45,13 @@ export class CanvasPainter {
                     this.ctx.fillRect(node.left, node.top, node.width, node.height);
                 }
 
+                let mTop = this.getPixelValue(node.computedStyles['margin-top'][0]);
+                let mBottom = this.getPixelValue(node.computedStyles['margin-bottom'][0]);
+                let mLeft = this.getPixelValue(node.computedStyles['margin-left'][0]);
+                let mRight = this.getPixelValue(node.computedStyles['margin-right'][0]);
+
                 // Draw Backgrounds
                 if (node.computedStyles['background-color'][0].value !== 'transparent') {
-                    let mTop = this.getPixelValue(node.computedStyles['margin-top'][0]);
-                    let mBottom = this.getPixelValue(node.computedStyles['margin-bottom'][0]);
-                    let mLeft = this.getPixelValue(node.computedStyles['margin-left'][0]);
-                    let mRight = this.getPixelValue(node.computedStyles['margin-right'][0]);
                     this.ctx.fillStyle = node.computedStyles['background-color'][0].value;
                     this.ctx.fillRect(
                         node.left + mLeft,
@@ -61,7 +62,46 @@ export class CanvasPainter {
                 }
 
                 // Draw Borders
-                // TODO
+                if (node.computedStyles['border-top-width']) {
+                    let borderWidth = this.getPixelValue(node.computedStyles['border-top-width'][0]);
+                    this.ctx.fillStyle = node.computedStyles['border-top-color'][0].value;
+                    this.ctx.fillRect(
+                        node.left + mLeft,
+                        node.top + mTop,
+                        node.width - (mLeft + mRight),
+                        borderWidth
+                    );
+                }
+                if (node.computedStyles['border-right-width']) {
+                    let borderWidth = this.getPixelValue(node.computedStyles['border-right-width'][0]);
+                    this.ctx.fillStyle = node.computedStyles['border-right-color'][0].value;
+                    this.ctx.fillRect(
+                        node.left + node.width - borderWidth - mLeft,
+                        node.top + mTop,
+                        borderWidth,
+                        node.height - (mTop + mBottom)
+                    );
+                }
+                if (node.computedStyles['border-bottom-width']) {
+                    let borderWidth = this.getPixelValue(node.computedStyles['border-bottom-width'][0]);
+                    this.ctx.fillStyle = node.computedStyles['border-bottom-color'][0].value;
+                    this.ctx.fillRect(
+                        node.left + mLeft,
+                        node.top + node.height - borderWidth - mTop,
+                        node.width - (mLeft + mRight),
+                        borderWidth
+                    );
+                }
+                if (node.computedStyles['border-left-width']) {
+                    let borderWidth = this.getPixelValue(node.computedStyles['border-left-width'][0]);
+                    this.ctx.fillStyle = node.computedStyles['border-left-color'][0].value;
+                    this.ctx.fillRect(
+                        node.left + mLeft,
+                        node.top + mTop,
+                        borderWidth,
+                        node.height - (mTop + mBottom)
+                    );
+                }
             }
 
             node.children.forEach((child) => {
