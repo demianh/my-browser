@@ -2,7 +2,7 @@
   <div class="browser-content" ref="content">
     <div class="inspected-element" :style="inspectedElementStyle"></div>
     <div class="compare-overlay" v-if="app.compareOverlayOpacity > 0" :style="{ opacity: app.compareOverlayOpacity / 100 }">
-      <webview id="fcompare-webview" :src="app.url"></webview>
+      <webview id="fcompare-webview" :src="app.url" autosize="on"></webview>
     </div>
     <canvas id="canvas" :width="width * 2" :height="200" :style="{width: width + 'px'}"></canvas>
   </div>

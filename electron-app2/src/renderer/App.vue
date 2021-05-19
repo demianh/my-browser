@@ -85,6 +85,7 @@
     position: absolute;
     background: white;
     width: 100%;
+    height: calc(100% - 45px);
   }
 
   .compare-overlay webview {
