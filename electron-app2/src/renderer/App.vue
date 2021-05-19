@@ -98,7 +98,8 @@
   }
   main {
     grid-area: main;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: scroll; /* always show right scrollbar */
   }
   footer {
     grid-area: footer;
