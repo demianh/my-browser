@@ -7,6 +7,7 @@ import { HtmlStyleExtractor } from "../../../../js/HtmlStyleExtractor";
 import { DefaultBrowserCss } from "./DefaultBrowserCss";
 import { CanvasPainter } from "../../../../js/CanvasPainter";
 import { LayoutTree } from "../../../../js/LayoutTree";
+import cloneDeep from 'lodash/cloneDeep';
 export class Engine {
     loadURL(url, canvas) {
         return new Promise((resolve, reject) => {
@@ -17,6 +18,7 @@ export class Engine {
             store.dispatch('SET_HTML', null);
             store.dispatch('SET_CSS', null);
             store.dispatch('SET_RENDERTREE', null);
+            store.dispatch('SET_LAYOUTTREE', null);
             network.GET(url).then((data) => {
                 // Parse HTML
                 performance.mark('parse-html');
@@ -78,29 +80,52 @@ export class Engine {
                     performance.mark('render-tree');
                     let renderTree = new RenderTree();
                     let rtree = renderTree.createRenderTree(nodes, allStyleRules);
+                    if (store.state.App.devtoolsOpen) {
+                        store.dispatch('SET_RENDERTREE', rtree);
+                    }
                     performance.measure('Building Render Tree', 'render-tree');
                     performance.mark('layout-tree');
                     let layoutTree = new LayoutTree();
-                    let ltree = layoutTree.createLayoutTree(rtree, canvas.clientWidth, canvas.clientHeight);
+                    let ltree = layoutTree.createLayoutTree(cloneDeep(rtree), canvas.clientWidth, canvas.clientHeight);
                     if (store.state.App.devtoolsOpen) {
-                        store.dispatch('SET_RENDERTREE', ltree);
+                        store.dispatch('SET_LAYOUTTREE', ltree);
                     }
                     performance.measure('Building Layout Tree', 'layout-tree');
                     // Paint
                     performance.mark('paint');
                     let painter = new CanvasPainter();
-                    painter.paintTree(canvas, rtree, store.state.App.devtoolsOpen && store.state.App.showDebugLayers);
+                    painter.paintTree(canvas, ltree, store.state.App.devtoolsOpen && store.state.App.showDebugLayers);
                     performance.measure('Paint', 'paint');
-                    // show performance measures
                     performance.measure('=> Total Time', 'total');
-                    performance.getEntriesByType('measure').forEach(measure => {
-                        console.log('🕙 ' + measure.name + ': ' + new Intl.NumberFormat('de-CH').format(Math.round(measure.duration)) + 'ms');
-                    });
-                    performance.clearMarks();
-                    performance.clearMeasures();
+                    this.showPerformanceMeasures();
                     resolve();
                 });
             });
         });
+    }
+    repaint(renderTree, canvas) {
+        console.log('🔄 Repaint: ' + canvas.clientWidth + 'px x ' + canvas.clientHeight + 'px');
+        renderTree = cloneDeep(renderTree);
+        performance.mark('layout-tree');
+        let layoutTree = new LayoutTree();
+        let ltree = layoutTree.createLayoutTree(renderTree, canvas.clientWidth, canvas.clientHeight);
+        if (store.state.App.devtoolsOpen) {
+            store.dispatch('SET_LAYOUTTREE', ltree);
+        }
+        performance.measure('Building Layout Tree', 'layout-tree');
+        // Paint
+        performance.mark('paint');
+        let painter = new CanvasPainter();
+        painter.paintTree(canvas, ltree, store.state.App.devtoolsOpen && store.state.App.showDebugLayers);
+        performance.measure('Paint', 'paint');
+        this.showPerformanceMeasures();
+    }
+    showPerformanceMeasures() {
+        // log performance measures to console
+        performance.getEntriesByType('measure').forEach(measure => {
+            console.log('🕙 ' + measure.name + ': ' + new Intl.NumberFormat('de-CH').format(Math.round(measure.duration)) + 'ms');
+        });
+        performance.clearMarks();
+        performance.clearMeasures();
     }
 }

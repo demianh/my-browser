@@ -29,22 +29,6 @@ export class RenderTreeNode {
             }
         }
     }
-    computedPixelValue(rule) {
-        let pixels = 0;
-        if (this.computedStyles[rule] && this.computedStyles[rule][0]) {
-            let style = this.computedStyles[rule][0];
-            if (style.type == 'unit' && style.unit && style.unit == 'px') {
-                pixels = parseFloat(style.value);
-            }
-        }
-        return pixels;
-    }
-    computedValue(rule) {
-        if (this.computedStyles[rule] && this.computedStyles[rule][0]) {
-            return this.computedStyles[rule][0].value;
-        }
-        return null;
-    }
 }
 export class RenderTree {
     constructor() {

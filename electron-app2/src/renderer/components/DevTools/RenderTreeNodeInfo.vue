@@ -82,7 +82,7 @@ import CssRuleName from './CssRuleName.vue'
       },
       computed: {
         node () {
-          return this.app.selectedRenderTreeNode
+          return this.app.selectedLayoutTreeNode
         },
         reversedStyles () {
           return this.node.styles.slice().reverse()

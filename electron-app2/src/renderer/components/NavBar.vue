@@ -84,7 +84,7 @@
       openUrl () {
         if (this.url.length > 0) {
           this.$store.dispatch('SHOW_LOADING')
-          this.$store.dispatch('SET_SELECTED_RENDER_TREE_NODE', null)
+          this.$store.dispatch('SET_SELECTED_LAYOUT_TREE_NODE', null)
           this.$nextTick(() => {
             let engine = new Engine()
             engine.loadURL(this.url, document.getElementById('canvas')).then(() => {

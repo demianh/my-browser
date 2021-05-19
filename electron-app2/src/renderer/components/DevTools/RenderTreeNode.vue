@@ -1,6 +1,6 @@
 <template>
-  <div class="render-tree-node" :class="{'render-tree-node--selected': app.selectedRenderTreeNode === node}">
-    <div class="render-tree-node__label" @click="$store.dispatch('SET_SELECTED_RENDER_TREE_NODE', node)">
+  <div class="render-tree-node" :class="{'render-tree-node--selected': app.selectedLayoutTreeNode === node}">
+    <div class="render-tree-node__label" @click="$store.dispatch('SET_SELECTED_LAYOUT_TREE_NODE', node)">
       <span class="render-tree-node__opener" @click="open = !open">
         <span v-if="node.children && node.children.length">
           <span v-if="open" class="render-tree-node__open"><hero-icon type="minus" /></span>

@@ -38,24 +38,6 @@ export class RenderTreeNode {
     public width: number = 0;
     public height: number = 0;
 
-    public computedPixelValue(rule: string): number {
-        let pixels = 0;
-        if (this.computedStyles[rule] && this.computedStyles[rule][0]) {
-            let style = this.computedStyles[rule][0];
-            if (style.type == 'unit' && style.unit && style.unit == 'px') {
-                pixels = parseFloat(<string>style.value);
-            }
-        }
-        return pixels;
-    }
-
-    public computedValue(rule: string): any {
-        if (this.computedStyles[rule] && this.computedStyles[rule][0]) {
-            return this.computedStyles[rule][0].value;
-        }
-        return null;
-    }
-
     constructor(node, parent: RenderTreeNode = null) {
         this.parent = parent;
         this.type = node.type || null;

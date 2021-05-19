@@ -10,7 +10,7 @@
       &nbsp;&nbsp;|&nbsp;
       <a @click="tab = 'html'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'html'}">HTML</a>
       <a @click="tab = 'css'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'css'}">CSS</a>
-      <a @click="tab = 'render'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'render'}">RenderTree</a>
+      <a @click="tab = 'layout'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'layout'}">LayoutTree</a>
       <a @click="tab = 'debug'" class="dev-tools__tab" :class="{'dev-tools__tab--selected': tab === 'debug'}">Debug</a>
 
       <span class="dev-tools__menu_buttons">
@@ -25,9 +25,9 @@
       <div class="dev-tools__content" v-if="tab === 'css'">
         <css-tree :nodes="document.css"></css-tree>
       </div>
-      <div class="dev-tools__content-divided" v-if="tab === 'render'">
+      <div class="dev-tools__content-divided" v-if="tab === 'layout'">
         <div class="dev-tools__content-divided__main" :style="{height: (height - 30) + 'px'}">
-          <render-tree :nodes="document.renderTree"></render-tree>
+          <render-tree :nodes="document.layoutTree"></render-tree>
         </div>
         <div class="dev-tools__content-divided__sidebar" :style="{height: (height - 30) + 'px'}">
           <render-tree-node-info></render-tree-node-info>
@@ -61,7 +61,7 @@ export default {
       name: 'dev-tools',
       data: function () {
         return {
-          tab: 'render',
+          tab: 'layout',
           isResizing: false,
           document: this.$store.state.Document,
           app: this.$store.state.App

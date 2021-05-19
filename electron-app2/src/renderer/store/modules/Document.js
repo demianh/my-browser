@@ -2,7 +2,8 @@ const state = {
   html: null,
   css: null,
   dom: null,
-  renderTree: null
+  renderTree: null,
+  layoutTree: null
 }
 
 const mutations = {
@@ -17,6 +18,9 @@ const mutations = {
   },
   SET_RENDERTREE (state, value) {
     state.renderTree = value
+  },
+  SET_LAYOUTTREE (state, value) {
+    state.layoutTree = value
   }
 }
 
@@ -32,6 +36,9 @@ const actions = {
   },
   SET_RENDERTREE (context, value) {
     context.commit('SET_RENDERTREE', value)
+  },
+  SET_LAYOUTTREE (context, value) {
+    context.commit('SET_LAYOUTTREE', value)
   },
 }
 

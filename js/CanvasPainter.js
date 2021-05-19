@@ -31,22 +31,22 @@ export class CanvasPainter {
                     this.ctx.fillStyle = "rgba(0, 0, 255, 0.02)";
                     this.ctx.fillRect(node.left, node.top, node.width, node.height);
                 }
-                let mTop = node.computedPixelValue('margin-top');
-                let mBottom = node.computedPixelValue('margin-bottom');
-                let mLeft = node.computedPixelValue('margin-left');
-                let mRight = node.computedPixelValue('margin-right');
+                let mTop = this.computedPixelValue(node, 'margin-top');
+                let mBottom = this.computedPixelValue(node, 'margin-bottom');
+                let mLeft = this.computedPixelValue(node, 'margin-left');
+                let mRight = this.computedPixelValue(node, 'margin-right');
                 // Draw Backgrounds
                 if (node.computedStyles['background-color'][0].value !== 'transparent') {
                     this.ctx.fillStyle = node.computedStyles['background-color'][0].value;
                     this.ctx.fillRect(node.left + mLeft, node.top + mTop, node.width - (mLeft + mRight), node.height - (mTop + mBottom));
                 }
                 // Draw Borders
-                let borderWidthTop = node.computedPixelValue('border-top-width');
-                let borderWidthRight = node.computedPixelValue('border-right-width');
-                let borderWidthBottom = node.computedPixelValue('border-bottom-width');
-                let borderWidthLeft = node.computedPixelValue('border-left-width');
+                let borderWidthTop = this.computedPixelValue(node, 'border-top-width');
+                let borderWidthRight = this.computedPixelValue(node, 'border-right-width');
+                let borderWidthBottom = this.computedPixelValue(node, 'border-bottom-width');
+                let borderWidthLeft = this.computedPixelValue(node, 'border-left-width');
                 if (borderWidthTop) {
-                    this.ctx.fillStyle = node.computedValue('border-top-color');
+                    this.ctx.fillStyle = this.computedValue(node, 'border-top-color');
                     let region = new Path2D();
                     region.moveTo(node.left + mLeft, node.top + mTop);
                     region.lineTo(node.left + node.width - mLeft, node.top + mTop);
@@ -56,7 +56,7 @@ export class CanvasPainter {
                     this.ctx.fill(region);
                 }
                 if (borderWidthRight) {
-                    this.ctx.fillStyle = node.computedValue('border-right-color');
+                    this.ctx.fillStyle = this.computedValue(node, 'border-right-color');
                     let region = new Path2D();
                     region.moveTo(node.left + node.width - mLeft, node.top + mTop);
                     region.lineTo(node.left + node.width - borderWidthRight - mLeft, node.top + mTop + borderWidthTop);
@@ -66,7 +66,7 @@ export class CanvasPainter {
                     this.ctx.fill(region);
                 }
                 if (borderWidthBottom) {
-                    this.ctx.fillStyle = node.computedValue('border-bottom-color');
+                    this.ctx.fillStyle = this.computedValue(node, 'border-bottom-color');
                     let region = new Path2D();
                     region.moveTo(node.left + node.width - mLeft, node.top + node.height - mTop - mBottom);
                     region.lineTo(node.left + node.width - borderWidthRight - mLeft, node.top + node.height - mTop - mBottom - borderWidthBottom);
@@ -76,7 +76,7 @@ export class CanvasPainter {
                     this.ctx.fill(region);
                 }
                 if (borderWidthLeft) {
-                    this.ctx.fillStyle = node.computedValue('border-left-color');
+                    this.ctx.fillStyle = this.computedValue(node, 'border-left-color');
                     let region = new Path2D();
                     region.moveTo(node.left + mLeft, node.top + mTop);
                     region.lineTo(node.left + mLeft + borderWidthLeft, node.top + mTop + borderWidthTop);
@@ -112,5 +112,21 @@ export class CanvasPainter {
             // TODO: use correct line-height
             top += size;
         });
+    }
+    computedPixelValue(node, rule) {
+        let pixels = 0;
+        if (node.computedStyles[rule] && node.computedStyles[rule][0]) {
+            let style = node.computedStyles[rule][0];
+            if (style.type == 'unit' && style.unit && style.unit == 'px') {
+                pixels = parseFloat(style.value);
+            }
+        }
+        return pixels;
+    }
+    computedValue(node, rule) {
+        if (node.computedStyles[rule] && node.computedStyles[rule][0]) {
+            return node.computedStyles[rule][0].value;
+        }
+        return null;
     }
 }

@@ -4,7 +4,7 @@ const state = {
   scrollPosition: 0,
   url: '',
   isLoading: false,
-  selectedRenderTreeNode: null,
+  selectedLayoutTreeNode: null,
   showDebugLayers: true,
   compareOverlayOpacity: 0
 }
@@ -31,8 +31,8 @@ const mutations = {
   HIDE_LOADING (state) {
     state.isLoading = false
   },
-  SET_SELECTED_RENDER_TREE_NODE (state, node) {
-    state.selectedRenderTreeNode = node
+  SET_SELECTED_LAYOUT_TREE_NODE (state, node) {
+    state.selectedLayoutTreeNode = node
   },
   SET_SHOW_DEBUG_LAYERS (state, value) {
     state.showDebugLayers = value
@@ -64,8 +64,8 @@ const actions = {
   HIDE_LOADING (context) {
       context.commit('HIDE_LOADING')
   },
-  SET_SELECTED_RENDER_TREE_NODE (context, node) {
-      context.commit('SET_SELECTED_RENDER_TREE_NODE', node)
+  SET_SELECTED_LAYOUT_TREE_NODE (context, node) {
+      context.commit('SET_SELECTED_LAYOUT_TREE_NODE', node)
   },
   SET_SHOW_DEBUG_LAYERS (context, value) {
       context.commit('SET_SHOW_DEBUG_LAYERS', value)
