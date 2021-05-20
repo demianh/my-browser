@@ -106,7 +106,11 @@ export class RenderTree {
                 if (current.unit == 'em') {
                     return current.value * this.calculateUnitSizeInPx(node.parent, node.parent.computedStyles, declarationName);
                 }
-                // TODO: other units like % rem inch cm etc.
+                if (current.unit == 'rem') {
+                    // TODO: use correct size from the root element
+                    return current.value * 16;
+                }
+                // TODO: other units like % inch cm etc.
             }
             else if (current.type == 'keyword') {
                 // <absolute-size> = xx-small | x-small | small | medium | large | x-large | xx-large
