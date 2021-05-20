@@ -472,7 +472,10 @@ test('At Rules', async t => {
 	nodes = parser.parse('@media print{@page {margin:.5cm}p{orphans:3}}');
 	t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"print","styles":[{"type":"at","at":"page","selector":"","styles":[],"declarations":[{"name":"margin","value":[{"type":"unit","value":0.5,"unit":"cm"}]}]},{"type":"style","rules":[{"specificity":[2,0,0,0,1],"selectors":[{"combinator":"root","element":"p"}]}],"declarations":[{"name":"orphans","value":[{"type":"unit","value":3,"unit":""}]}]}],"declarations":[]}]');
 
-
+	// rules after @media should be parsed normally
+	// FIXME
+	//nodes = parser.parse('@media (max-height: 650px) {} h2 {color: red}');
+	//t.is(JSON.stringify(nodes), '[{"type":"at","at":"media","selector":"(max-height: 650px)","styles":[],"declarations":[]},{"type":"style","rules":[{"specificity":[2,0,0,0,1],"selectors":[{"combinator":"root","element":"h2"}]}],"declarations":[{"name":"color","value":[{"type":"color","value":"red"}]}]}]');
 
 });
 
