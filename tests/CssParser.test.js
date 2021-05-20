@@ -528,3 +528,26 @@ test('Shorthand Declarations', async t => {
 
 });
 
+test('Important Keyword', async t => {
+	var parser = new CssParser();
+	var nodes;
+
+	nodes = parser.parse('div { background-color: #093a69 !important ; }');
+	t.is(JSON.stringify(nodes[0].declarations), '[{"name":"background-color","value":[{"type":"color","value":"#093a69"},{"type":"keyword","value":"!important"}]}]');
+
+	nodes = parser.parse('div {background-color:red!important;}');
+	t.is(JSON.stringify(nodes[0].declarations), '[{"name":"background-color","value":[{"type":"color","value":"red"},{"type":"keyword","value":"!important"}]}]');
+
+	nodes = parser.parse('div {background-color:#093a69!important;}');
+	t.is(JSON.stringify(nodes[0].declarations), '[{"name":"background-color","value":[{"type":"color","value":"#093a69"},{"type":"keyword","value":"!important"}]}]');
+
+	nodes = parser.parse('div {background-color:#093a69 !IMPORTANT;}');
+	t.is(JSON.stringify(nodes[0].declarations), '[{"name":"background-color","value":[{"type":"color","value":"#093a69"},{"type":"keyword","value":"!important"}]}]');
+
+	nodes = parser.parse('div {background-color:!important}');
+	t.is(JSON.stringify(nodes[0].declarations), '[{"name":"background-color","value":[{"type":"keyword","value":"!important"}]}]');
+
+	nodes = parser.parse('div {width:100% !IMPORTANT!important !iMpOrTaNt;}');
+	t.is(JSON.stringify(nodes[0].declarations), '[{"name":"width","value":[{"type":"unit","value":100,"unit":"%"},{"type":"keyword","value":"!important"},{"type":"keyword","value":"!important"},{"type":"keyword","value":"!important"}]}]');
+
+});

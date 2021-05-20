@@ -408,6 +408,19 @@ export class CssParser {
         return name.toLowerCase().trim();
     }
 
+    public parse_IMPORTANT_KEYWORD(): ICSSKeyword {
+        let value = this.nextChar(); // should be "!", save and skip it
+        this.pos++;
+        while(!this.eof() && this.nextChar().match(/[importan]/i)) {
+            value += this.nextChar();
+            this.pos++;
+        }
+        return {
+            type: 'keyword',
+            value: value.toLowerCase().trim()
+        };
+    }
+
     public parse_PARENTHESIS_EXPR(): string {
         let expr = '';
         this.skipWhitespaces();
@@ -428,7 +441,7 @@ export class CssParser {
                 values.push(this.parse_UNIT());
             } else {
                 // Match any Text
-                while(!this.eof() && this.nextChar().match(/[^};(\s]/i)) {
+                while(!this.eof() && this.nextChar().match(/[^};!(\s]/i)) {
                     value += this.nextChar();
                     this.pos++;
                 }
@@ -454,6 +467,8 @@ export class CssParser {
                             type: 'color',
                             value: value
                         });
+                    } else if (this.nextIsImportantKeyword()) {
+                        values.push(this.parse_IMPORTANT_KEYWORD())
                     } else {
                         values.push({
                             type: 'keyword',
@@ -582,6 +597,10 @@ export class CssParser {
 
     public nextIsNumeric(): boolean {
         return this.text.substr(this.pos, 100).match(/^([+-]?[0-9]*[.]?[0-9]+)/i) !== null;
+    }
+
+    public nextIsImportantKeyword(): boolean {
+        return this.text.substr(this.pos, 100).match(/^!important/i) !== null;
     }
 
     public nextIsFunction(): boolean {
