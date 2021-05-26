@@ -1,5 +1,4 @@
 import {RenderTreeNode} from "./RenderTree";
-import {ICSSGenericValue} from "./CssParser";
 
 export class CanvasPainter {
 
