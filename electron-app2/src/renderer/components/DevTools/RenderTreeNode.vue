@@ -1,14 +1,14 @@
 <template>
-  <div class="render-tree-node" :class="{'render-tree-node--selected': app.selectedLayoutTreeNode === node}">
+  <div class="render-tree-node" :class="{'render-tree-node--selected': isSelected}">
     <div class="render-tree-node__label" @click="$store.dispatch('SET_SELECTED_LAYOUT_TREE_NODE', node)">
-      <span class="render-tree-node__opener" @click="open = !open">
+      <span class="render-tree-node__opener" @click.stop="open = !open">
         <span v-if="node.children && node.children.length">
-          <span v-if="open" class="render-tree-node__open"><hero-icon type="minus" /></span>
-          <span v-if="!open" class="render-tree-node__close"><hero-icon type="plus" /></span>
+          <span v-if="open" class="render-tree-node__open"><hero-icon type="chevron-down" size="12" top="2"/></span>
+          <span v-if="!open" class="render-tree-node__close"><hero-icon type="chevron-right" size="12" top="2"/></span>
         </span>
-      </span>
-      <span v-if="node.type == 'element'" class="render-tree-node__element">
-        &lt;<span class="render-tree-node__tag">{{node.tag}}</span><!--
+      </span><!--
+      --><span v-if="node.type == 'element'" class="render-tree-node__element"><!--
+        -->&lt;<span class="render-tree-node__tag">{{node.tag}}</span><!--
         --><span v-for="(value, key) in node.attributes" class="render-tree-node__attribute"><span class="render-tree-node__att-key"> {{key}}</span>="<span class="render-tree-node__att-val">{{value}}</span>"</span><!--
         -->&gt;
       </span>
@@ -38,6 +38,12 @@
       name: 'render-tree-node',
       components: {HeroIcon},
       props: ['node', 'depth'],
+      computed: {
+        isSelected() {
+          if (!this.app.selectedLayoutTreeNode) return false;
+          return this.app.selectedLayoutTreeNode.tag === this.node.tag && JSON.stringify(this.app.selectedLayoutTreeNode) === JSON.stringify(this.node)
+        }
+      },
       created: function () {
         if (this.depth <= 1) {
           this.open = true
